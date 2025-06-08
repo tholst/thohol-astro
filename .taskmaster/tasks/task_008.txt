@@ -1,0 +1,21 @@
+# Task ID: 8
+# Title: Implement RSS Feed Generation
+# Status: pending
+# Dependencies: 6
+# Priority: low
+# Description: Create an RSS feed for the blog to allow users to subscribe to content updates.
+# Details:
+1. Create `src/pages/rss.xml.js`
+2. Use Astro's RSS helper functions
+3. Fetch all published blog posts using `getCollection('blog')`
+4. Filter for published posts only
+5. Sort by publication date (newest first)
+6. Generate RSS XML with:
+   - Site title and description
+   - Post titles, descriptions, and links
+   - Publication dates
+7. Set appropriate content type headers
+8. Add a link to the RSS feed in the site header or footer
+
+# Test Strategy:
+Validate the generated RSS XML against RSS standards. Test the feed in an RSS reader to ensure posts appear correctly. Verify the link to the RSS feed works from the site.

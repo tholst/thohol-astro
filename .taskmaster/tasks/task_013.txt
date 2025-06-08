@@ -1,0 +1,63 @@
+# Task ID: 13
+# Title: Implement Dual-Purpose Article Structure
+# Status: pending
+# Dependencies: 6
+# Priority: high
+# Description: Create a content structure that allows articles to serve as both readable blog posts and interactive presentations.
+# Details:
+1. Define a clear content modeling strategy for dual-purpose articles
+   - Create custom MDX components for slide content
+   - Define conventions for separating narrative text from slide content
+2. Update the content schema in `src/content.config.ts` to include presentation-related frontmatter
+   - Add a `presentation` boolean flag to indicate if an article supports presentation mode
+   - Add optional presentation-specific metadata (e.g., slide transitions, theme)
+3. Create example dual-purpose articles to validate the approach
+4. Update the BlogPost layout to handle the dual-purpose structure
+5. Ensure the content is semantically structured for accessibility in both modes
+
+# Test Strategy:
+Create test articles with the dual-purpose structure and verify they render correctly in regular reading mode. Validate the content schema with different frontmatter combinations. Check that the structure is accessible and semantically correct.
+
+# Subtasks:
+## 1. Define Content Model Structure [pending]
+### Dependencies: None
+### Description: Analyze content requirements and establish a clear content model that supports both reusable and non-reusable content types
+### Details:
+Conduct thorough analysis of content types and relationships. Identify key attributes for each content type. Establish clear naming conventions for content types, fields, and relationships. Focus on creating subject models for unreusable content and specification models for reusable content.
+
+## 2. Create Custom MDX Components [pending]
+### Dependencies: 13.1
+### Description: Develop reusable MDX components that will render content consistently across different contexts
+### Details:
+Design and implement custom MDX components that can handle various content presentations. Ensure components are flexible enough to adapt to different display contexts while maintaining content integrity. Focus on components that separate content from presentation.
+
+## 3. Update Content Schema Definition [pending]
+### Dependencies: 13.1
+### Description: Implement the content model in code by defining explicit schemas for Contentlayer
+### Details:
+Create schema definitions that align with the content model. Ensure schemas explicitly define how local files should be handled. Include validation rules to maintain data integrity and consistency across content types.
+
+## 4. Add Presentation Metadata [pending]
+### Dependencies: 13.2, 13.3
+### Description: Enhance content schema with presentation metadata that controls how content appears in different contexts
+### Details:
+Define metadata fields that control presentation aspects without affecting core content. Consider channel strategy and avoid overfit by limiting models to reusable elements only. Exclude elements that pertain to specific channel presentations.
+
+## 5. Create Example Content Articles [pending]
+### Dependencies: 13.3, 13.4
+### Description: Develop sample content that demonstrates both reusable and context-specific implementations
+### Details:
+Create diverse example content that tests the full capabilities of the content model. Include edge cases to verify model flexibility. Ensure examples demonstrate how content can be reused across different contexts while maintaining integrity.
+
+## 6. Update Layout Components [pending]
+### Dependencies: 13.2, 13.4
+### Description: Modify layout components to properly render content based on context and presentation metadata
+### Details:
+Enhance layout components to interpret presentation metadata and render content appropriately. Implement logic that determines how content should appear in different contexts. Ensure layouts support both subject models and specification models effectively.
+
+## 7. Implement Accessibility Features [pending]
+### Dependencies: 13.5, 13.6
+### Description: Ensure all content and components meet accessibility standards regardless of presentation context
+### Details:
+Review all components and layouts for accessibility compliance. Implement proper semantic HTML, ARIA attributes, and keyboard navigation. Test with screen readers and other assistive technologies to verify accessibility across different presentation contexts.
+

@@ -43,6 +43,6 @@ dev-debug.log
 *.sw?
 # OS specific
 # Task files
-tasks.json
-tasks/ 
+# tasks.json
+# tasks/ 
 .cursor/mcp.json

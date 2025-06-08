@@ -1,0 +1,66 @@
+# Task ID: 14
+# Title: Implement Presentation Mode Toggle
+# Status: pending
+# Dependencies: 13
+# Priority: high
+# Description: Add functionality to toggle between reading and presentation modes for dual-purpose articles.
+# Details:
+1. Create a PresentationToggle component in `src/components/PresentationToggle.astro`
+   - Include an accessible button with appropriate icon and text
+   - Add client-side JavaScript for toggling between modes
+2. Add the toggle button to dual-purpose articles only
+3. Implement the presentation mode view:
+   - Hide narrative text, showing only slide content
+   - Apply presentation-specific styling (full-screen, centered content)
+   - Add navigation controls for moving between slides
+   - Implement keyboard shortcuts (arrow keys, space, etc.)
+4. Create smooth transitions when toggling between modes
+5. Ensure the presentation mode is responsive and works on different devices
+6. Add a way to exit presentation mode (e.g., Escape key, exit button)
+
+# Test Strategy:
+Test toggling between reading and presentation modes. Verify that narrative text is hidden in presentation mode. Test navigation controls and keyboard shortcuts. Check responsive behavior on different screen sizes. Ensure the toggle is only present on articles that support presentation mode.
+
+# Subtasks:
+## 1. Design and Build the Toggle Component [pending]
+### Dependencies: None
+### Description: Create a reusable toggle component with clear visual cues, immediate feedback, and accessible labels, following UX best practices.
+### Details:
+Ensure the toggle uses effective color contrast, clear text indicators, and familiar formats. The component should be modular and independent for easy integration.
+
+## 2. Integrate Toggle Component into Articles [pending]
+### Dependencies: 14.1
+### Description: Embed the toggle component within article layouts to allow users to switch between standard and presentation modes.
+### Details:
+Ensure the toggle is placed in a logical, accessible location within the article UI, avoiding toolbars or status bars as per design guidelines.
+
+## 3. Implement Presentation Mode View [pending]
+### Dependencies: 14.2
+### Description: Develop the presentation mode UI, adjusting layout, typography, and controls for an optimized reading or display experience.
+### Details:
+Presentation mode should provide a distraction-free view, with larger text and simplified navigation elements.
+
+## 4. Add Navigation Controls and Keyboard Shortcuts [pending]
+### Dependencies: 14.3
+### Description: Enable users to navigate between article sections or slides using on-screen controls and keyboard shortcuts.
+### Details:
+Implement intuitive navigation buttons and support keyboard shortcuts for actions like next, previous, and toggling modes.
+
+## 5. Create Smooth Transitions Between Modes [pending]
+### Dependencies: 14.3
+### Description: Implement animated transitions when switching between standard and presentation modes to enhance user experience.
+### Details:
+Use smooth, accessible animations that clearly indicate mode changes without causing confusion or distraction.
+
+## 6. Ensure Responsiveness and Accessibility [pending]
+### Dependencies: 14.2, 14.3, 14.4, 14.5
+### Description: Test and refine the toggle, presentation mode, and navigation controls to ensure they work seamlessly across devices and are accessible to all users.
+### Details:
+Verify layout adapts to different screen sizes, supports keyboard navigation, and meets accessibility standards.
+
+## 7. Add Exit Functionality for Presentation Mode [pending]
+### Dependencies: 14.3, 14.4, 14.5, 14.6
+### Description: Provide clear and accessible ways for users to exit presentation mode and return to the standard article view.
+### Details:
+Include an exit button, keyboard shortcut (e.g., ESC), and ensure state is properly managed when exiting.
+

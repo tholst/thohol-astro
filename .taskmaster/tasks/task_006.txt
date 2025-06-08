@@ -1,0 +1,71 @@
+# Task ID: 6
+# Title: Implement Dynamic Blog Post Pages
+# Status: pending
+# Dependencies: 3
+# Priority: high
+# Description: Create dynamic pages for individual blog posts with proper content rendering and metadata.
+# Details:
+1. Create `src/pages/blog/[...slug].astro` for dynamic routing
+2. Implement `getStaticPaths()` to generate routes for all blog posts
+   - Use `getCollection('blog')` to fetch all posts
+   - Filter for published posts only in production
+3. Use the BlogPost layout for consistent styling
+4. Pass frontmatter data (title, description, dates, hero image) to the layout
+5. Render the Markdown/MDX content with proper styling
+6. Implement code syntax highlighting
+7. Add metadata for SEO including Open Graph tags
+8. Ensure responsive layout for all screen sizes
+9. Add previous/next post navigation if applicable
+
+# Test Strategy:
+Test with multiple blog posts to ensure dynamic routing works correctly. Verify Markdown/MDX content renders properly, including code blocks with syntax highlighting. Check metadata and Open Graph tags. Test responsive behavior on different screen sizes.
+
+# Subtasks:
+## 1. Set up basic dynamic routing structure [pending]
+### Dependencies: None
+### Description: Create the necessary file structure for dynamic blog post routes using Astro's file-based routing system
+### Details:
+Create a file named src/pages/blog/[slug].astro to handle dynamic blog post routes. This file will serve as the template for all blog posts, where [slug] will be replaced with the actual post identifier.
+
+## 2. Implement getStaticPaths function [pending]
+### Dependencies: 6.1
+### Description: Create the getStaticPaths function to pre-generate all possible routes at build time
+### Details:
+Add the getStaticPaths() function to your [slug].astro file to define all possible blog post routes. This function should fetch all blog posts data and return an array of objects with params (containing the slug) and props (containing the post data).
+
+## 3. Create BlogPost layout component [pending]
+### Dependencies: 6.1
+### Description: Design and implement a reusable layout component for blog posts
+### Details:
+Create a src/layouts/BlogPost.astro component that will serve as the template for all blog posts. Include slots for content, metadata, and any other common elements across blog posts.
+
+## 4. Set up Markdown/MDX rendering [pending]
+### Dependencies: 6.3
+### Description: Configure Astro to properly render Markdown or MDX content in blog posts
+### Details:
+Install necessary dependencies for Markdown/MDX support. Configure the integration in astro.config.mjs. Create sample blog posts in Markdown/MDX format to test the rendering process.
+
+## 5. Add syntax highlighting for code blocks [pending]
+### Dependencies: 6.4
+### Description: Implement syntax highlighting for code snippets within blog posts
+### Details:
+Choose and install a syntax highlighting library compatible with Astro. Configure the library in your project. Test with various programming languages in code blocks to ensure proper highlighting.
+
+## 6. Implement metadata management [pending]
+### Dependencies: 6.3
+### Description: Set up a system to handle and display metadata for each blog post
+### Details:
+Create a consistent format for blog post frontmatter (title, date, author, tags, etc.). Modify the BlogPost layout to display this metadata. Ensure proper SEO metadata is generated for each post.
+
+## 7. Ensure responsive design [pending]
+### Dependencies: 6.3, 6.4
+### Description: Make sure blog posts display correctly on all device sizes
+### Details:
+Implement responsive CSS for the blog post layout. Test on various screen sizes and devices. Optimize images and other media for different viewport sizes.
+
+## 8. Add navigation between posts [pending]
+### Dependencies: 6.2, 6.6
+### Description: Implement previous/next navigation between blog posts
+### Details:
+Modify the getStaticPaths function to include information about adjacent posts. Add UI components for previous/next navigation at the bottom of each post. Consider implementing a related posts feature based on tags or categories.
+

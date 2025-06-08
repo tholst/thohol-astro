@@ -1,0 +1,421 @@
+{
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Project Setup and Configuration",
+      "description": "Initialize the Astro project with the required configuration for TypeScript, MDX, and other essential integrations.",
+      "details": "1. Create a new Astro project using `npm create astro@latest`\n2. Configure TypeScript with strict settings\n3. Add MDX integration with `@astrojs/mdx`\n4. Add sitemap integration with `@astrojs/sitemap`\n5. Set up ESLint and Prettier for code quality\n6. Create the basic project structure:\n   - src/\n     - components/\n     - layouts/\n     - pages/\n     - content/blog/\n     - styles/\n7. Configure `astro.config.mjs` with all necessary integrations\n8. Create `src/consts.ts` for site-wide constants like `SITE_TITLE` and `SITE_DESCRIPTION`\n9. Set up `src/content.config.ts` for blog post schema validation",
+      "testStrategy": "Verify project structure is correctly set up. Ensure all configurations are working by running `astro dev` and checking for any errors. Validate TypeScript compilation with `astro check`.",
+      "priority": "high",
+      "dependencies": [],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 2,
+      "title": "Global Styling Implementation",
+      "description": "Create global CSS styles for consistent site-wide appearance and implement CSS variables for theming.",
+      "details": "1. Create `src/styles/global.css` with base styling\n2. Define CSS variables for colors, typography, spacing, etc.\n3. Implement responsive breakpoints\n4. Set up typography styles with optimal font sizes for body text and headings\n5. Create styles for code blocks and syntax highlighting\n6. Implement utility classes for common styling needs\n7. Ensure proper reset/normalization of browser default styles\n8. Add styles for focus states and accessibility\n9. Include responsive media queries for different device sizes",
+      "testStrategy": "Test the global styles across different browsers and screen sizes. Verify that typography is readable and code highlighting works correctly. Check accessibility with tools like Lighthouse or axe.",
+      "priority": "high",
+      "dependencies": [1],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 3,
+      "title": "Create Core Layout Components",
+      "description": "Develop reusable layout components including Header, Footer, and the main BlogPost layout.",
+      "details": "1. Create `src/components/Header.astro`:\n   - Include site title/logo\n   - Navigation links to Home, Blog, About\n   - Ensure responsive design\n   - Apply styling from global CSS\n\n2. Create `src/components/Footer.astro`:\n   - Include copyright information\n   - Social media links if applicable\n   - Apply consistent styling\n\n3. Create `src/layouts/BlogPost.astro`:\n   - Define the structure for blog posts\n   - Include slots for title, description, publication date, updated date, and hero image\n   - Incorporate Header and Footer components\n   - Apply proper spacing and typography for content\n   - Set up metadata for SEO\n\n4. Create a base layout for non-blog pages",
+      "testStrategy": "Verify components render correctly in different browsers and screen sizes. Check that the BlogPost layout correctly displays all frontmatter data. Test navigation links in the Header. Ensure Footer appears correctly at the bottom of the page.",
+      "priority": "high",
+      "dependencies": [2],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 4,
+      "title": "Implement Homepage",
+      "description": "Create the site homepage that serves as an entry point and showcases recent blog posts.",
+      "details": "1. Create `src/pages/index.astro`\n2. Implement a welcoming hero section with site title and description\n3. Display a curated list of recent blog posts\n   - Use `getCollection('blog')` to fetch posts\n   - Filter for published posts only in production\n   - Sort by publication date (newest first)\n   - Limit to a reasonable number (e.g., 5-10)\n4. For each post preview, show:\n   - Title\n   - Publication date\n   - Brief description\n   - Link to full post\n5. Add a link to the full blog listing page\n6. Ensure responsive layout for all screen sizes",
+      "testStrategy": "Verify the homepage loads correctly and displays recent posts. Test that links to individual posts work. Check responsive behavior on different screen sizes. Ensure production filtering works by testing with some posts marked as `published: false`.",
+      "priority": "medium",
+      "dependencies": [3],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 5,
+      "title": "Implement Blog Listing Page",
+      "description": "Create a page that lists all published blog posts with filtering and sorting options.",
+      "details": "1. Create `src/pages/blog/index.astro`\n2. Fetch all blog posts using `getCollection('blog')`\n3. Filter for published posts only in production\n4. Sort posts by publication date (newest first)\n5. Display each post with:\n   - Title\n   - Publication date\n   - Description\n   - Hero image (if available)\n   - Link to full post\n6. Implement pagination if the number of posts grows large\n7. Add metadata for SEO\n8. Ensure responsive layout for all screen sizes",
+      "testStrategy": "Verify all published posts appear in the listing. Test sorting order. Check that links to individual posts work. Ensure production filtering works by testing with some posts marked as `published: false`. Test responsive behavior on different screen sizes.",
+      "priority": "medium",
+      "dependencies": [3],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 6,
+      "title": "Implement Dynamic Blog Post Pages",
+      "description": "Create dynamic pages for individual blog posts with proper content rendering and metadata.",
+      "details": "1. Create `src/pages/blog/[...slug].astro` for dynamic routing\n2. Implement `getStaticPaths()` to generate routes for all blog posts\n   - Use `getCollection('blog')` to fetch all posts\n   - Filter for published posts only in production\n3. Use the BlogPost layout for consistent styling\n4. Pass frontmatter data (title, description, dates, hero image) to the layout\n5. Render the Markdown/MDX content with proper styling\n6. Implement code syntax highlighting\n7. Add metadata for SEO including Open Graph tags\n8. Ensure responsive layout for all screen sizes\n9. Add previous/next post navigation if applicable",
+      "testStrategy": "Test with multiple blog posts to ensure dynamic routing works correctly. Verify Markdown/MDX content renders properly, including code blocks with syntax highlighting. Check metadata and Open Graph tags. Test responsive behavior on different screen sizes.",
+      "priority": "high",
+      "dependencies": [3],
+      "status": "pending",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Set up basic dynamic routing structure",
+          "description": "Create the necessary file structure for dynamic blog post routes using Astro's file-based routing system",
+          "dependencies": [],
+          "details": "Create a file named src/pages/blog/[slug].astro to handle dynamic blog post routes. This file will serve as the template for all blog posts, where [slug] will be replaced with the actual post identifier.",
+          "status": "pending"
+        },
+        {
+          "id": 2,
+          "title": "Implement getStaticPaths function",
+          "description": "Create the getStaticPaths function to pre-generate all possible routes at build time",
+          "dependencies": [1],
+          "details": "Add the getStaticPaths() function to your [slug].astro file to define all possible blog post routes. This function should fetch all blog posts data and return an array of objects with params (containing the slug) and props (containing the post data).",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "title": "Create BlogPost layout component",
+          "description": "Design and implement a reusable layout component for blog posts",
+          "dependencies": [1],
+          "details": "Create a src/layouts/BlogPost.astro component that will serve as the template for all blog posts. Include slots for content, metadata, and any other common elements across blog posts.",
+          "status": "pending"
+        },
+        {
+          "id": 4,
+          "title": "Set up Markdown/MDX rendering",
+          "description": "Configure Astro to properly render Markdown or MDX content in blog posts",
+          "dependencies": [3],
+          "details": "Install necessary dependencies for Markdown/MDX support. Configure the integration in astro.config.mjs. Create sample blog posts in Markdown/MDX format to test the rendering process.",
+          "status": "pending"
+        },
+        {
+          "id": 5,
+          "title": "Add syntax highlighting for code blocks",
+          "description": "Implement syntax highlighting for code snippets within blog posts",
+          "dependencies": [4],
+          "details": "Choose and install a syntax highlighting library compatible with Astro. Configure the library in your project. Test with various programming languages in code blocks to ensure proper highlighting.",
+          "status": "pending"
+        },
+        {
+          "id": 6,
+          "title": "Implement metadata management",
+          "description": "Set up a system to handle and display metadata for each blog post",
+          "dependencies": [3],
+          "details": "Create a consistent format for blog post frontmatter (title, date, author, tags, etc.). Modify the BlogPost layout to display this metadata. Ensure proper SEO metadata is generated for each post.",
+          "status": "pending"
+        },
+        {
+          "id": 7,
+          "title": "Ensure responsive design",
+          "description": "Make sure blog posts display correctly on all device sizes",
+          "dependencies": [3, 4],
+          "details": "Implement responsive CSS for the blog post layout. Test on various screen sizes and devices. Optimize images and other media for different viewport sizes.",
+          "status": "pending"
+        },
+        {
+          "id": 8,
+          "title": "Add navigation between posts",
+          "description": "Implement previous/next navigation between blog posts",
+          "dependencies": [2, 6],
+          "details": "Modify the getStaticPaths function to include information about adjacent posts. Add UI components for previous/next navigation at the bottom of each post. Consider implementing a related posts feature based on tags or categories.",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Implement About Page",
+      "description": "Create an About page that provides information about the author and the purpose of the site.",
+      "details": "1. Create `src/pages/about.astro`\n2. Use an appropriate layout component\n3. Add author information, bio, and professional background\n4. Include the purpose and focus of the blog\n5. Add any relevant personal or professional links\n6. Consider adding a profile photo\n7. Add metadata for SEO\n8. Ensure responsive layout for all screen sizes",
+      "testStrategy": "Verify the About page renders correctly with all content. Check responsive behavior on different screen sizes. Ensure any links work correctly.",
+      "priority": "medium",
+      "dependencies": [3],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 8,
+      "title": "Implement RSS Feed Generation",
+      "description": "Create an RSS feed for the blog to allow users to subscribe to content updates.",
+      "details": "1. Create `src/pages/rss.xml.js`\n2. Use Astro's RSS helper functions\n3. Fetch all published blog posts using `getCollection('blog')`\n4. Filter for published posts only\n5. Sort by publication date (newest first)\n6. Generate RSS XML with:\n   - Site title and description\n   - Post titles, descriptions, and links\n   - Publication dates\n7. Set appropriate content type headers\n8. Add a link to the RSS feed in the site header or footer",
+      "testStrategy": "Validate the generated RSS XML against RSS standards. Test the feed in an RSS reader to ensure posts appear correctly. Verify the link to the RSS feed works from the site.",
+      "priority": "low",
+      "dependencies": [6],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 9,
+      "title": "Implement Light/Dark Mode Toggle",
+      "description": "Add a theme toggle that allows users to switch between light and dark modes across the site.",
+      "details": "1. Extend global CSS with light and dark theme variables\n2. Create a theme toggle component in `src/components/ThemeToggle.astro`\n   - Include an accessible button with appropriate icon\n   - Add client-side JavaScript for toggling the theme\n   - Use localStorage to persist user preference\n   - Respect user's system preference as default\n3. Add the theme toggle to the site header\n4. Implement a CSS class or data-attribute approach for theme switching\n5. Ensure smooth transition between themes\n6. Test all components in both themes",
+      "testStrategy": "Test theme toggle functionality across different browsers. Verify theme persistence when navigating between pages and on page reload. Check that all components render correctly in both themes. Test keyboard accessibility for the toggle button.",
+      "priority": "medium",
+      "dependencies": [2, 3],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 10,
+      "title": "Implement Search Functionality",
+      "description": "Add a search feature that allows users to find specific content within the blog.",
+      "details": "1. Create a search component in `src/components/Search.astro`\n   - Include an input field with appropriate styling\n   - Add a search button with icon\n2. Create a search results page in `src/pages/search.astro`\n3. Implement client-side search functionality:\n   - Generate a search index at build time\n   - Use a lightweight search library like Fuse.js\n   - Search through post titles, descriptions, and content\n   - Display matching results with highlighting\n4. Add the search component to the site header or blog listing page\n5. Ensure the search is responsive and accessible",
+      "testStrategy": "Test search with various queries to ensure relevant results are returned. Verify the search works for content within posts, not just titles. Test the search component on different screen sizes. Check keyboard accessibility for the search input and button.",
+      "priority": "medium",
+      "dependencies": [5, 6],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 11,
+      "title": "Implement Table of Contents for Blog Posts",
+      "description": "Add a dynamic table of contents to blog posts that shows 1st and 2nd level headings for quick navigation.",
+      "details": "1. Create a TableOfContents component in `src/components/TableOfContents.astro`\n2. Parse the Markdown/MDX content to extract headings\n   - Filter for h1 and h2 elements\n   - Generate IDs for each heading if not already present\n3. Create a hierarchical structure of the headings\n4. Display the TOC with appropriate styling\n   - Include smooth scrolling to sections\n   - Highlight the current section based on scroll position\n5. Make the TOC sticky on desktop for easy access while scrolling\n6. Implement a collapsible TOC for mobile devices\n7. Add subtle animations for a smooth user experience",
+      "testStrategy": "Test the TOC with posts containing various heading structures. Verify smooth scrolling to sections works correctly. Check that the current section highlighting updates while scrolling. Test responsive behavior on different screen sizes.",
+      "priority": "medium",
+      "dependencies": [6],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 12,
+      "title": "Add Playful Dynamic Element",
+      "description": "Implement a subtle animated or interactive element to enhance user engagement and showcase UI/UX skills.",
+      "details": "1. Design a tasteful animated element that fits the site's aesthetic\n   - Consider options like animated waves in the header, a subtle particle background, or an interactive mascot\n2. Implement the animation using CSS animations and/or JavaScript\n   - Ensure the animation is performant and doesn't cause layout shifts\n   - Use requestAnimationFrame for JavaScript animations\n3. Make the animation responsive and appropriate for different screen sizes\n4. Ensure the animation is subtle and not distracting from the content\n5. Add appropriate controls or interactions if applicable\n6. Implement a way to disable the animation for users who prefer reduced motion",
+      "testStrategy": "Test the animation performance across different devices and browsers. Verify it respects the 'prefers-reduced-motion' media query. Ensure the animation doesn't negatively impact page load time or cause layout shifts.",
+      "priority": "low",
+      "dependencies": [4, 5, 6, 7],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 13,
+      "title": "Implement Dual-Purpose Article Structure",
+      "description": "Create a content structure that allows articles to serve as both readable blog posts and interactive presentations.",
+      "details": "1. Define a clear content modeling strategy for dual-purpose articles\n   - Create custom MDX components for slide content\n   - Define conventions for separating narrative text from slide content\n2. Update the content schema in `src/content.config.ts` to include presentation-related frontmatter\n   - Add a `presentation` boolean flag to indicate if an article supports presentation mode\n   - Add optional presentation-specific metadata (e.g., slide transitions, theme)\n3. Create example dual-purpose articles to validate the approach\n4. Update the BlogPost layout to handle the dual-purpose structure\n5. Ensure the content is semantically structured for accessibility in both modes",
+      "testStrategy": "Create test articles with the dual-purpose structure and verify they render correctly in regular reading mode. Validate the content schema with different frontmatter combinations. Check that the structure is accessible and semantically correct.",
+      "priority": "high",
+      "dependencies": [6],
+      "status": "pending",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Define Content Model Structure",
+          "description": "Analyze content requirements and establish a clear content model that supports both reusable and non-reusable content types",
+          "dependencies": [],
+          "details": "Conduct thorough analysis of content types and relationships. Identify key attributes for each content type. Establish clear naming conventions for content types, fields, and relationships. Focus on creating subject models for unreusable content and specification models for reusable content.",
+          "status": "pending"
+        },
+        {
+          "id": 2,
+          "title": "Create Custom MDX Components",
+          "description": "Develop reusable MDX components that will render content consistently across different contexts",
+          "dependencies": [1],
+          "details": "Design and implement custom MDX components that can handle various content presentations. Ensure components are flexible enough to adapt to different display contexts while maintaining content integrity. Focus on components that separate content from presentation.",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "title": "Update Content Schema Definition",
+          "description": "Implement the content model in code by defining explicit schemas for Contentlayer",
+          "dependencies": [1],
+          "details": "Create schema definitions that align with the content model. Ensure schemas explicitly define how local files should be handled. Include validation rules to maintain data integrity and consistency across content types.",
+          "status": "pending"
+        },
+        {
+          "id": 4,
+          "title": "Add Presentation Metadata",
+          "description": "Enhance content schema with presentation metadata that controls how content appears in different contexts",
+          "dependencies": [2, 3],
+          "details": "Define metadata fields that control presentation aspects without affecting core content. Consider channel strategy and avoid overfit by limiting models to reusable elements only. Exclude elements that pertain to specific channel presentations.",
+          "status": "pending"
+        },
+        {
+          "id": 5,
+          "title": "Create Example Content Articles",
+          "description": "Develop sample content that demonstrates both reusable and context-specific implementations",
+          "dependencies": [3, 4],
+          "details": "Create diverse example content that tests the full capabilities of the content model. Include edge cases to verify model flexibility. Ensure examples demonstrate how content can be reused across different contexts while maintaining integrity.",
+          "status": "pending"
+        },
+        {
+          "id": 6,
+          "title": "Update Layout Components",
+          "description": "Modify layout components to properly render content based on context and presentation metadata",
+          "dependencies": [2, 4],
+          "details": "Enhance layout components to interpret presentation metadata and render content appropriately. Implement logic that determines how content should appear in different contexts. Ensure layouts support both subject models and specification models effectively.",
+          "status": "pending"
+        },
+        {
+          "id": 7,
+          "title": "Implement Accessibility Features",
+          "description": "Ensure all content and components meet accessibility standards regardless of presentation context",
+          "dependencies": [5, 6],
+          "details": "Review all components and layouts for accessibility compliance. Implement proper semantic HTML, ARIA attributes, and keyboard navigation. Test with screen readers and other assistive technologies to verify accessibility across different presentation contexts.",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "title": "Implement Presentation Mode Toggle",
+      "description": "Add functionality to toggle between reading and presentation modes for dual-purpose articles.",
+      "details": "1. Create a PresentationToggle component in `src/components/PresentationToggle.astro`\n   - Include an accessible button with appropriate icon and text\n   - Add client-side JavaScript for toggling between modes\n2. Add the toggle button to dual-purpose articles only\n3. Implement the presentation mode view:\n   - Hide narrative text, showing only slide content\n   - Apply presentation-specific styling (full-screen, centered content)\n   - Add navigation controls for moving between slides\n   - Implement keyboard shortcuts (arrow keys, space, etc.)\n4. Create smooth transitions when toggling between modes\n5. Ensure the presentation mode is responsive and works on different devices\n6. Add a way to exit presentation mode (e.g., Escape key, exit button)",
+      "testStrategy": "Test toggling between reading and presentation modes. Verify that narrative text is hidden in presentation mode. Test navigation controls and keyboard shortcuts. Check responsive behavior on different screen sizes. Ensure the toggle is only present on articles that support presentation mode.",
+      "priority": "high",
+      "dependencies": [13],
+      "status": "pending",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Design and Build the Toggle Component",
+          "description": "Create a reusable toggle component with clear visual cues, immediate feedback, and accessible labels, following UX best practices.",
+          "dependencies": [],
+          "details": "Ensure the toggle uses effective color contrast, clear text indicators, and familiar formats. The component should be modular and independent for easy integration.",
+          "status": "pending"
+        },
+        {
+          "id": 2,
+          "title": "Integrate Toggle Component into Articles",
+          "description": "Embed the toggle component within article layouts to allow users to switch between standard and presentation modes.",
+          "dependencies": [1],
+          "details": "Ensure the toggle is placed in a logical, accessible location within the article UI, avoiding toolbars or status bars as per design guidelines.",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "title": "Implement Presentation Mode View",
+          "description": "Develop the presentation mode UI, adjusting layout, typography, and controls for an optimized reading or display experience.",
+          "dependencies": [2],
+          "details": "Presentation mode should provide a distraction-free view, with larger text and simplified navigation elements.",
+          "status": "pending"
+        },
+        {
+          "id": 4,
+          "title": "Add Navigation Controls and Keyboard Shortcuts",
+          "description": "Enable users to navigate between article sections or slides using on-screen controls and keyboard shortcuts.",
+          "dependencies": [3],
+          "details": "Implement intuitive navigation buttons and support keyboard shortcuts for actions like next, previous, and toggling modes.",
+          "status": "pending"
+        },
+        {
+          "id": 5,
+          "title": "Create Smooth Transitions Between Modes",
+          "description": "Implement animated transitions when switching between standard and presentation modes to enhance user experience.",
+          "dependencies": [3],
+          "details": "Use smooth, accessible animations that clearly indicate mode changes without causing confusion or distraction.",
+          "status": "pending"
+        },
+        {
+          "id": 6,
+          "title": "Ensure Responsiveness and Accessibility",
+          "description": "Test and refine the toggle, presentation mode, and navigation controls to ensure they work seamlessly across devices and are accessible to all users.",
+          "dependencies": [2, 3, 4, 5],
+          "details": "Verify layout adapts to different screen sizes, supports keyboard navigation, and meets accessibility standards.",
+          "status": "pending"
+        },
+        {
+          "id": 7,
+          "title": "Add Exit Functionality for Presentation Mode",
+          "description": "Provide clear and accessible ways for users to exit presentation mode and return to the standard article view.",
+          "dependencies": [3, 4, 5, 6],
+          "details": "Include an exit button, keyboard shortcut (e.g., ESC), and ensure state is properly managed when exiting.",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "title": "Optimize Performance and Accessibility",
+      "description": "Ensure the site meets high standards for performance, accessibility, and SEO.",
+      "details": "1. Audit and optimize performance:\n   - Analyze with Lighthouse and WebPageTest\n   - Optimize image loading with responsive images and lazy loading\n   - Implement font loading best practices\n   - Minimize CSS and JavaScript\n   - Add appropriate caching headers\n2. Improve accessibility:\n   - Ensure proper semantic HTML throughout\n   - Add appropriate ARIA attributes where needed\n   - Verify sufficient color contrast\n   - Test keyboard navigation\n   - Add skip links for screen readers\n3. Enhance SEO:\n   - Verify all pages have appropriate meta tags\n   - Add structured data where applicable\n   - Ensure proper heading hierarchy\n   - Create a comprehensive sitemap\n4. Test across different browsers and devices\n5. Fix any identified issues",
+      "testStrategy": "Run Lighthouse audits for performance, accessibility, best practices, and SEO. Test with screen readers and keyboard navigation. Verify the site works correctly across different browsers and devices. Use axe or similar tools to identify accessibility issues.",
+      "priority": "high",
+      "dependencies": [4, 5, 6, 7, 8, 9, 10, 11, 12, 14],
+      "status": "pending",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Audit Current Website Performance",
+          "description": "Analyze the current state of website performance, including load times, asset sizes, and bottlenecks.",
+          "dependencies": [],
+          "details": "Use tools like Lighthouse, WebPageTest, or GTmetrix to gather baseline metrics on speed, asset usage, and performance issues.",
+          "status": "pending"
+        },
+        {
+          "id": 2,
+          "title": "Optimize Images",
+          "description": "Reduce image sizes and implement modern formats to improve load times.",
+          "dependencies": [1],
+          "details": "Compress images, convert to WebP/AVIF where supported, and use responsive image techniques (srcset, sizes).",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "title": "Optimize Fonts",
+          "description": "Streamline font usage and delivery for faster rendering.",
+          "dependencies": [1],
+          "details": "Subset fonts, use modern formats (WOFF2), preload critical fonts, and limit the number of font families and weights.",
+          "status": "pending"
+        },
+        {
+          "id": 4,
+          "title": "Minimize and Compress Assets",
+          "description": "Reduce and compress CSS, JavaScript, and HTML files to decrease page size and improve speed.",
+          "dependencies": [1],
+          "details": "Remove unused CSS/JS, minify all assets, and apply compression (e.g., Gzip, Brotli) to files over 150 bytes.",
+          "status": "pending"
+        },
+        {
+          "id": 5,
+          "title": "Improve Accessibility",
+          "description": "Enhance the website’s accessibility to meet WCAG standards and ensure usability for all users.",
+          "dependencies": [1],
+          "details": "Address issues such as color contrast, keyboard navigation, alt text for images, and ARIA roles.",
+          "status": "pending"
+        },
+        {
+          "id": 6,
+          "title": "Enhance SEO",
+          "description": "Optimize on-page SEO elements to improve search engine visibility.",
+          "dependencies": [1],
+          "details": "Update meta tags, use semantic HTML, improve heading structure, and ensure proper use of canonical tags.",
+          "status": "pending"
+        },
+        {
+          "id": 7,
+          "title": "Test Across Browsers and Devices",
+          "description": "Verify consistent performance and appearance on major browsers and device types.",
+          "dependencies": [2, 3, 4, 5, 6],
+          "details": "Test on Chrome, Firefox, Safari, Edge, and mobile devices using emulators and real hardware.",
+          "status": "pending"
+        },
+        {
+          "id": 8,
+          "title": "Fix Identified Issues",
+          "description": "Address and resolve issues found during audits and testing phases.",
+          "dependencies": [],
+          "details": "Prioritize and fix bugs, layout problems, accessibility barriers, and performance bottlenecks.",
+          "status": "pending"
+        },
+        {
+          "id": 9,
+          "title": "Verify Improvements with Automated Tools",
+          "description": "Re-run automated audits to confirm all optimizations and fixes are effective.",
+          "dependencies": [],
+          "details": "Use Lighthouse, Axe, and other automated tools to validate performance, accessibility, and SEO improvements.",
+          "status": "pending"
+        }
+      ]
+    }
+  ]
+}

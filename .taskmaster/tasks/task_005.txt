@@ -1,0 +1,23 @@
+# Task ID: 5
+# Title: Implement Blog Listing Page
+# Status: pending
+# Dependencies: 3
+# Priority: medium
+# Description: Create a page that lists all published blog posts with filtering and sorting options.
+# Details:
+1. Create `src/pages/blog/index.astro`
+2. Fetch all blog posts using `getCollection('blog')`
+3. Filter for published posts only in production
+4. Sort posts by publication date (newest first)
+5. Display each post with:
+   - Title
+   - Publication date
+   - Description
+   - Hero image (if available)
+   - Link to full post
+6. Implement pagination if the number of posts grows large
+7. Add metadata for SEO
+8. Ensure responsive layout for all screen sizes
+
+# Test Strategy:
+Verify all published posts appear in the listing. Test sorting order. Check that links to individual posts work. Ensure production filtering works by testing with some posts marked as `published: false`. Test responsive behavior on different screen sizes.

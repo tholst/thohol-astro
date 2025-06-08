@@ -1,0 +1,21 @@
+# Task ID: 11
+# Title: Implement Table of Contents for Blog Posts
+# Status: pending
+# Dependencies: 6
+# Priority: medium
+# Description: Add a dynamic table of contents to blog posts that shows 1st and 2nd level headings for quick navigation.
+# Details:
+1. Create a TableOfContents component in `src/components/TableOfContents.astro`
+2. Parse the Markdown/MDX content to extract headings
+   - Filter for h1 and h2 elements
+   - Generate IDs for each heading if not already present
+3. Create a hierarchical structure of the headings
+4. Display the TOC with appropriate styling
+   - Include smooth scrolling to sections
+   - Highlight the current section based on scroll position
+5. Make the TOC sticky on desktop for easy access while scrolling
+6. Implement a collapsible TOC for mobile devices
+7. Add subtle animations for a smooth user experience
+
+# Test Strategy:
+Test the TOC with posts containing various heading structures. Verify smooth scrolling to sections works correctly. Check that the current section highlighting updates while scrolling. Test responsive behavior on different screen sizes.

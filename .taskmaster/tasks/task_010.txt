@@ -1,0 +1,21 @@
+# Task ID: 10
+# Title: Implement Search Functionality
+# Status: pending
+# Dependencies: 5, 6
+# Priority: medium
+# Description: Add a search feature that allows users to find specific content within the blog.
+# Details:
+1. Create a search component in `src/components/Search.astro`
+   - Include an input field with appropriate styling
+   - Add a search button with icon
+2. Create a search results page in `src/pages/search.astro`
+3. Implement client-side search functionality:
+   - Generate a search index at build time
+   - Use a lightweight search library like Fuse.js
+   - Search through post titles, descriptions, and content
+   - Display matching results with highlighting
+4. Add the search component to the site header or blog listing page
+5. Ensure the search is responsive and accessible
+
+# Test Strategy:
+Test search with various queries to ensure relevant results are returned. Verify the search works for content within posts, not just titles. Test the search component on different screen sizes. Check keyboard accessibility for the search input and button.

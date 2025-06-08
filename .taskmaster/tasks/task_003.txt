@@ -1,0 +1,29 @@
+# Task ID: 3
+# Title: Create Core Layout Components
+# Status: pending
+# Dependencies: 2
+# Priority: high
+# Description: Develop reusable layout components including Header, Footer, and the main BlogPost layout.
+# Details:
+1. Create `src/components/Header.astro`:
+   - Include site title/logo
+   - Navigation links to Home, Blog, About
+   - Ensure responsive design
+   - Apply styling from global CSS
+
+2. Create `src/components/Footer.astro`:
+   - Include copyright information
+   - Social media links if applicable
+   - Apply consistent styling
+
+3. Create `src/layouts/BlogPost.astro`:
+   - Define the structure for blog posts
+   - Include slots for title, description, publication date, updated date, and hero image
+   - Incorporate Header and Footer components
+   - Apply proper spacing and typography for content
+   - Set up metadata for SEO
+
+4. Create a base layout for non-blog pages
+
+# Test Strategy:
+Verify components render correctly in different browsers and screen sizes. Check that the BlogPost layout correctly displays all frontmatter data. Test navigation links in the Header. Ensure Footer appears correctly at the bottom of the page.

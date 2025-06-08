@@ -1,0 +1,20 @@
+# Task ID: 9
+# Title: Implement Light/Dark Mode Toggle
+# Status: pending
+# Dependencies: 2, 3
+# Priority: medium
+# Description: Add a theme toggle that allows users to switch between light and dark modes across the site.
+# Details:
+1. Extend global CSS with light and dark theme variables
+2. Create a theme toggle component in `src/components/ThemeToggle.astro`
+   - Include an accessible button with appropriate icon
+   - Add client-side JavaScript for toggling the theme
+   - Use localStorage to persist user preference
+   - Respect user's system preference as default
+3. Add the theme toggle to the site header
+4. Implement a CSS class or data-attribute approach for theme switching
+5. Ensure smooth transition between themes
+6. Test all components in both themes
+
+# Test Strategy:
+Test theme toggle functionality across different browsers. Verify theme persistence when navigating between pages and on page reload. Check that all components render correctly in both themes. Test keyboard accessibility for the toggle button.

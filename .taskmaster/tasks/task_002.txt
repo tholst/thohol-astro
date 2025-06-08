@@ -1,0 +1,19 @@
+# Task ID: 2
+# Title: Global Styling Implementation
+# Status: pending
+# Dependencies: 1
+# Priority: high
+# Description: Create global CSS styles for consistent site-wide appearance and implement CSS variables for theming.
+# Details:
+1. Create `src/styles/global.css` with base styling
+2. Define CSS variables for colors, typography, spacing, etc.
+3. Implement responsive breakpoints
+4. Set up typography styles with optimal font sizes for body text and headings
+5. Create styles for code blocks and syntax highlighting
+6. Implement utility classes for common styling needs
+7. Ensure proper reset/normalization of browser default styles
+8. Add styles for focus states and accessibility
+9. Include responsive media queries for different device sizes
+
+# Test Strategy:
+Test the global styles across different browsers and screen sizes. Verify that typography is readable and code highlighting works correctly. Check accessibility with tools like Lighthouse or axe.

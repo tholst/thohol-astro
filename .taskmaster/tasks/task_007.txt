@@ -1,0 +1,18 @@
+# Task ID: 7
+# Title: Implement About Page
+# Status: pending
+# Dependencies: 3
+# Priority: medium
+# Description: Create an About page that provides information about the author and the purpose of the site.
+# Details:
+1. Create `src/pages/about.astro`
+2. Use an appropriate layout component
+3. Add author information, bio, and professional background
+4. Include the purpose and focus of the blog
+5. Add any relevant personal or professional links
+6. Consider adding a profile photo
+7. Add metadata for SEO
+8. Ensure responsive layout for all screen sizes
+
+# Test Strategy:
+Verify the About page renders correctly with all content. Check responsive behavior on different screen sizes. Ensure any links work correctly.

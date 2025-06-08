@@ -1,0 +1,25 @@
+# Task ID: 1
+# Title: Project Setup and Configuration
+# Status: pending
+# Dependencies: None
+# Priority: high
+# Description: Initialize the Astro project with the required configuration for TypeScript, MDX, and other essential integrations.
+# Details:
+1. Create a new Astro project using `npm create astro@latest`
+2. Configure TypeScript with strict settings
+3. Add MDX integration with `@astrojs/mdx`
+4. Add sitemap integration with `@astrojs/sitemap`
+5. Set up ESLint and Prettier for code quality
+6. Create the basic project structure:
+   - src/
+     - components/
+     - layouts/
+     - pages/
+     - content/blog/
+     - styles/
+7. Configure `astro.config.mjs` with all necessary integrations
+8. Create `src/consts.ts` for site-wide constants like `SITE_TITLE` and `SITE_DESCRIPTION`
+9. Set up `src/content.config.ts` for blog post schema validation
+
+# Test Strategy:
+Verify project structure is correctly set up. Ensure all configurations are working by running `astro dev` and checking for any errors. Validate TypeScript compilation with `astro check`.
