@@ -1,0 +1,20 @@
+.post22_ex1 {
+    width: 100%;
+    height: 6rem;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    border: 1px solid black;
+}
+
+.post22_ex1 > .main {
+    background-color: #d99;
+}
+
+
+.post22_ex1 > .aside {
+    background-color: #f33;
+}
+
+/* h2 {
+    color: blue;
+} */

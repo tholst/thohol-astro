@@ -35,3 +35,6 @@ This is an Astro blog site based on the official blog template with the followin
 - Site constants in `src/consts.ts` (SITE_TITLE, SITE_DESCRIPTION)
 - Astro config includes MDX and sitemap integrations
 - TypeScript with strict configuration
+
+## Workflow Guidance
+- Suggest a commit, when all tasks are completed
