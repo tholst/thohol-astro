@@ -1,6 +1,6 @@
 # Makefile for thohol-astro blog
 
-.PHONY: help dev build preview clean install screenshots
+.PHONY: help dev build preview clean install screenshots screenshot-homepage
 
 # Default target
 help:
@@ -11,6 +11,7 @@ help:
 	@echo "  make install  - Install dependencies"
 	@echo "  make clean    - Clean build directory"
 	@echo "  make screenshots - Take screenshots of the site"
+	@echo "  make screenshot-homepage - Take a single homepage screenshot"
 
 # Development server
 dev:
@@ -35,3 +36,7 @@ clean:
 # Take screenshots
 screenshots:
 	npm run screenshots
+
+# Take a single homepage screenshot
+screenshot-homepage:
+	npm run screenshot-homepage

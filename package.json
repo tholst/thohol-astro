@@ -4,6 +4,7 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
+    "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
@@ -17,7 +18,8 @@
     "prepare": "husky",
     "screenshot": "node scripts/screenshot.js",
     "screenshot:all": "node scripts/screenshot-all.js",
-    "screenshots": "node scripts/screenshot-all.js"
+    "screenshots": "node scripts/screenshot-all.js",
+    "screenshot-homepage": "node scripts/screenshot-homepage.js"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.0",
