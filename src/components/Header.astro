@@ -1,5 +1,6 @@
 ---
 import HeaderLink from './HeaderLink.astro';
+import ThemeToggle from './ThemeToggle.astro';
 ---
 
 <header>
@@ -17,6 +18,7 @@ import HeaderLink from './HeaderLink.astro';
     <div class="internal-links">
       <HeaderLink href="/blog">Posts</HeaderLink>
       <HeaderLink href="/about">About</HeaderLink>
+      <ThemeToggle />
     </div>
     <div class="social-links">
       <a href="https://github.com/tholst" target="_blank">
@@ -44,8 +46,9 @@ import HeaderLink from './HeaderLink.astro';
   header {
     margin: 0;
     padding: 0 1em;
-    background: white;
+    background: var(--bg-primary);
     box-shadow: 0 2px 8px rgba(var(--black), 5%);
+    transition: background-color 0.3s ease;
   }
   h2 {
     margin: 0;
@@ -56,7 +59,7 @@ import HeaderLink from './HeaderLink.astro';
   h2 a,
   h2 a.active {
     text-decoration: none;
-    color: var(--black);
+    color: var(--text-primary);
   }
 
   .site-title {
@@ -66,12 +69,12 @@ import HeaderLink from './HeaderLink.astro';
 
   .subtitle {
     font-size: 0.875rem;
-    color: #666;
+    color: var(--text-secondary);
   }
 
   .subtitle a {
     text-decoration: none;
-    color: #666;
+    color: var(--text-secondary);
     padding: 0;
     border: none;
   }
@@ -83,9 +86,10 @@ import HeaderLink from './HeaderLink.astro';
   }
   nav a {
     padding: 1em 0.5em;
-    color: var(--black);
+    color: var(--text-primary);
     border-bottom: 4px solid transparent;
     text-decoration: none;
+    transition: color 0.3s ease;
   }
   nav a.active {
     text-decoration: none;
@@ -94,6 +98,11 @@ import HeaderLink from './HeaderLink.astro';
   .social-links,
   .social-links a {
     display: flex;
+    gap: 1em;
+  }
+  .internal-links {
+    display: flex;
+    align-items: center;
     gap: 1em;
   }
   @media (max-width: 720px) {
