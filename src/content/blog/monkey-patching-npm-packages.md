@@ -18,17 +18,17 @@ After some research I found this neat tool called [**patch-package**](https://gi
 
 1. Install `patch-package`:
 
-    ```bash
-    npm install patch-package
-    ```
+   ```bash
+   npm install patch-package
+   ```
 
 2. Call `patch-package` from the `postinstall` script in your `package.json`. It will then automatically be executed after `npm install` is run for your package. (This also means that the patch is not necessarily applied to checked-out code.)
 
-    ```json
-    "scripts": {
-        "postinstall": "patch-package"
-    }
-    ```
+   ```json
+   "scripts": {
+       "postinstall": "patch-package"
+   }
+   ```
 
 ### Step 1: Implement the fix
 
@@ -96,17 +96,17 @@ Normally, if you found a bug in one of your NPM dependencies, you would:
 
 1. Fork the package's repository on Github.
 2. Fix the bug in your fork.
-3. Create a pull-request (with your fix) from your fork to the original repo ("*upstream*").
+3. Create a pull-request (with your fix) from your fork to the original repo ("_upstream_").
 4. As long as the PR (from step 3) has not been merged yet: Replace the NPM dependency (pointing to the original repo) with your fork (pointing to your repo)
 5. Change back to original (reverse of step 4) when/if PR (from step 3) gets merged.
 
-I actually did step 1, step 2 and step 3 ([pull request](https://github.com/frontarm/mdx-util/pull/58)). But then I got to step 4 and the pull request had not yet been merged after a couple of days. 
+I actually did step 1, step 2 and step 3 ([pull request](https://github.com/frontarm/mdx-util/pull/58)). But then I got to step 4 and the pull request had not yet been merged after a couple of days.
 
 ### The problem
-So I tried changing the dependency from the original package to my fork of that package. But NPM wouldn't install it. And here is why: 
 
-It's due some specifics of the interplay between NPM and GitHub. See, the package `mdx-loader` (where I fixed the bug) is actually maintained in this repo: [github.com/frontarm/mdx-util](https://github.com/frontarm/mdx-util). And that repository actually contains 4 separately registered NPM packages, each in their own folder under `packages/`. 
+So I tried changing the dependency from the original package to my fork of that package. But NPM wouldn't install it. And here is why:
 
+It's due some specifics of the interplay between NPM and GitHub. See, the package `mdx-loader` (where I fixed the bug) is actually maintained in this repo: [github.com/frontarm/mdx-util](https://github.com/frontarm/mdx-util). And that repository actually contains 4 separately registered NPM packages, each in their own folder under `packages/`.
 
 ```bash
 $ tree mdx-util

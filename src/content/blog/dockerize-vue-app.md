@@ -4,7 +4,7 @@ description: Run your web app in a Docker container
 pubDate: 2020-05-28
 ---
 
-If you are building a larger web application with multiple backend and frontend services, chances are high that you will sooner or later want to deploy and run your Vue.js application inside a Docker container. 
+If you are building a larger web application with multiple backend and frontend services, chances are high that you will sooner or later want to deploy and run your Vue.js application inside a Docker container.
 
 Below is a quick how-to guide. Note that the explanations are not really specific to Vue.js. Any other web app should work the same.
 
@@ -14,22 +14,22 @@ Below is a quick how-to guide. Note that the explanations are not really specifi
 
 1. An existing Vue.js project that works with a static web server.
 
-    ```bash
-    $ cd my-vue-app
-    $ tree -L 2
-    .
-    ├── src
-    │   └── (more files here ...)
-    ├── package.json
-    └── package-lock.json
-    ```
+   ```bash
+   $ cd my-vue-app
+   $ tree -L 2
+   .
+   ├── src
+   │   └── (more files here ...)
+   ├── package.json
+   └── package-lock.json
+   ```
 
 2. Docker installed ([instructions to install](https://docs.docker.com/get-docker/))
 
-    ```bash
-    $ docker -v
-    Docker version 19.03.8, build afacb8b
-    ```
+   ```bash
+   $ docker -v
+   Docker version 19.03.8, build afacb8b
+   ```
 
 ## 1. Create and open Dockerfile
 
@@ -58,7 +58,6 @@ $ code Dockerfile
 With the following instructions we are telling docker to start our image with a lightweight image that includes the long-term-support version of Node.js and is built on top of Alpine Linux.
 We change into the `/app` directory and copy our `package.json` files into it. We then run `npm install` to download all our dependencies. We then copy our whole project root folder into `/app` inside the image (`COPY . .`). Then we run `npm build` which will generate files into the `/app/dist` directory.
 
-
 ```docker
 # build stage
 FROM node:lts-alpine as build-stage
@@ -79,24 +78,24 @@ This is why we want to `.dockerignore` those folders if they exist.
 
 1. Create the file if it does not yet exist:
 
-    ```bash
-    $ touch .dockerignore
-    $ code .dockerignore
-    ```
+   ```bash
+   $ touch .dockerignore
+   $ code .dockerignore
+   ```
 
 2. Add the following lines to the `.dockerignore` file
 
-    ```bash
-    # ignore .git folder
-    .git
+   ```bash
+   # ignore .git folder
+   .git
 
-    # ignore installation and build folders
-    node_modules
-    dist
+   # ignore installation and build folders
+   node_modules
+   dist
 
-    # ignore dev settings
-    .vscode
-    ```
+   # ignore dev settings
+   .vscode
+   ```
 
 ## 5. Add production stage to Dockerfile
 

@@ -6,65 +6,68 @@ published: false
 ---
 
 Read:
+
 - https://davidtheclark.com/modular-approach-to-interface-components/
 - https://slides.com/linclark/webpack/#/ / https://www.youtube.com/watch?v=p3Wi3xBQdAM
 - https://davidtheclark.com/on-utility-classes/
 - https://github.com/davidtheclark/scalable-css-reading-list
 - https://www.smashingmagazine.com/2013/10/21/challenging-css-best-practices-atomic-approach/
-- 
+-
 - https://atomicdesign.bradfrost.com/table-of-contents/
-- 
+-
 
--   [ ] **CSS** (modern CSS, scalable CSS, CSS in dev env/build env)
-    -   [ ] PostCSS
-    -   [ ] SCSS / LESS
-    -   [ ] Utility CSS
-    -   [ ] Tailwind CSS
-    -   [ ] mini-css-extract-plugin
-    -   [ ] css-loader
-    -   [ ] postcss-loader
-    -   [ ] Emotion
-    -   [ ] Styled Components
-    -   [ ] [BEM's](https://csswizardry.com/2013/01/mindbemding-getting-your-head-round-bem-syntax/)
-    -   [ ] [SUIT's](https://github.com/suitcss/suit/blob/master/doc/naming-conventions.md)
-    -   [ ] [Atomic CSS](https://acss.io/)
-    - COMPONENT-BASED FRAMEWORKs
-    - https://github.com/awesome-css-group/awesome-css#readme
-    - https://github.com/addyosmani/critical-path-css-tools#readme
-    - https://github.com/AllThingsSmitty/must-watch-css#readme
-    - https://github.com/AllThingsSmitty/css-protips#readme
-    - https://github.com/troxler/awesome-css-frameworks#readme
+- [ ] **CSS** (modern CSS, scalable CSS, CSS in dev env/build env)
+  - [ ] PostCSS
+  - [ ] SCSS / LESS
+  - [ ] Utility CSS
+  - [ ] Tailwind CSS
+  - [ ] mini-css-extract-plugin
+  - [ ] css-loader
+  - [ ] postcss-loader
+  - [ ] Emotion
+  - [ ] Styled Components
+  - [ ] [BEM's](https://csswizardry.com/2013/01/mindbemding-getting-your-head-round-bem-syntax/)
+  - [ ] [SUIT's](https://github.com/suitcss/suit/blob/master/doc/naming-conventions.md)
+  - [ ] [Atomic CSS](https://acss.io/)
+  - COMPONENT-BASED FRAMEWORKs
+  - https://github.com/awesome-css-group/awesome-css#readme
+  - https://github.com/addyosmani/critical-path-css-tools#readme
+  - https://github.com/AllThingsSmitty/must-watch-css#readme
+  - https://github.com/AllThingsSmitty/css-protips#readme
+  - https://github.com/troxler/awesome-css-frameworks#readme
 
 ## Complexity is the enemy
 
 ([skip](#css-cant-say-its-simple) Grandpa's war-time stories)
 
-Every software developer knows that even smaller coding projects can get very complex - complex to the point that all its logic and constraints surpass the cognitive capacity of one single human brain. Once that happens, the rate of *new bugs per code change* will often increase. Or, to put it differently: The effort needed to make bug-free code changes will rise dramatically.
+Every software developer knows that even smaller coding projects can get very complex - complex to the point that all its logic and constraints surpass the cognitive capacity of one single human brain. Once that happens, the rate of _new bugs per code change_ will often increase. Or, to put it differently: The effort needed to make bug-free code changes will rise dramatically.
 
-If you like a short historical detour, pull up the [1968 NATO Software Engineering Conference report](http://homepages.cs.ncl.ac.uk/brian.randell/NATO/nato1968.PDF) and read Chapter 7.1. on "Software: The state of the art" which discussed the software industry's inability to reliably produce complex software. According to wikipedia, this conference coined the term "[Software Crisis](https://en.wikipedia.org/wiki/Software_crisis)". 
+If you like a short historical detour, pull up the [1968 NATO Software Engineering Conference report](http://homepages.cs.ncl.ac.uk/brian.randell/NATO/nato1968.PDF) and read Chapter 7.1. on "Software: The state of the art" which discussed the software industry's inability to reliably produce complex software. According to wikipedia, this conference coined the term "[Software Crisis](https://en.wikipedia.org/wiki/Software_crisis)".
 
 To quote one of the participants:
+
 > The general admission of the existence of the software failure in this group of responsible people is the most refreshing experience I have had in a number of years, because the admission of shortcomings is the primary condition for improvement.
-> 
+>
 > Dijkstra (1968)
 
 So, what kind of improvements did humankind come up with?
 
-People figured out that complexity was the enemy. Complex problems had to be broken down into smaller, more manageable problems - complex solutions had to be composed up from more simpler solutions. 
+People figured out that complexity was the enemy. Complex problems had to be broken down into smaller, more manageable problems - complex solutions had to be composed up from more simpler solutions.
 
-Separating concerns ([term coined by Dijkstra in 1974](https://en.wikipedia.org/wiki/Separation_of_concerns#Origin)) - into multiple modules that offer well-defined interfaces (for use by other modules) while encapsulating (and hiding) their inner implementation - enables a level of abstraction that allows humans to understand, discuss and coordinate otherwise overwhelming problems. 
+Separating concerns ([term coined by Dijkstra in 1974](https://en.wikipedia.org/wiki/Separation_of_concerns#Origin)) - into multiple modules that offer well-defined interfaces (for use by other modules) while encapsulating (and hiding) their inner implementation - enables a level of abstraction that allows humans to understand, discuss and coordinate otherwise overwhelming problems.
 
 The idea of independent modules with defined interfaces and encapsulated implementation can be found everywhere, from Microservices and OOP Classes to Web Components. In theory, systems made from these modules will be easier to maintain and extend, enabling a better quality and faster development iterations.
 
-There were other important ideas, of course: 
+There were other important ideas, of course:
+
 - Patterns (for Software Design, Enterprise Architecture, Refactoring etc.)
 - Software Development Processes and Best Practices (Lean, Agile, extreme Programming, Scrum etc.)
 
 ## Modularity and Encapsulation in Web Applications
 
-So, what is the situation with applications built for the Web? Long gone are the times of simple HTML websites with some styling (CSS) and interactivity (JS) sprinkled in-between. Today, people build *proper software* that runs on the Web's tech-stack. I mean, you wouldn't call [Google Docs](https://docs.google.com/) a website, would you? It's a Single-Page *Application* that runs in any modern browser.
+So, what is the situation with applications built for the Web? Long gone are the times of simple HTML websites with some styling (CSS) and interactivity (JS) sprinkled in-between. Today, people build _proper software_ that runs on the Web's tech-stack. I mean, you wouldn't call [Google Docs](https://docs.google.com/) a website, would you? It's a Single-Page _Application_ that runs in any modern browser.
 
-But how do you build them well - how can you build a complex web application from smaller modules (modules of Web applications are often called *components*) that are independent and encapsulate their inner workings?
+But how do you build them well - how can you build a complex web application from smaller modules (modules of Web applications are often called _components_) that are independent and encapsulate their inner workings?
 
 CSS can make it quite hard.
 
@@ -80,15 +83,13 @@ In the next sections, we will look at approaches to migitate these problems.
 
 A utility class implements a single styling (including layout) effect. The styling effect is usually implemented with a single CSS rule, but sometimes multiple rules are necessary.
 
-A utility class is typically named after its styling effect (e.g., `font-small`, `rotate-90` or `border-black`). Therefore, reading HTML with CSS utility classes is a bit like reading HTML with inline CSS styles. 
+A utility class is typically named after its styling effect (e.g., `font-small`, `rotate-90` or `border-black`). Therefore, reading HTML with CSS utility classes is a bit like reading HTML with inline CSS styles.
 
 ```html
-<div class="font-small rotate-90 border-black">
-    ...
-</div>
+<div class="font-small rotate-90 border-black">...</div>
 ```
 
-This approach has the advantage that writing HTML markup and simple styling can be done in one easy step. It requires that you already have a comprehensive and intuitive (utility classes don't help if they're hard to remember/deduce) library of utility classes available. You can either agree on some conventions in your dev team (so they will actually be reused and not reinvented with a different naming scheme by each team member), or you just use some existing library like 
+This approach has the advantage that writing HTML markup and simple styling can be done in one easy step. It requires that you already have a comprehensive and intuitive (utility classes don't help if they're hard to remember/deduce) library of utility classes available. You can either agree on some conventions in your dev team (so they will actually be reused and not reinvented with a different naming scheme by each team member), or you just use some existing library like
 
 - **your team/product/company's own design system**
 - [tailwindcss](https://tailwindcss.com/docs/utility-first)
@@ -130,7 +131,7 @@ SMACSS suggest to organize CSS rules into 5 categories:
 
 ## CSS: Can't Say it's Simple
 
-Every software developer knows that 
+Every software developer knows that
 
 Abstraction
 [Separation of concerns](https://en.wikipedia.org/wiki/Separation_of_concerns)

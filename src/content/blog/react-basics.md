@@ -16,22 +16,22 @@ React uses its own JavaScript-based language to support writing HTML in JavaScri
 
 ```jsx
 function HelloWorld() {
-    return <h1>Hello World</h1>;
+  return <h1>Hello World</h1>;
 }
 
-ReactDOM.render(<HelloWorld />, document.getElementById("rootNode"));
+ReactDOM.render(<HelloWorld />, document.getElementById('rootNode'));
 ```
 
 **transpiled into** (calls to react functions in standard JavaScript)
 
 ```js
 function HelloWorld() {
-    return React.createElement("h1", null, "Hello World");
+  return React.createElement('h1', null, 'Hello World');
 }
 
 ReactDOM.render(
-    React.createElement(HelloWorld, null),
-    document.getElementById("rootNode")
+  React.createElement(HelloWorld, null),
+  document.getElementById('rootNode')
 );
 ```
 
@@ -39,10 +39,10 @@ ReactDOM.render(
 
 ### Key Concepts
 
--   A **react application** is a _tree of react components_
--   A **react component** is a _pure function_ (`model => ui`) that converts a model/state object into a piece of user interface (i.e., a subtree of elements in the DOM).
--   Unlike huge _UI framework_ like Angular, react calls itself a _library_ and is only responsible for UI rendering and event handling.
--   **One-way data binding**: React strictly uses only one direction of data binding, namely model-to-view (`model -> view`). The reverse view-to-model direction (`model <- view`) is implemented via callback functions. Both, regular model data as well as callbacks, are implemented as properties of the given react component. (also see _one-way flow_ below)
+- A **react application** is a _tree of react components_
+- A **react component** is a _pure function_ (`model => ui`) that converts a model/state object into a piece of user interface (i.e., a subtree of elements in the DOM).
+- Unlike huge _UI framework_ like Angular, react calls itself a _library_ and is only responsible for UI rendering and event handling.
+- **One-way data binding**: React strictly uses only one direction of data binding, namely model-to-view (`model -> view`). The reverse view-to-model direction (`model <- view`) is implemented via callback functions. Both, regular model data as well as callbacks, are implemented as properties of the given react component. (also see _one-way flow_ below)
 
 ## React Components
 
@@ -126,18 +126,18 @@ The documentation says, '[t]his is commonly called a "top-down" or "unidirection
 
 A react application typically
 
--   has a central state definition,
--   has central functions which implement state changes (which could be called as callbacks, triggered by UI events)
--   rerenders the application when the state changes.
+- has a central state definition,
+- has central functions which implement state changes (which could be called as callbacks, triggered by UI events)
+- rerenders the application when the state changes.
 
 These characteristics can be formalized and defined in the so-called Model-View-Intent architecture:
 
--   We have one central state object: `state` (the "model")
--   We have a function which takes a state as input and produces an UI based on that state: `view = (state) => UI` (the root render function which recursively renders all components)
--   We have a function which takes a state and an intent to change the state and produces the new state: `update = (state, intent) => state = newState` ()
--   Because `update` will always be called with the current state as first parameter, we have a helper function `dispatch = (intent) => {}` which calls `update` internally.
--   The rendered UI produced by `view(state)` has elements (e.g., button) with events (e.g., onClick). These events correspond to one or more intents to change the application's state, and the event handlers therefore call the `dispatch(intentXY)` function to produce that change.
--   Finally, we need a mechanism that triggers rerendering after the state has been changed. We offer a subscription mechanism `subscribe = (callback) => {}`, and subscribe the `view` function to it. `subscribe(view)`
+- We have one central state object: `state` (the "model")
+- We have a function which takes a state as input and produces an UI based on that state: `view = (state) => UI` (the root render function which recursively renders all components)
+- We have a function which takes a state and an intent to change the state and produces the new state: `update = (state, intent) => state = newState` ()
+- Because `update` will always be called with the current state as first parameter, we have a helper function `dispatch = (intent) => {}` which calls `update` internally.
+- The rendered UI produced by `view(state)` has elements (e.g., button) with events (e.g., onClick). These events correspond to one or more intents to change the application's state, and the event handlers therefore call the `dispatch(intentXY)` function to produce that change.
+- Finally, we need a mechanism that triggers rerendering after the state has been changed. We offer a subscription mechanism `subscribe = (callback) => {}`, and subscribe the `view` function to it. `subscribe(view)`
 
 ```
             +-------|
@@ -161,9 +161,9 @@ view(newState)      |
 
 MVI is "[t]he architecture behind well-designed react applications." (Liam McLennan)
 
--   **MODEL**: A single object that completely describes the state of the UI.
--   **VIEW**: A function that transforms the model into the UI, i.e., the model is the input to the view function and the UI is the output. At any moment the UI can generated from nothing but the model. When the model changes, the view function can generate the corresponding changed UI.
--   **INTENTS**: The UI (generated by the view function) can produce intents. Intents are things the user wants to do. When an intent is produced it is applied to model, creating an updated model. The updated model is then passed through the view function to created the updated user interface.
+- **MODEL**: A single object that completely describes the state of the UI.
+- **VIEW**: A function that transforms the model into the UI, i.e., the model is the input to the view function and the UI is the output. At any moment the UI can generated from nothing but the model. When the model changes, the view function can generate the corresponding changed UI.
+- **INTENTS**: The UI (generated by the view function) can produce intents. Intents are things the user wants to do. When an intent is produced it is applied to model, creating an updated model. The updated model is then passed through the view function to created the updated user interface.
 
 This process forms a neat, predictable cycle. For the following key reasons:
 
@@ -253,9 +253,9 @@ setInterval(
 **Building MVI architecture from scratch - evolution to state container**
 State
 
--   getState()
--   dispatch(intent)
--   subscribe(callback)
+- getState()
+- dispatch(intent)
+- subscribe(callback)
 
 ```jsx
 const view = (model) => {
@@ -385,16 +385,16 @@ setInterval(
 
 "It obscures the simplicity of react and redux."
 
--   **Provider** is a react component, provided by react-redux. When it is included in a react application, it enables all react components below it in the component tree to connect to the redux store.
--   **Connect** is a function provided by react-redux that enhances react's components, connecting them to the redux store. Connect expects two functions as parameters:
-    -   `mapStateToProps` is a function from the redux store to a set of props for the component.
-    -   `mapDispatchToProps` is a function (from redux' dispatch function to a set of props for the component) specifying how the component can send actions to the redux store. In practice, this provides a place to map component events to redux store actions.
+- **Provider** is a react component, provided by react-redux. When it is included in a react application, it enables all react components below it in the component tree to connect to the redux store.
+- **Connect** is a function provided by react-redux that enhances react's components, connecting them to the redux store. Connect expects two functions as parameters:
+  - `mapStateToProps` is a function from the redux store to a set of props for the component.
+  - `mapDispatchToProps` is a function (from redux' dispatch function to a set of props for the component) specifying how the component can send actions to the redux store. In practice, this provides a place to map component events to redux store actions.
 
 How it works:
 
--   Wrapping a react component in a call to the connect function, and in that function call specifiyng how the react component should be connected to the redux store.
--   Wrapping a react component (typically the root component) into a `<ReactRedux.Provider store={container}> ... </ReactRedux.Provider>` enables the connection to the redux store (via `ReactRedux.connect()`) for all react components below.
--   ReactRedux will then care of rerendering when the state changes. Explicit calls to render are not required anymore?!
+- Wrapping a react component in a call to the connect function, and in that function call specifiyng how the react component should be connected to the redux store.
+- Wrapping a react component (typically the root component) into a `<ReactRedux.Provider store={container}> ... </ReactRedux.Provider>` enables the connection to the redux store (via `ReactRedux.connect()`) for all react components below.
+- ReactRedux will then care of rerendering when the state changes. Explicit calls to render are not required anymore?!
 
 **React Redux version of Stopwatch example**
 

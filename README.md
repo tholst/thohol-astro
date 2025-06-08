@@ -5,7 +5,7 @@ Thomas Holst's personal blog about software development, web technologies, and d
 ## Features
 
 - ✅ Minimal styling
-- ✅ SEO-friendly with canonical URLs and OpenGraph data  
+- ✅ SEO-friendly with canonical URLs and OpenGraph data
 - ✅ Sitemap support
 - ✅ RSS Feed support
 - ✅ Markdown & MDX support
@@ -14,14 +14,14 @@ Thomas Holst's personal blog about software development, web technologies, and d
 
 All commands are run from the root of the project:
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `make dev`                | Alternative: Start development server            |
-| `make build`              | Alternative: Build production site               |
+| Command           | Action                                       |
+| :---------------- | :------------------------------------------- |
+| `npm install`     | Installs dependencies                        |
+| `npm run dev`     | Starts local dev server at `localhost:4321`  |
+| `npm run build`   | Build your production site to `./dist/`      |
+| `npm run preview` | Preview your build locally, before deploying |
+| `make dev`        | Alternative: Start development server        |
+| `make build`      | Alternative: Build production site           |
 
 ## Project Structure
 

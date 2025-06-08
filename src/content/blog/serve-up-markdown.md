@@ -34,7 +34,8 @@ NPM package for parsing YAML/TOML frontmatter from a markdown document
     -   `gray-matter`: markdown frontmatter parser
 
 ## mdx-js/loader
-NPM package and webpack loader for MDX 
+
+NPM package and webpack loader for MDX
 by mdx developers
 
     -   `@mdx-js/loader`: loader for markdown and markdown-with-jsx documents

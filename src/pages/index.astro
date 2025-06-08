@@ -2,26 +2,30 @@
 import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+import { SITE_DESCRIPTION } from '../consts';
 ---
 
 <!doctype html>
 <html lang="en">
-	<head>
-		<BaseHead title="All this website are belong to Thomas." description={SITE_DESCRIPTION} />
-	</head>
-	<body>
-		<Header />
-		<main>
-			<h1>Software Development & stuff</h1>
-			<p>
-				Welcome to my personal notes about software development, the Web and Everything.
-			</p>
-			<p>
-				<a href="/blog">Check out my blog posts</a> where I write about web technologies, 
-				React, Docker, and development practices.
-			</p>
-		</main>
-		<Footer />
-	</body>
+  <head>
+    <BaseHead
+      title="All this website are belong to Thomas."
+      description={SITE_DESCRIPTION}
+    />
+  </head>
+  <body>
+    <Header />
+    <main>
+      <h1>Software Development & stuff</h1>
+      <p>
+        Welcome to my personal notes about software development, the Web and
+        Everything.
+      </p>
+      <p>
+        <a href="/blog">Check out my blog posts</a> where I write about web technologies,
+        React, Docker, and development practices.
+      </p>
+    </main>
+    <Footer />
+  </body>
 </html>

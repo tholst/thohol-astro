@@ -13,16 +13,16 @@ published: false
 
 Flux
 
--   is used on facebook.com
--   Flux is not a library/framework, it's just a name for a pattern of unidirectional dataflows
--   many different implementations of that pattern exist. One of them: Redux
--   All updates to the app's state occur through a centralized dispatcher
--   That pattern enforces unidirectional data flows
+- is used on facebook.com
+- Flux is not a library/framework, it's just a name for a pattern of unidirectional dataflows
+- many different implementations of that pattern exist. One of them: Redux
+- All updates to the app's state occur through a centralized dispatcher
+- That pattern enforces unidirectional data flows
 
 Compare two-way binding with unidirectional binding:
 
--   two-way binding is simpler conceptually and requires writing less code
--   unidirectional data flow pays off as the application grows because it's more explicit, more scalable, testable and predictable
+- two-way binding is simpler conceptually and requires writing less code
+- unidirectional data flow pays off as the application grows because it's more explicit, more scalable, testable and predictable
 
 ![two-way-vs-one-way](../../assets/9_Two-Way-vs-One-Way-Data-Binding.png)
 
@@ -61,9 +61,9 @@ All data flows through the central singleton hub - the dispatcher. Stores regist
 
 Stores hold application
 
--   state
--   logic
--   data retrieval methods
+- state
+- logic
+- data retrieval methods
 
 A store is not a model in an MVC-sense. It _contains_ models.
 An app can have one or many stores. As an app gets larger it may become handy to create multiple stores and to keep related data together in a well-named store. Stores get updated because they callbacks that they register with the dispatcher.
@@ -74,9 +74,9 @@ Flux' stores use Node's `EventEmitter`. This allows stores to listen to and broa
 
 Every store has this common interface:
 
--   extends `EventEmitter`
--   `addChangeListener` and `removeChangeListener`
--   `emitChange`
+- extends `EventEmitter`
+- `addChangeListener` and `removeChangeListener`
+- `emitChange`
 
 **Dependencies between stores**
 
@@ -84,12 +84,12 @@ In larger applications with multiple stores, the dispatcher can be used to manag
 
 **Controller Views**
 
--   Top-level component
--   Controls data flows for its child components, by setting props on them
--   Interacts with stores, i.e., controller views directly receive updates from stores (whereas their child components receive updates indirectly through their parent controller views)
--   **Smart** Component not Dumb Component
--   **Container** Component not Presentation Component
--   Idea: Creating separate components for logic and markup can make components easier to maintain and reuse.
+- Top-level component
+- Controls data flows for its child components, by setting props on them
+- Interacts with stores, i.e., controller views directly receive updates from stores (whereas their child components receive updates indirectly through their parent controller views)
+- **Smart** Component not Dumb Component
+- **Container** Component not Presentation Component
+- Idea: Creating separate components for logic and markup can make components easier to maintain and reuse.
 
 **Differences to Publish-Subscribe Model**
 
@@ -98,15 +98,15 @@ In larger applications with multiple stores, the dispatcher can be used to manag
 
 ## Why Redux?
 
--   Redux enforces **single** store
--   Reduced boilerplate compared to Flux
--   Container components are subscribed to redux store automatically
--   No separate dispatcher
--   Server-Side Rendering (somorphic/Universal JS) friendly ???
--   Immutable Store: performance benefit, enables hot reloading without using client side state
--   time-travel debugging
--   small (weighs 2kB)
--   React's most popular library
+- Redux enforces **single** store
+- Reduced boilerplate compared to Flux
+- Container components are subscribed to redux store automatically
+- No separate dispatcher
+- Server-Side Rendering (somorphic/Universal JS) friendly ???
+- Immutable Store: performance benefit, enables hot reloading without using client side state
+- time-travel debugging
+- small (weighs 2kB)
+- React's most popular library
 
 ![boilerplate-bagic](../../assets/10_Flux-Redux-Boilerplate-Magic.png)
 
@@ -118,12 +118,12 @@ In larger applications with multiple stores, the dispatcher can be used to manag
 
 Environment will
 
--   compile JSX
--   transpile modern JS
--   Linting
--   generate index.html
--   reload on save
--   do all of the above in a single command
+- compile JSX
+- transpile modern JS
+- Linting
+- generate index.html
+- reload on save
+- do all of the above in a single command
 
 **Manual Steps**
 
@@ -139,176 +139,176 @@ Environment will
 
     1. `index.html` with `app` dom node
 
-        ```html
-        <!DOCTYPE html>
-        <html lang="en">
-            <head>
-                <meta charset="utf-8" />
-                <title>Pluralsight Redux</title>
-            </head>
+       ```html
+       <!DOCTYPE html>
+       <html lang="en">
+         <head>
+           <meta charset="utf-8" />
+           <title>Pluralsight Redux</title>
+         </head>
 
-            <body>
-                <div id="app"></div>
-            </body>
-        </html>
-        ```
+         <body>
+           <div id="app"></div>
+         </body>
+       </html>
+       ```
 
     2. `index.js`, importing React and ReactDom.render
 
-        ```jsx
-        import React from "react";
-        import { render } from "react-dom";
+       ```jsx
+       import React from 'react';
+       import { render } from 'react-dom';
 
-        function Hi() {
-            return <p>Hi.</p>;
-        }
+       function Hi() {
+         return <p>Hi.</p>;
+       }
 
-        render(<Hi />, document.getElementById("app"));
-        ```
+       render(<Hi />, document.getElementById('app'));
+       ```
 
 9.  create dev config for webpack `webpack.config.dev.js` in root folder (webpack is used for bundling and as a dev server). Note that the webpack config is a js object:
 
     1. imports (using CommonJS as node does not yet support ES modules; alternatively babel-node could be used)
-        ```js
-        const webpack = require("webpack");
-        const path = require("path");
-        const HtmlWebpackPlugin = require("html-webpack-plugin");
-        ```
+       ```js
+       const webpack = require('webpack');
+       const path = require('path');
+       const HtmlWebpackPlugin = require('html-webpack-plugin');
+       ```
     2. declare node environment
-        ```js
-        process.env.NODE_ENV = "development";
-        ```
+       ```js
+       process.env.NODE_ENV = 'development';
+       ```
     3. to configure webpack we export a javascript object. To export objects in CommonJS we say
-        ```js
-        module.exports = {...}
-        ```
+       ```js
+       module.exports = {...}
+       ```
     4. set webpack to development node:
-        ```js
-        mode: "development",
-        ```
+       ```js
+       mode: "development",
+       ```
     5. set target to web (Compile for usage in a browser-like environment):
-        ```js
-        target: "web";
-        ```
+       ```js
+       target: 'web';
+       ```
     6. set dev tool to create source maps for debugging (to see original instead of transpiled and minified code when debugging in browser):
-        ```js
-        devtool: "cheap-module-source-map";
-        ```
+       ```js
+       devtool: 'cheap-module-source-map';
+       ```
     7. declare app entry point to be the just created `index.js` file:
-        ```js
-        entry: "./src/index";
-        ```
+       ```js
+       entry: './src/index';
+       ```
     8. declare where webpack should put the output (Note: in development mode, webpack does not actually create any files, it serves the app from memory), path is current dir plus "build", public is the relative URL that is mapped to that path, filename is the (virtual) filename of the bundle which will be referenced inside the html file:
-        ```js
-        output: {
-            path: path.resolve(__dirname, "build"),
-            public: "/",
-            filename: "bundle.js"
-        }
-        ```
+       ```js
+       output: {
+           path: path.resolve(__dirname, "build"),
+           public: "/",
+           filename: "bundle.js"
+       }
+       ```
     9. configure webpack's dev server (stats minimal reduces noise on command line, overlay any errors in the browser's console, historyApiFallback will make all urls go through index.js using react router), the last three are to handle an issue with chrome:
 
-        ```js
-        devServer: {
-            stats: "minimal",
-            overlay: true,
-            historyApiFallback: true,
-            disableHostCheck: true,
-            headers: { "Access-Control-Allow-Origin": "*" },
-            https: false
-        }
-        ```
+       ```js
+       devServer: {
+           stats: "minimal",
+           overlay: true,
+           historyApiFallback: true,
+           disableHostCheck: true,
+           headers: { "Access-Control-Allow-Origin": "*" },
+           https: false
+       }
+       ```
 
     10. configure plugins:
         ```js
         plugins: [
-            new HtmlWebpackPlugin({
-                template: "src/index.html",
-                favicon: "src/favicon.ico"
-            })
+          new HtmlWebpackPlugin({
+            template: 'src/index.html',
+            favicon: 'src/favicon.ico',
+          }),
         ];
         ```
     11. configure module (call babel for all js/jsx files, allow regular import of css files and make webpack bundle them together):
         ```js
         module: {
-            rules: [
-                {
-                    test: /\.(js|jsx)$/,
-                    exclude: /node_modules/,
-                    use: ["babel-loader"]
-                },
-                {
-                    test: /(\.css)$/,
-                    use: ["style-loader", "css-loader"]
-                }
-            ];
+          rules: [
+            {
+              test: /\.(js|jsx)$/,
+              exclude: /node_modules/,
+              use: ['babel-loader'],
+            },
+            {
+              test: /(\.css)$/,
+              use: ['style-loader', 'css-loader'],
+            },
+          ];
         }
         ```
     12. the final complete webpack config should look like:
 
         ```js
-        const webpack = require("webpack");
-        const path = require("path");
-        const HtmlWebpackPlugin = require("html-webpack-plugin");
+        const webpack = require('webpack');
+        const path = require('path');
+        const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-        process.env.NODE_ENV = "development";
+        process.env.NODE_ENV = 'development';
 
         module.exports = {
-            mode: "development",
-            target: "web",
-            devtool: "cheap-module-source-map",
-            entry: "./src/index",
-            output: {
-                path: path.resolve(__dirname, "build"),
-                publicPath: "/",
-                filename: "bundle.js"
-            },
-            devServer: {
-                stats: "minimal",
-                overlay: true,
-                historyApiFallback: true,
-                disableHostCheck: true,
-                headers: { "Access-Control-Allow-Origin": "*" },
-                https: false
-            },
-            plugins: [
-                new HtmlWebpackPlugin({
-                    template: "src/index.html",
-                    favicon: "src/favicon.ico"
-                })
+          mode: 'development',
+          target: 'web',
+          devtool: 'cheap-module-source-map',
+          entry: './src/index',
+          output: {
+            path: path.resolve(__dirname, 'build'),
+            publicPath: '/',
+            filename: 'bundle.js',
+          },
+          devServer: {
+            stats: 'minimal',
+            overlay: true,
+            historyApiFallback: true,
+            disableHostCheck: true,
+            headers: { 'Access-Control-Allow-Origin': '*' },
+            https: false,
+          },
+          plugins: [
+            new HtmlWebpackPlugin({
+              template: 'src/index.html',
+              favicon: 'src/favicon.ico',
+            }),
+          ],
+          module: {
+            rules: [
+              {
+                test: /\.(js|jsx)$/,
+                exclude: /node_modules/,
+                use: ['babel-loader', 'eslint-loader'],
+              },
+              {
+                test: /(\.css)$/,
+                use: ['style-loader', 'css-loader'],
+              },
             ],
-            module: {
-                rules: [
-                    {
-                        test: /\.(js|jsx)$/,
-                        exclude: /node_modules/,
-                        use: ["babel-loader", "eslint-loader"]
-                    },
-                    {
-                        test: /(\.css)$/,
-                        use: ["style-loader", "css-loader"]
-                    }
-                ]
-            }
+          },
         };
         ```
 
 10. configure babel (to transpile modern JS and JSX ). Babel can be configured via `.babelrc` or `package.json` (used here):
     1. babel related packages:
-        ```json
-        "@babel/core": "7.3.4",
-        "babel-eslint": "10.0.1",
-        "babel-loader": "8.0.5",
-        "babel-preset-react-app": "7.0.2",
-        ```
+       ```json
+       "@babel/core": "7.3.4",
+       "babel-eslint": "10.0.1",
+       "babel-loader": "8.0.5",
+       "babel-preset-react-app": "7.0.2",
+       ```
     1. `babel` config section in `package.json` using _react preset_ (to transpile JSX and modern JS):
-        ```json
-        "babel": {
-            "presets": [
-                "babel-preset-react-app"
-            ]
-        }
-        ```
+       ```json
+       "babel": {
+           "presets": [
+               "babel-preset-react-app"
+           ]
+       }
+       ```
 11. add npm scripts to `scripts` section in `package.json`
 
     1.  add script to start application via webpack dev server (using config from above):
@@ -367,17 +367,17 @@ Environment will
     3.  add eslint loader to webpack module loader rules in `webpack.config.dev.js` (rules are executed last-to-first, i.e., "run eslint first, then run babel"):
         ```js
         module: {
-            rules: [
-                {
-                    test: /\.(js|jsx)$/,
-                    exclude: /node_modules/,
-                    use: ["babel-loader", "eslint-loader"]
-                },
-                {
-                    test: /(\.css)$/,
-                    use: ["style-loader", "css-loader"]
-                }
-            ];
+          rules: [
+            {
+              test: /\.(js|jsx)$/,
+              exclude: /node_modules/,
+              use: ['babel-loader', 'eslint-loader'],
+            },
+            {
+              test: /(\.css)$/,
+              use: ['style-loader', 'css-loader'],
+            },
+          ];
         }
         ```
 
@@ -386,48 +386,48 @@ Environment will
 ### 4 ways to write react components
 
 1. createClass component
-    ```jsx
-    var HelloWorld = React.createClass({
-        render: function() {
-            return <h1>Hello World</h1>;
-        }
-    });
-    ```
+   ```jsx
+   var HelloWorld = React.createClass({
+     render: function () {
+       return <h1>Hello World</h1>;
+     },
+   });
+   ```
 2. ES class component
 
-    ```jsx
-    class HelloWorld extends React.Component {
-        constructor(props) {
-            super(props);
-        }
+   ```jsx
+   class HelloWorld extends React.Component {
+     constructor(props) {
+       super(props);
+     }
 
-        render() {
-            return <h1>Hello World</h1>;
-        }
-    }
-    ```
+     render() {
+       return <h1>Hello World</h1>;
+     }
+   }
+   ```
 
 3. Function component
-    ```jsx
-    function HelloWorld(props) {
-        return <h1>Hello World</h1>;
-    }
-    ```
+   ```jsx
+   function HelloWorld(props) {
+     return <h1>Hello World</h1>;
+   }
+   ```
 4. arrow function component
-    ```jsx
-    const HelloWorld = props => <h1>Hello World</h1>;
-    ```
+   ```jsx
+   const HelloWorld = (props) => <h1>Hello World</h1>;
+   ```
 
 ### Benefits of Functional React Components
 
--   easier to understand
--   avoid `this` keyword
--   transpiled code much smaller
--   higher signal-to-noise ratio (= less boilerplate code)
--   enhanced code completion (intellisense) when used with destructured props
--   pure functions are easier to test
--   performance (no wrapper instance created since react 16)
--   classes may be removed in the future (they will mostly be replaced by functional components + react hooks)
+- easier to understand
+- avoid `this` keyword
+- transpiled code much smaller
+- higher signal-to-noise ratio (= less boilerplate code)
+- enhanced code completion (intellisense) when used with destructured props
+- pure functions are easier to test
+- performance (no wrapper instance created since react 16)
+- classes may be removed in the future (they will mostly be replaced by functional components + react hooks)
 
 ### When should I use each
 
@@ -471,40 +471,40 @@ Environment will
 
 ## App Structure
 
--   src/
-    -   index.js
-    -   index.css
-    -   components/
-        -   App.js
-        -   PageNotFound.js
-        -   common/
-            -   Header.js
-        -   about/
-            -   AboutPage.js
-        -   courses/
-            -   CoursesPage.js
-        -   home/
-            -   HomePage.js
-            -
--   package.json
--   webpack.config.dev.js
+- src/
+  - index.js
+  - index.css
+  - components/
+    - App.js
+    - PageNotFound.js
+    - common/
+      - Header.js
+    - about/
+      - AboutPage.js
+    - courses/
+      - CoursesPage.js
+    - home/
+      - HomePage.js
+      -
+- package.json
+- webpack.config.dev.js
 
 ## Redux
 
 ### Alternatives
 
 1. Lift State
-    - data needed by two separate component is "lifted" to their common ancestor
-    - all ancestors in between need to pass data down ("Prop Drilling")
-    - ![lift-state](../../assets/12_React-Lift-State.png)
+   - data needed by two separate component is "lifted" to their common ancestor
+   - all ancestors in between need to pass data down ("Prop Drilling")
+   - ![lift-state](../../assets/12_React-Lift-State.png)
 2. React context
-    - a central component acts a _context provider_
-    - components depending on that data are _context consumers_
-    - ![react-context](../../assets/14_React-context-with-callback.png)
+   - a central component acts a _context provider_
+   - components depending on that data are _context consumers_
+   - ![react-context](../../assets/14_React-context-with-callback.png)
 3. Redux
-    - central store (like a client-side database)
-    - components can connect to store and send actions
-    - ![react-redux](../../assets/15_React-Redux.png)
+   - central store (like a client-side database)
+   - components can connect to store and send actions
+   - ![react-redux](../../assets/15_React-Redux.png)
 
 ### When to use each?
 

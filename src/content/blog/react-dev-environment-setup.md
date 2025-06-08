@@ -14,11 +14,11 @@ published: false
 1. Install NPM package globally (optional): `npm install -g create-react-app`
 1. Create new project `my-app` (two options)
 
-    1. Use global installation: `create-react-app my-app`
+   1. Use global installation: `create-react-app my-app`
 
-    **OR**
+   **OR**
 
-    2. Use `npx` command (_executes npm package binaries_): `npx create-react-app my-app`
+   2. Use `npx` command (_executes npm package binaries_): `npx create-react-app my-app`
 
 1. Then you can `cd` into the project directory: `cd my-app`
 1. Start local dev server: `npm start`
@@ -56,36 +56,36 @@ _Note_ Install dependencies only for development environment with `-D` or `--sav
 1. Install `node` wrapper `nodemon` which can automatically restart a node application when it detects file changes: `npm install --save-dev nodemon`
 2. Install linter `eslint` with some `babel` and `react` specific addons: `npm i -D eslint babel-eslint eslint-plugin-react eslint-plugin-react-hooks`
 
-    1. Create the eslint config file in the project's root directory: `touch .eslintrc.js`
-    1. Start with the following content:
+   1. Create the eslint config file in the project's root directory: `touch .eslintrc.js`
+   1. Start with the following content:
 
-        ```
-        module.exports = {
-            parser: 'babel-eslint',
-            env: {
-                browser: true,
-                commonjs: true,
-                es6: true,
-                node: true,
-                jest: true,
-            },
-            plugins: ['react-hooks', 'react'],
-            extends: ['eslint:recommended', 'plugin:react/recommended'],
-            parserOptions: {
-                ecmaVersion: 2018,
-                ecmaFeatures: {
-                impliedStrict: true,
-                jsx: true,
-                },
-                sourceType: 'module',
-            },
-            rules: {
-                // You can do your customizations here...
-                // For example, if you don't want to use the prop-types package,
-                // you can turn off that recommended rule with: 'react/prop-types': ['off']
-            },
-        };
-        ```
+      ```
+      module.exports = {
+          parser: 'babel-eslint',
+          env: {
+              browser: true,
+              commonjs: true,
+              es6: true,
+              node: true,
+              jest: true,
+          },
+          plugins: ['react-hooks', 'react'],
+          extends: ['eslint:recommended', 'plugin:react/recommended'],
+          parserOptions: {
+              ecmaVersion: 2018,
+              ecmaFeatures: {
+              impliedStrict: true,
+              jsx: true,
+              },
+              sourceType: 'module',
+          },
+          rules: {
+              // You can do your customizations here...
+              // For example, if you don't want to use the prop-types package,
+              // you can turn off that recommended rule with: 'react/prop-types': ['off']
+          },
+      };
+      ```
 
 3. Consider installing [prettier](https://prettier.io/)
 4. Install `jest` testing library: `npm i -D jest babel-jest react-test-renderer`
@@ -115,45 +115,45 @@ my-app/
 
 1. Configure `babel` for JSX and modern JS.
 
-    1. create babel config file in project's root directory: `touch babel.config.js`
-    1. start with the following content (`preset-env` for modern JS, `preset-react` for JSX):
+   1. create babel config file in project's root directory: `touch babel.config.js`
+   1. start with the following content (`preset-env` for modern JS, `preset-react` for JSX):
 
-    ```
-    module.exports = {
-        presets: ['@babel/preset-env', '@babel/preset-react'],
-    };
-    ```
+   ```
+   module.exports = {
+       presets: ['@babel/preset-env', '@babel/preset-react'],
+   };
+   ```
 
 2. Configure `webpack` to bundle application into single file:
 
-    1. create webpack config file project's root directory: `touch webpack.config.js`
+   1. create webpack config file project's root directory: `touch webpack.config.js`
 
-    1. start with the following content:
+   1. start with the following content:
 
-    ```
-    module.exports = {
-        module: {
-            rules: [
-            {
-                test: /\.js$/,
-                exclude: /node_modules/,
-                use: {
-                loader: 'babel-loader',
-                },
-            },
-            ],
-        },
-    };
-    ```
+   ```
+   module.exports = {
+       module: {
+           rules: [
+           {
+               test: /\.js$/,
+               exclude: /node_modules/,
+               use: {
+               loader: 'babel-loader',
+               },
+           },
+           ],
+       },
+   };
+   ```
 
-    _Note:_ Webpack has certain defaults on which JavaScript file to start with. It looks for a `src/index.js` file. It'll also output the bundle to `dist/main.js` by default. If you need to change the locations of your `src` and `dist` files, you'll need a few more configuration entries in `webpack.config.js`.
+   _Note:_ Webpack has certain defaults on which JavaScript file to start with. It looks for a `src/index.js` file. It'll also output the bundle to `dist/main.js` by default. If you need to change the locations of your `src` and `dist` files, you'll need a few more configuration entries in `webpack.config.js`.
 
 ### Creating NPM scripts for development
 
 1. In `package.json`, in the `scripts` section, make the following changes:
-    1. Make the `test` script use `jest`: `"test": "jest"`
-    2. Add `dev-server` script that uses babel and nodemon: `"dev-server": "nodemon --exec babel-node src/server/server.js --ignore dist/"`
-    3. Add `dev-bundle` script to run webpack: `"dev-bundle": "webpack -wd"`
+   1. Make the `test` script use `jest`: `"test": "jest"`
+   2. Add `dev-server` script that uses babel and nodemon: `"dev-server": "nodemon --exec babel-node src/server/server.js --ignore dist/"`
+   3. Add `dev-bundle` script to run webpack: `"dev-bundle": "webpack -wd"`
 
 All in all:
 

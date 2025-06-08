@@ -21,27 +21,27 @@ It's hard to imagine today's office workspaces without slide-deck presentations 
 
 1. Create new `.md` file and open in editor.
 
-    ```bash
-    $ code Example.md
-    ```
+   ```bash
+   $ code Example.md
+   ```
 
 2. Download and execute reveal-md, pointing it to your presentation file.
 
-    - a) **Without installation** using `npx`:
-        ```bash
-        $ npx reveal-md Example.md --port 7742 --watch
-        ```
-        **or**
-    - b) **With global installation** using `npm`:
+   - a) **Without installation** using `npx`:
+     ```bash
+     $ npx reveal-md Example.md --port 7742 --watch
+     ```
+     **or**
+   - b) **With global installation** using `npm`:
 
-        ```bash
-        # Install globally once
-        $ npm install -g reveal-md
-        # Afterwards simply run as follows
-        $ reveal-md Example.md --port 7742 --watch
-        ```
+     ```bash
+     # Install globally once
+     $ npm install -g reveal-md
+     # Afterwards simply run as follows
+     $ reveal-md Example.md --port 7742 --watch
+     ```
 
-        This will serve the slideshow presentation at `localhost:7742` and should automatically open your browser. You should see an empty presentation screen.
+     This will serve the slideshow presentation at `localhost:7742` and should automatically open your browser. You should see an empty presentation screen.
 
 ### 3. Add some slides
 
@@ -49,77 +49,77 @@ Now go **back to your editor** and **add some simple slides** to your presentati
 
 1. Start with a **title slide**, just as you would in a regular markdown document:
 
-    ```markdown
-    # My Example Presentation's Title
+   ```markdown
+   # My Example Presentation's Title
 
-    A nice presentation by _Author_.
-    ```
+   A nice presentation by _Author_.
+   ```
 
 2. Add a **slide separator**:
-    ```markdown
-    ---
-    ```
+   ```markdown
+   ---
+   ```
 3. Create a **content slide**:
 
-    ````markdown
-    ## Some things to show
+   ````markdown
+   ## Some things to show
 
-    -   Bullet
-    -   Point
-    -   List
+   - Bullet
+   - Point
+   - List
 
-    ```js
-    var some = () => "code";
-    ```
+   ```js
+   var some = () => 'code';
+   ```
 
-    ![A nice Image](https://via.placeholder.com/300x50/0000FF/FF0080?text=Image!!)
-    ````
+   ![A nice Image](https://via.placeholder.com/300x50/0000FF/FF0080?text=Image!!)
+   ````
 
 4. Add another **slide separator**:
-    ```markdown
-    ---
-    ```
+   ```markdown
+   ---
+   ```
 5. Add a **Thank You slide**.
 
-    ```markdown
-    # Thank You!
+   ```markdown
+   # Thank You!
 
-    <div style="font-size: 18px; text-align: right;">
-        Your Author
-    </div>
-    ```
+   <div style="font-size: 18px; text-align: right;">
+       Your Author
+   </div>
+   ```
 
 6. **Complete example**. All three slides together in 25 lines of markdown.
 
-    ````markdown
-    # My Example Presentation's Title
+   ````markdown
+   # My Example Presentation's Title
 
-    A nice presentation by _Author_.
+   A nice presentation by _Author_.
 
-    ---
+   ---
 
-    ## Some things to show
+   ## Some things to show
 
-    -   Bullet
-    -   Point
-    -   List
+   - Bullet
+   - Point
+   - List
 
-    ```js
-    var some = () => "code";
-    ```
+   ```js
+   var some = () => 'code';
+   ```
 
-    ![A nice Image](https://via.placeholder.com/300x50/0000FF/FF0080?text=Image!!)
+   ![A nice Image](https://via.placeholder.com/300x50/0000FF/FF0080?text=Image!!)
 
-    ---
+   ---
 
-    # Thank You!
+   # Thank You!
 
-    <div style="font-size: 18px; text-align: right;">
-        Your Author
-    </div>
-    ````
+   <div style="font-size: 18px; text-align: right;">
+       Your Author
+   </div>
+   ````
 
-    ![exampleGif](/19a1_Example_Slideshow.gif)
+   ![exampleGif](/19a1_Example_Slideshow.gif)
 
 ## Additional Options
 
@@ -140,94 +140,93 @@ title: Yet Another Presentation I Have To Give
 separator: ---
 theme: black
 revealOptions:
-    transition: "slide"
+  transition: 'slide'
 ---
-
 ```
 
 ### Themes
 
 Reveal.js comes with multiple themes. The following themes may be specified with the `theme` property.
 
--   ```yaml
-    theme: black
-    ```
-    ![black](/19a2_Theme_Black.png)
--   ```yaml
-    theme: white
-    ```
-    ![white](/19a3_Theme_White.png)
--   ```yaml
-    theme: moon
-    ```
-    ![moon](/19a4_Theme_Moon.png)
--   ```yaml
-    theme: league
-    ```
-    ![league](/19a5_Theme_League.png)
--   ```yaml
-    theme: beige
-    ```
-    ![beige](/19a6_Theme_Beige.png)
--   ```yaml
-    theme: sky
-    ```
-    ![sky](/19a7_Theme_Sky.png)
--   ```yaml
-    theme: night
-    ```
-    ![night](/19a8_Theme_Night.png)
--   ```yaml
-    theme: serif
-    ```
-    ![serif](/19a9_Theme_Serif.png)
--   ```yaml
-    theme: simple
-    ```
-    ![simple](/19a10_Theme_Simple.png)
--   ```yaml
-    theme: solarize
-    ```
-    ![solarize](/19a11_Theme_Solarize.png)
--   ```yaml
-    theme: blood
-    ```
-    ![blood](/19a12_Theme_Blood.png)
+- ```yaml
+  theme: black
+  ```
+  ![black](/19a2_Theme_Black.png)
+- ```yaml
+  theme: white
+  ```
+  ![white](/19a3_Theme_White.png)
+- ```yaml
+  theme: moon
+  ```
+  ![moon](/19a4_Theme_Moon.png)
+- ```yaml
+  theme: league
+  ```
+  ![league](/19a5_Theme_League.png)
+- ```yaml
+  theme: beige
+  ```
+  ![beige](/19a6_Theme_Beige.png)
+- ```yaml
+  theme: sky
+  ```
+  ![sky](/19a7_Theme_Sky.png)
+- ```yaml
+  theme: night
+  ```
+  ![night](/19a8_Theme_Night.png)
+- ```yaml
+  theme: serif
+  ```
+  ![serif](/19a9_Theme_Serif.png)
+- ```yaml
+  theme: simple
+  ```
+  ![simple](/19a10_Theme_Simple.png)
+- ```yaml
+  theme: solarize
+  ```
+  ![solarize](/19a11_Theme_Solarize.png)
+- ```yaml
+  theme: blood
+  ```
+  ![blood](/19a12_Theme_Blood.png)
 
 ### Transition Style
 
 Reveal.js comes with multiple transition styles. The following themes may be specified with the `transition` sub-property of the `revealOptions` property.
 
--   ```yaml
-    revealOptions:
-        transition: none
-    ```
-    ![none](/19a13_Transition_None.gif)
--   ```yaml
-    revealOptions:
-        transition: fade
-    ```
-    ![fade](/19a14_Transition_Fade.gif)
--   ```yaml
-    revealOptions:
-        transition: slide
-    ```
-    ![slide](/19a15_Transition_Slide.gif)
--   ```yaml
-    revealOptions:
-        transition: convex
-    ```
-    ![convex](/19a16_Transition_Convex.gif)
--   ```yaml
-    revealOptions:
-        transition: concave
-    ```
-    ![concave](/19a17_Transition_Concave.gif)
--   ```yaml
-    revealOptions:
-        transition: zoom
-    ```
-    ![zoom](/19a18_Transition_Zoom.gif)
+- ```yaml
+  revealOptions:
+    transition: none
+  ```
+  ![none](/19a13_Transition_None.gif)
+- ```yaml
+  revealOptions:
+    transition: fade
+  ```
+  ![fade](/19a14_Transition_Fade.gif)
+- ```yaml
+  revealOptions:
+    transition: slide
+  ```
+  ![slide](/19a15_Transition_Slide.gif)
+- ```yaml
+  revealOptions:
+    transition: convex
+  ```
+  ![convex](/19a16_Transition_Convex.gif)
+- ```yaml
+  revealOptions:
+    transition: concave
+  ```
+  ![concave](/19a17_Transition_Concave.gif)
+- ```yaml
+  revealOptions:
+    transition: zoom
+  ```
+  ![zoom](/19a18_Transition_Zoom.gif)
 
 ### Full Page Pictures / Background
 
@@ -288,16 +287,16 @@ Still here? Ok, so: `Reveal.js` offers two dimensions of navigation between slid
 
 Take this content structure as an example:
 
--   Topic 1 Slide
-    -   Sub-topic 1.1 Slide
-    -   Sub-topic 1.2 Slide
-    -   Sub-topic 1.3 Slide
--   Topic 2 Slide
-    -   Sub-topic 2.1 Slide
-    -   Sub-topic 2.2 Slide
--   Topic 3 Slide
+- Topic 1 Slide
+  - Sub-topic 1.1 Slide
+  - Sub-topic 1.2 Slide
+  - Sub-topic 1.3 Slide
+- Topic 2 Slide
+  - Sub-topic 2.1 Slide
+  - Sub-topic 2.2 Slide
+- Topic 3 Slide
 
-A *horizontal navigation* would switch between topics 1 to 3, whereas a *vertical navigation* would move from a slide for Topic 1 to slides for sub-topics 1.1 to 1.3.
+A _horizontal navigation_ would switch between topics 1 to 3, whereas a _vertical navigation_ would move from a slide for Topic 1 to slides for sub-topics 1.1 to 1.3.
 
 Well... I think, this may sound very nice in theory. In practice, I have never seen it working well. It's just too hard for the audience to follow a two-dimensional structure.
 
