@@ -9,4 +9,21 @@ export default [
   {
     ignores: ['dist/', 'node_modules/', '.astro/', 'src/assets/*.jsx'],
   },
+  {
+    files: ['scripts/*.js'],
+    languageOptions: {
+      globals: {
+        console: 'writable',
+        process: 'writable',
+        setTimeout: 'writable',
+        __dirname: 'writable',
+        module: 'writable',
+        require: 'writable',
+        exports: 'writable',
+      },
+    },
+    rules: {
+      'no-undef': 'off',
+    },
+  },
 ];
