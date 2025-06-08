@@ -2,7 +2,6 @@
 title: Monkey Patching NPM Packages
 description: Fixing packages when forking is not an option; using patch-package
 pubDate: 2020-01-19
-updatedDate: 
 ---
 
 So, I recently found this bug in one of the NPM packages this blog depends on. It's a one-line fix, but fixing the code itself was the smallest problem. I came to realize that I needed to monkey patch the NPM package. (See below WHY this was needed and other approaches did not work.)

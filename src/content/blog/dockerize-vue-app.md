@@ -2,7 +2,6 @@
 title: Dockerize a Vue.js app
 description: Run your web app in a Docker container
 pubDate: 2020-05-28
-updatedDate: 
 ---
 
 If you are building a larger web application with multiple backend and frontend services, chances are high that you will sooner or later want to deploy and run your Vue.js application inside a Docker container. 

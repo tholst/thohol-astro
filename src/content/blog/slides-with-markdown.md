@@ -2,7 +2,6 @@
 title: Slides with Markdown
 description: Markdown-based slides in the browser with reveal.js / reveal-md
 pubDate: 2019-11-17
-updatedDate: 
 ---
 
 It's hard to imagine today's office workspaces without slide-deck presentations somewhere in the background. Whether it's marketing slides presented to some customer, or structured arguments to facilitate an internal discussion with colleagues; slides are hard to avoid. But sometimes MS Powerpoint can really feel like overkill, especially if it's on the lower, more internal end of the spectrum. In addition, it can get quite annoying if you want to show some properly formatted source code. You may typically end up spending more time on the styling and layout than on the the content itself. What if we could create slides as easily as we write articles (like the one you are reading right now) and documentation? In markdown!

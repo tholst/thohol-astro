@@ -2,7 +2,6 @@
 title: "Keycloak: custom claims from external systems"
 description: Implementing a Custom Protocol Mapper for authenticated GraphQL queries
 pubDate: 2020-08-08
-updatedDate: 
 ---
 
 I am using a **Custom Protocol Mapper**<sup>1</sup> to send an **authenticated**<sup>2</sup> **GraphQL query**<sup>3</sup> to an external system and put the JSON response data into the user's access token (JWT). It currently runs with Keycloak 10.

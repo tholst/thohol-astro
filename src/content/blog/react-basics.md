@@ -3,6 +3,7 @@ title: React Basics
 description: My reminder notes for react's basic concepts
 pubDate: 2019-10-30
 updatedDate: 2020-01-09
+published: false
 ---
 
 # React Basics

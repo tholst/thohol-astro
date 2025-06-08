@@ -2,7 +2,6 @@
 title: Hey DOM, where are you (currently visible)?
 description: Get notified when DOM elements are scrolling in/out of viewport; Lazy Loading of Images; IntersectionObserver
 pubDate: 2019-11-10
-updatedDate: 
 ---
 
 Is some DOM element currently visible? Is it fully visible, or only partially? Is it currently moving into view or is it leaving the screen? [IntersectionObserver](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API) can answer these questions (and some more generic ones)!

@@ -5,7 +5,12 @@ import { render } from 'astro:content';
 
 export async function getStaticPaths() {
 	const posts = await getCollection('blog');
-	return posts.map((post) => ({
+	// In production, filter out unpublished posts
+	const filteredPosts = import.meta.env.PROD 
+		? posts.filter((post) => post.data.published !== false)
+		: posts; // In dev, show all posts
+	
+	return filteredPosts.map((post) => ({
 		params: { slug: post.id },
 		props: post,
 	}));

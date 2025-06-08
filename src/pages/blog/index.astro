@@ -7,9 +7,12 @@ import { getCollection } from 'astro:content';
 import FormattedDate from '../../components/FormattedDate.astro';
 import { Image } from 'astro:assets';
 
-const posts = (await getCollection('blog')).sort(
-	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
-);
+const allPosts = await getCollection('blog');
+// In production, filter out unpublished posts; in dev, show all
+const posts = (import.meta.env.PROD 
+	? allPosts.filter((post) => post.data.published !== false)
+	: allPosts)
+	.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 ---
 
 <!doctype html>
