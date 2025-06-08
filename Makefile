@@ -1,6 +1,6 @@
 # Makefile for thohol-astro blog
 
-.PHONY: help dev build preview clean install
+.PHONY: help dev build preview clean install screenshots
 
 # Default target
 help:
@@ -10,6 +10,7 @@ help:
 	@echo "  make preview  - Preview production build"
 	@echo "  make install  - Install dependencies"
 	@echo "  make clean    - Clean build directory"
+	@echo "  make screenshots - Take screenshots of the site"
 
 # Development server
 dev:
@@ -30,3 +31,7 @@ install:
 # Clean build directory
 clean:
 	rm -rf dist/
+
+# Take screenshots
+screenshots:
+	npm run screenshots
