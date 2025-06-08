@@ -2,6 +2,7 @@
 import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import ThemeToggle from '../components/ThemeToggle.astro';
 import { SITE_DESCRIPTION } from '../consts';
 ---
 
@@ -12,8 +13,42 @@ import { SITE_DESCRIPTION } from '../consts';
       title="All this website are belong to Thomas."
       description={SITE_DESCRIPTION}
     />
+    <style>
+      main {
+        width: 720px;
+        max-width: calc(100% - 2em);
+        margin: auto;
+        padding: 3em 1em;
+        color: var(--text-primary);
+      }
+      h1 {
+        margin-bottom: 1em;
+        color: var(--text-primary);
+      }
+      p {
+        margin-bottom: 1.5em;
+        color: var(--text-secondary);
+      }
+      a {
+        color: var(--accent);
+        text-decoration: none;
+        transition: color 0.2s ease;
+      }
+      a:hover {
+        color: var(--accent-dark);
+      }
+      .theme-toggle-container {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        z-index: 100;
+      }
+    </style>
   </head>
   <body>
+    <div class="theme-toggle-container">
+      <ThemeToggle />
+    </div>
     <Header />
     <main>
       <h1>Software Development & stuff</h1>
