@@ -7,20 +7,18 @@ import ThemeToggle from './ThemeToggle.astro';
   <nav>
     <div class="site-title">
       <h2><a href="/blog">Thomas Holst</a></h2>
-      <div class="subtitle">
-        <a href="/blog">Software Development</a>
-        <a
-          href="https://www.urbandictionary.com/define.php?term=and%20stuff"
-          target="_blank">& stuff</a
-        >
+      <div class="subtitle">Personal Notes on Software Engineering</div>
+    </div>
+    <div class="nav-center">
+      <div class="internal-links">
+        <HeaderLink href="/blog">Posts</HeaderLink>
+        <HeaderLink href="/about">About</HeaderLink>
       </div>
     </div>
-    <div class="internal-links">
-      <HeaderLink href="/blog">Posts</HeaderLink>
-      <HeaderLink href="/about">About</HeaderLink>
-    </div>
-    <div class="theme-toggle-wrapper">
-      <ThemeToggle />
+    <div class="nav-right">
+      <div class="theme-toggle-wrapper">
+        <ThemeToggle />
+      </div>
     </div>
   </nav>
 </header>
@@ -30,12 +28,16 @@ import ThemeToggle from './ThemeToggle.astro';
     padding: 0 1em;
     background: var(--bg-primary);
     box-shadow: 0 2px 8px rgba(var(--black), 5%);
+    border-bottom: 4px solid var(--border-color);
     transition: all 0.3s ease;
   }
   h2 {
     margin: 0;
-    font-size: 1.25rem;
-    font-weight: 400;
+    font-size: 1.5rem;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.5px;
+    text-shadow: 0 1px 2px rgba(var(--black), 10%);
   }
 
   h2 a,
@@ -45,66 +47,113 @@ import ThemeToggle from './ThemeToggle.astro';
     transition: color 0.3s ease;
   }
 
+  h2 a:hover {
+    color: var(--accent);
+  }
+
   .site-title {
     display: flex;
     flex-direction: column;
+    align-items: flex-start;
+    flex: 0 0 auto;
+    min-width: 180px;
+    z-index: 2;
   }
 
   .subtitle {
-    font-size: 0.875rem;
+    font-size: 0.95rem;
     color: var(--text-secondary);
-  }
-
-  .subtitle a {
-    text-decoration: none;
-    color: var(--text-secondary);
-    padding: 0;
-    border: none;
-    transition: color 0.3s ease;
+    margin-top: 0.1em;
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: 0.1px;
   }
 
   nav {
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: space-between;
-    padding: 0.5em 0;
+    padding: 0.5em 0 0 0;
     gap: 2em;
+    position: relative;
+  }
+
+  .nav-center {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    flex: 1;
   }
 
   .internal-links {
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     gap: 1em;
+    position: relative;
   }
 
   nav a {
-    padding: 1em 0.5em;
+    padding: 1em 0.5em 0.5em 0.5em;
     color: var(--text-primary);
     border-bottom: 4px solid transparent;
     text-decoration: none;
     transition: all 0.3s ease;
+    font-size: 1.05rem;
+    font-weight: 500;
+    line-height: 1.2;
+    position: relative;
   }
 
   nav a.active {
     text-decoration: none;
     border-bottom-color: var(--accent);
+    margin-bottom: -4px;
+    z-index: 1;
+  }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5em;
+    flex: 0 0 auto;
+    min-width: 120px;
+    z-index: 2;
   }
 
   .theme-toggle-wrapper {
     display: flex;
     align-items: center;
-    margin-left: auto;
-    padding: 0.5em;
+    margin-left: 1em;
+    padding: 0.5em 0 0.5em 1em;
     border-left: 1px solid var(--border-color);
   }
 
-  @media (max-width: 720px) {
+  @media (max-width: 900px) {
     nav {
       gap: 1em;
     }
     .theme-toggle-wrapper {
       margin-left: 0.5em;
       padding: 0.5em 0;
+    }
+    .site-title {
+      align-items: flex-start;
+      margin-right: 0;
+    }
+    .nav-center {
+      flex: 0 0 auto;
+      justify-content: flex-start;
+      width: 100%;
+      order: 3;
+      margin-top: 1em;
+    }
+    .internal-links {
+      width: 100%;
+      justify-content: center;
+    }
+    .nav-right {
+      order: 2;
+      margin-left: 0;
     }
   }
 </style>
