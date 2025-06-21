@@ -29,24 +29,54 @@ const today = new Date();
 </footer>
 <style>
   footer {
-    padding: 2em 1em 6em 1em;
-    background: linear-gradient(var(--gray-gradient)) no-repeat;
-    color: rgb(var(--gray));
+    padding: 3em 2em 4em 2em;
+    background: linear-gradient(
+      135deg,
+      var(--bg-secondary) 0%,
+      var(--bg-primary) 100%
+    );
+    color: var(--text-secondary);
     text-align: center;
+    border-top: 1px solid var(--border-color);
+    margin-top: 4rem;
+    transition:
+      background 0.3s ease,
+      color 0.3s ease,
+      border-color 0.3s ease;
   }
   .copyright {
-    margin-bottom: 1em;
+    margin-bottom: 1.5em;
+    font-size: 0.95rem;
+    font-weight: 500;
   }
   .social-links {
     display: flex;
     justify-content: center;
-    gap: 1em;
+    gap: 1.5em;
   }
   .social-links a {
     text-decoration: none;
-    color: rgb(var(--gray));
+    color: var(--text-secondary);
+    transition:
+      all 0.3s ease,
+      background 0.3s ease,
+      border-color 0.3s ease;
+    padding: 0.75rem;
+    border-radius: 12px;
+    background: rgba(var(--accent), 0.05);
+    border: 1px solid transparent;
   }
   .social-links a:hover {
-    color: rgb(var(--gray-dark));
+    color: var(--accent);
+    background: rgba(var(--accent), 0.1);
+    border-color: var(--accent);
+    transform: translateY(-3px) scale(1.1);
+    box-shadow: var(--box-shadow);
+  }
+  .social-links svg {
+    transition: all 0.3s ease;
+  }
+  .social-links a:hover svg {
+    filter: brightness(1.2);
   }
 </style>

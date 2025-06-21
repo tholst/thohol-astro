@@ -8,7 +8,7 @@
       "testStrategy": "Verify project structure is correctly set up. Ensure all configurations are working by running `astro dev` and checking for any errors. Validate TypeScript compilation with `astro check`.",
       "priority": "high",
       "dependencies": [],
-      "status": "pending",
+      "status": "in-progress",
       "subtasks": []
     },
     {

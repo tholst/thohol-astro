@@ -2,55 +2,292 @@
 import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import { SITE_DESCRIPTION } from '../consts';
+import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+import { getCollection } from 'astro:content';
+import FormattedDate from '../components/FormattedDate.astro';
+import { Image } from 'astro:assets';
+
+const allPosts = await getCollection('blog');
+// In production, filter out unpublished posts; in dev, show all
+const posts = (
+  import.meta.env.PROD
+    ? allPosts.filter((post) => post.data.published !== false)
+    : allPosts
+).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 ---
 
 <!doctype html>
 <html lang="en">
   <head>
-    <BaseHead
-      title="All this website are belong to Thomas."
-      description={SITE_DESCRIPTION}
-    />
+    <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
     <style>
+      .hero {
+        background: linear-gradient(
+          135deg,
+          var(--accent) 0%,
+          var(--accent-dark) 100%
+        );
+        padding: 3rem 2rem;
+        text-align: center;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        transition:
+          background 0.3s ease,
+          background-color 0.3s ease;
+      }
+
+      .hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.05"/><circle cx="20" cy="80" r="0.5" fill="white" opacity="0.05"/><circle cx="80" cy="30" r="0.5" fill="white" opacity="0.05"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        pointer-events: none;
+      }
+
+      .hero-content {
+        position: relative;
+        z-index: 1;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      .hero h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        line-height: 1.1;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .hero .subtitle {
+        font-size: 1.1rem;
+        margin-bottom: 0;
+        opacity: 0.95;
+        font-weight: 300;
+        line-height: 1.5;
+      }
+
       main {
-        width: 720px;
-        max-width: calc(100% - 2em);
-        margin: auto;
-        padding: 3em 1em;
-        color: var(--text-primary);
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 3rem 2rem;
+        transition:
+          background 0.3s ease,
+          background-color 0.3s ease,
+          color 0.3s ease;
       }
-      h1 {
-        margin-bottom: 1em;
-        color: var(--text-primary);
+
+      .posts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
       }
-      p {
-        margin-bottom: 1.5em;
-        color: var(--text-secondary);
+
+      .post-card {
+        background: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: var(--box-shadow);
+        position: relative;
       }
-      a {
-        color: var(--accent);
+
+      .post-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--box-shadow-xl);
+        border-color: var(--accent);
+      }
+
+      .post-card-link {
         text-decoration: none;
-        transition: color 0.2s ease;
+        display: block;
+        height: 100%;
       }
-      a:hover {
-        color: var(--accent-dark);
+
+      .post-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+      }
+
+      .post-card:hover .post-image {
+        transform: scale(1.05);
+      }
+
+      .post-content {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        min-height: 140px;
+        transition:
+          color 0.3s ease,
+          background 0.3s ease;
+      }
+
+      .post-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+        line-height: 1.3;
+        transition: color 0.3s ease;
+      }
+
+      .post-card:hover .post-title {
+        color: var(--accent);
+      }
+
+      .post-description {
+        color: var(--text-secondary);
+        line-height: 1.6;
+        margin: 0;
+        flex-grow: 1;
+        font-size: 0.95rem;
+      }
+
+      .post-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: auto;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-color);
+        transition:
+          border-color 0.3s ease,
+          color 0.3s ease;
+      }
+
+      .post-date {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+
+      .read-more {
+        color: var(--accent);
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        position: relative;
+      }
+
+      .read-more::after {
+        content: '→';
+        margin-left: 0.5rem;
+        transition: transform 0.3s ease;
+      }
+
+      .post-card:hover .read-more::after {
+        transform: translateX(4px);
+      }
+
+      .no-image {
+        background: linear-gradient(
+          135deg,
+          rgba(var(--accent), 0.1) 0%,
+          rgba(var(--accent-dark), 0.05) 100%
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--accent);
+        font-size: 3rem;
+        font-weight: 700;
+      }
+
+      @media (max-width: 768px) {
+        .hero {
+          padding: 2rem 1rem;
+        }
+
+        .hero h1 {
+          font-size: 2rem;
+        }
+
+        .hero .subtitle {
+          font-size: 1rem;
+        }
+
+        main {
+          padding: 2rem 1rem;
+        }
+
+        .posts-grid {
+          grid-template-columns: 1fr;
+          gap: 1.5rem;
+        }
+
+        .post-content {
+          padding: 1.25rem;
+          min-height: 120px;
+        }
+
+        .post-title {
+          font-size: 1.125rem;
+        }
       }
     </style>
   </head>
   <body>
     <Header />
+
+    <div class="hero">
+      <div class="hero-content">
+        <h1>Latest Posts</h1>
+        <p class="subtitle">
+          Insights and thoughts on web development, technology, and software
+          engineering
+        </p>
+      </div>
+    </div>
+
     <main>
-      <h1>Software Development & stuff</h1>
-      <p>
-        Welcome to my personal notes about software development, the Web and
-        Everything.
-      </p>
-      <p>
-        <a href="/blog">Check out my blog posts</a> where I write about web technologies,
-        React, Docker, and development practices.
-      </p>
+      <div class="posts-grid">
+        {
+          posts.map((post) => (
+            <article class="post-card">
+              <a href={`/blog/${post.id}/`} class="post-card-link">
+                {post.data.heroImage ? (
+                  <Image
+                    class="post-image"
+                    width={400}
+                    height={200}
+                    src={post.data.heroImage}
+                    alt=""
+                  />
+                ) : (
+                  <div class="post-image no-image">
+                    {post.data.title.charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <div class="post-content">
+                  <h2 class="post-title">{post.data.title}</h2>
+                  {post.data.description && (
+                    <p class="post-description">{post.data.description}</p>
+                  )}
+                  <div class="post-meta">
+                    <time class="post-date">
+                      <FormattedDate date={post.data.pubDate} />
+                    </time>
+                    <span class="read-more">Read more</span>
+                  </div>
+                </div>
+              </a>
+            </article>
+          ))
+        }
+      </div>
     </main>
+
     <Footer />
   </body>
 </html>

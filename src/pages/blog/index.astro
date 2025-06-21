@@ -37,7 +37,10 @@ const posts = (
       }
       ul li * {
         text-decoration: none;
-        transition: 0.2s ease;
+        transition:
+          color 0.3s ease,
+          background-color 0.3s ease,
+          border-color 0.3s ease;
       }
       ul li:first-child {
         width: 100%;
@@ -61,10 +64,12 @@ const posts = (
         margin: 0;
         color: rgb(var(--black));
         line-height: 1;
+        transition: color 0.3s ease;
       }
       .date {
         margin: 0;
         color: rgb(var(--gray));
+        transition: color 0.3s ease;
       }
       ul li a:hover h4,
       ul li a:hover .date {

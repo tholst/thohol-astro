@@ -1,6 +1,6 @@
 # Task ID: 1
 # Title: Project Setup and Configuration
-# Status: pending
+# Status: in-progress
 # Dependencies: None
 # Priority: high
 # Description: Initialize the Astro project with the required configuration for TypeScript, MDX, and other essential integrations.

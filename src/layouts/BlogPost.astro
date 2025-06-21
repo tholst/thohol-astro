@@ -35,6 +35,7 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
         margin: auto;
         padding: 1em;
         color: var(--text-primary);
+        transition: color 0.3s ease;
       }
       .title {
         margin-bottom: 1em;
@@ -45,10 +46,12 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
       .title h1 {
         margin: 0 0 0.5em 0;
         color: var(--text-primary);
+        transition: color 0.3s ease;
       }
       .date {
         margin-bottom: 0.5em;
         color: var(--text-secondary);
+        transition: color 0.3s ease;
       }
       .last-updated-on {
         font-style: italic;
