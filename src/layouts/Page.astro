@@ -1,6 +1,6 @@
 ---
 import BaseHead from '../components/BaseHead.astro';
-import Header from '../components/Header.astro';
+import Sidebar from '../components/Sidebar.astro';
 import Footer from '../components/Footer.astro';
 
 const { title, description } = Astro.props;
@@ -10,46 +10,68 @@ const { title, description } = Astro.props;
   <head>
     <BaseHead title={title} description={description} />
     <style>
-      main {
-        width: calc(100% - 2em);
-        max-width: 100%;
-        margin: 0;
+      .main-content {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
       }
+
+      main {
+        flex: 1;
+        width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: var(--space-xl) var(--space-lg);
+      }
+
       .prose {
-        width: 720px;
-        max-width: calc(100% - 2em);
-        margin: auto;
-        padding: 1em;
+        width: 100%;
+        max-width: 720px;
+        margin: 0 auto;
         color: var(--text-primary);
         transition: color 0.3s ease;
       }
+
       .title {
-        margin-bottom: 1em;
-        padding: 1em 0;
+        margin-bottom: var(--space-lg);
+        padding: var(--space-md) 0;
         text-align: center;
         line-height: 1;
       }
+
       .title h1 {
         margin: 0 0 0.5em 0;
         color: var(--text-primary);
         transition: color 0.3s ease;
       }
+
+      @media (max-width: 768px) {
+        main {
+          padding: var(--space-md) var(--space-sm);
+        }
+
+        .title {
+          padding: var(--space-sm) 0;
+        }
+      }
     </style>
   </head>
 
   <body>
-    <Header />
-    <main>
-      <article>
-        <div class="prose">
-          <div class="title">
-            <h1>{title}</h1>
-            <hr />
+    <Sidebar />
+    <div class="main-content">
+      <main>
+        <article>
+          <div class="prose">
+            <div class="title">
+              <h1>{title}</h1>
+              <hr />
+            </div>
+            <slot />
           </div>
-          <slot />
-        </div>
-      </article>
-    </main>
-    <Footer />
+        </article>
+      </main>
+      <Footer />
+    </div>
   </body>
 </html>

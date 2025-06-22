@@ -1,6 +1,6 @@
 ---
 import BaseHead from '../components/BaseHead.astro';
-import Header from '../components/Header.astro';
+import Sidebar from '../components/Sidebar.astro';
 import Footer from '../components/Footer.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 import { getCollection } from 'astro:content';
@@ -71,10 +71,17 @@ const posts = (
         line-height: 1.5;
       }
 
+      .main-content {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
       main {
+        flex: 1;
         max-width: 1200px;
         margin: 0 auto;
-        padding: 3rem 2rem;
+        padding: 0 2rem 3rem 2rem;
         transition:
           background 0.3s ease,
           background-color 0.3s ease,
@@ -215,7 +222,7 @@ const posts = (
         }
 
         main {
-          padding: 1rem;
+          padding: 0 1rem 1rem 1rem;
         }
 
         .posts-grid {
@@ -262,51 +269,53 @@ const posts = (
     </style>
   </head>
   <body>
-    <Header />
+    <Sidebar />
 
-    <div class="hero">
-      <div class="hero-content">
-        <h1>Latest Posts</h1>
-        <p class="subtitle">
-          Insights and thoughts on web development, technology, and software
-          engineering
-        </p>
+    <div class="main-content">
+      <div class="hero">
+        <div class="hero-content">
+          <h1>Latest Posts</h1>
+          <p class="subtitle">
+            Insights and thoughts on web development, technology, and software
+            engineering
+          </p>
+        </div>
       </div>
-    </div>
 
-    <main>
-      <div class="posts-grid">
-        {
-          posts.map((post) => (
-            <article
-              class="post-card"
-              data-letter={post.data.title.charAt(0).toUpperCase()}
-            >
-              <a href={`/blog/${post.id}/`}>
-                {post.data.heroImage && (
-                  <div class="post-image">
-                    <Image
-                      width={280}
-                      height={150}
-                      src={post.data.heroImage}
-                      alt=""
-                    />
+      <main>
+        <div class="posts-grid">
+          {
+            posts.map((post) => (
+              <article
+                class="post-card"
+                data-letter={post.data.title.charAt(0).toUpperCase()}
+              >
+                <a href={`/blog/${post.id}/`}>
+                  {post.data.heroImage && (
+                    <div class="post-image">
+                      <Image
+                        width={280}
+                        height={150}
+                        src={post.data.heroImage}
+                        alt=""
+                      />
+                    </div>
+                  )}
+                  <div class="post-content">
+                    <h3 class="post-title">{post.data.title}</h3>
+                    <p class="post-description">{post.data.description}</p>
+                    <p class="post-date">
+                      <FormattedDate date={post.data.pubDate} />
+                    </p>
                   </div>
-                )}
-                <div class="post-content">
-                  <h3 class="post-title">{post.data.title}</h3>
-                  <p class="post-description">{post.data.description}</p>
-                  <p class="post-date">
-                    <FormattedDate date={post.data.pubDate} />
-                  </p>
-                </div>
-              </a>
-            </article>
-          ))
-        }
-      </div>
-    </main>
+                </a>
+              </article>
+            ))
+          }
+        </div>
+      </main>
 
-    <Footer />
+      <Footer />
+    </div>
   </body>
 </html>

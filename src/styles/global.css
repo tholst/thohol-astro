@@ -4,6 +4,12 @@
   License MIT: https://github.com/HermanMartinus/bearblog/blob/master/LICENSE.md
  */
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 :root {
   /* Light mode colors */
   --accent: #3b82f6;
@@ -104,17 +110,50 @@ body {
   transition:
     background-color 0.3s ease,
     color 0.3s ease;
+  overflow-x: hidden;
+}
+
+/* Main content area with sidebar layout */
+.main-content {
+  margin-left: 280px;
+  min-height: 100vh;
+  width: calc(100vw - 280px);
+  transition: margin-left 0.3s ease;
+  overflow-x: hidden;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    width: 100vw;
+  }
 }
 
 main {
-  width: 720px;
-  max-width: calc(100% - 2em);
-  margin: auto;
-  padding: var(--space-xl) var(--space-sm);
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: var(--space-xl) var(--space-lg);
   transition:
     background 0.3s ease,
     background-color 0.3s ease,
     color 0.3s ease;
+}
+
+/* Adjust main content for pages with different layouts */
+.main-content main {
+  padding: var(--space-xl) var(--space-lg);
+}
+
+@media (max-width: 768px) {
+  main {
+    padding: var(--space-md) var(--space-sm);
+  }
+
+  .main-content main {
+    padding: var(--space-md) var(--space-sm);
+  }
 }
 
 h1,
