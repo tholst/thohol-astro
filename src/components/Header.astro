@@ -13,7 +13,7 @@ import HeaderLink from './HeaderLink.astro';
 
     <div class="nav-section">
       <div class="nav-links">
-        <HeaderLink href="/">Posts</HeaderLink>
+        <HeaderLink href="/blog">Posts</HeaderLink>
         <HeaderLink href="/about">About</HeaderLink>
       </div>
 
@@ -226,8 +226,9 @@ import HeaderLink from './HeaderLink.astro';
     );
     border-radius: 50%;
     position: absolute;
-    top: 2px;
+    top: 50%;
     left: 2px;
+    transform: translateY(-50%);
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
@@ -253,7 +254,7 @@ import HeaderLink from './HeaderLink.astro';
   }
 
   :global(.dark) .toggle-thumb {
-    transform: translateX(24px);
+    transform: translateX(24px) translateY(-50%);
     background: linear-gradient(
       135deg,
       var(--accent-light) 0%,
