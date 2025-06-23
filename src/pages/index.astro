@@ -1,7 +1,5 @@
 ---
-import BaseHead from '../components/BaseHead.astro';
-import Footer from '../components/Footer.astro';
-import HeaderLink from '../components/HeaderLink.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 import { getCollection } from 'astro:content';
 import FormattedDate from '../components/FormattedDate.astro';
@@ -16,773 +14,320 @@ const posts = (
 ).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-    <style>
-      .main {
-        min-height: 100vh;
-        display: flex;
-      }
-
-      .sidebar.sidebar-text {
-        position: fixed;
-        top: 0;
-        left: 0;
-        height: 100vh;
-        width: 280px;
-        background: var(--bg-primary);
-        border-right: 1px solid var(--border-color);
-        box-shadow: var(--box-shadow);
-        z-index: 1000;
-        transition: all 0.3s ease;
-        overflow-y: auto;
-        overflow-x: hidden;
-        display: flex;
-        flex-direction: column;
-        padding: 1.5rem;
-        gap: 1.5rem;
-      }
-
-      .sidebar.sidebar-text:hover {
-        box-shadow: var(--box-shadow-lg);
-      }
-
-      .sidebar-top {
-        flex-shrink: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-      }
-
-      .brand-section {
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-        text-align: center;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid var(--border-color);
-      }
-
-      .brand-name {
-        font-size: 1.25rem;
-        font-weight: 800;
-        color: var(--text-primary);
-        margin: 0;
-        line-height: 1.2;
-        letter-spacing: -0.025em;
-        background: linear-gradient(
-          135deg,
-          var(--accent) 0%,
-          var(--accent-dark) 100%
-        );
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-        transition: all 0.3s ease;
-      }
-
-      .brand-name:hover {
-        transform: scale(1.02);
-        filter: brightness(1.1);
-      }
-
-      .brand-subtitle {
-        font-size: 0.7rem;
-        color: var(--text-secondary);
-        font-weight: 500;
-        letter-spacing: 0.5px;
-        text-transform: uppercase;
-        opacity: 0.8;
-      }
-
-      .nav-section {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-      }
-
-      .nav-links {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-      }
-
-      .nav-links :global(a) {
-        display: block;
-        padding: 0.875rem 1.25rem;
-        color: var(--text-primary);
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 0.95rem;
-        border-radius: 12px;
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-      }
-
-      .nav-links :global(a:hover) {
-        color: var(--accent);
-        background: rgba(var(--accent), 0.1);
-        transform: translateX(4px);
-      }
-
-      .nav-links :global(a.active) {
-        color: white;
-        background: linear-gradient(
-          135deg,
-          var(--accent) 0%,
-          var(--accent-dark) 100%
-        );
-        box-shadow: var(--box-shadow);
-      }
-
-      .nav-links :global(a.active:hover) {
-        transform: translateX(4px);
-        box-shadow: var(--box-shadow-lg);
-      }
-
-      .theme-toggle-section {
-        flex-shrink: 0;
-        display: flex;
-        justify-content: center;
-        padding-top: 1rem;
-        border-top: 1px solid var(--border-color);
-      }
-
-      .theme-toggle {
-        background: none;
-        border: none;
-        cursor: pointer;
-        padding: 0;
-        position: relative;
-      }
-
-      .toggle-track {
-        width: 52px;
-        height: 28px;
-        background: var(--bg-secondary);
-        border: 2px solid var(--border-color);
-        border-radius: 20px;
-        position: relative;
-        transition: all 0.3s ease;
-        box-shadow: inset 0 2px 4px rgba(var(--gray), 0.1);
-      }
-
-      .toggle-track:hover {
-        border-color: var(--accent);
-        box-shadow:
-          inset 0 2px 4px rgba(var(--gray), 0.1),
-          0 0 0 3px rgba(var(--accent), 0.1);
-      }
-
-      .toggle-thumb {
-        width: 20px;
-        height: 20px;
-        background: linear-gradient(
-          135deg,
-          var(--accent) 0%,
-          var(--accent-dark) 100%
-        );
-        border-radius: 50%;
-        position: absolute;
-        top: 50%;
-        left: 2px;
-        transform: translateY(-50%);
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 2px 4px rgba(var(--gray), 0.2);
-      }
-
-      .sun-icon,
-      .moon-icon {
-        color: white;
-        transition: all 0.3s ease;
-      }
-
-      .sun-icon {
-        opacity: 1;
-        transform: rotate(0deg) scale(1);
-      }
-
-      .moon-icon {
-        opacity: 0;
-        transform: rotate(180deg) scale(0.8);
-        position: absolute;
-      }
-
-      :global(.dark) .toggle-thumb {
-        transform: translateX(24px) translateY(-50%);
-        background: linear-gradient(
-          135deg,
-          var(--accent-light) 0%,
-          var(--accent) 100%
-        );
-      }
-
-      :global(.dark) .sun-icon {
-        opacity: 0;
-        transform: rotate(-180deg) scale(0.8);
-      }
-
-      :global(.dark) .moon-icon {
-        opacity: 1;
-        transform: rotate(0deg) scale(1);
-      }
-
-      :global(.dark) .toggle-track {
-        background: var(--bg-primary);
-        border-color: var(--accent);
-      }
-
-      .sidebar-index-hidden {
-        display: none;
-      }
-
-      .main-content {
-        flex: 1;
-        margin-left: 280px;
-        min-height: 100vh;
-      }
-
-      main {
-        max-width: 1000px;
-        margin: 0 auto;
-        padding: 2rem;
-        line-height: 1.6;
-      }
-
-      /* Separator */
-      .separator {
-        width: 100%;
-        height: 1px;
-        background: var(--border-color);
-        margin-bottom: 2rem;
-      }
-
-      /* Intro Section */
-      .intro-section {
-        margin-bottom: 3rem;
-      }
-
-      .intro-content {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-      }
-
-      .intro-heading {
-        font-size: 1.75rem;
-        font-weight: 400;
-        line-height: 1.4;
-        color: var(--text-primary);
-        margin: 0;
-        max-width: 800px;
-      }
-
-      .social-links {
-        display: flex;
-        gap: 1.5rem;
-        flex-wrap: wrap;
-      }
-
-      .social-link {
-        color: var(--text-primary);
-        text-decoration: none;
-        font-size: 0.9rem;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-        padding: 0.5rem 0;
-        border-bottom: 1px solid transparent;
-        transition: all 0.3s ease;
-      }
-
-      .social-link:hover {
-        color: var(--accent);
-        border-bottom-color: var(--accent);
-      }
-
-      /* Articles Section */
-      .articles-section {
-        margin-bottom: 3rem;
-      }
-
-      .section-header {
-        display: flex;
-        align-items: baseline;
-        justify-content: space-between;
-        margin-bottom: 1rem;
-        flex-wrap: wrap;
-        gap: 1rem;
-      }
-
-      .section-title {
-        font-size: 1.5rem;
-        font-weight: 400;
-        color: var(--text-primary);
-        margin: 0;
-      }
-
-      .see-all {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.9rem;
-      }
-
-      .arrow {
-        color: var(--text-secondary);
-        font-weight: 300;
-      }
-
-      .see-all-link {
-        color: var(--text-primary);
-        text-decoration: none;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-        transition: color 0.3s ease;
-      }
-
-      .see-all-link:hover {
-        color: var(--accent);
-      }
-
-      .section-description {
-        color: var(--text-secondary);
-        line-height: 1.6;
-        margin: 0 0 2rem 0;
-        max-width: 800px;
-      }
-
-      /* Posts Grid */
-      .posts-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 2rem;
-        margin-top: 2rem;
-      }
-
-      .post-card {
-        display: block;
-        text-decoration: none;
-        color: inherit;
-        transition: all 0.3s ease;
-        border-radius: 8px;
-        overflow: hidden;
-        background: var(--bg-primary);
-        border: 1px solid var(--border-color);
-      }
-
-      .post-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-        border-color: var(--accent);
-      }
-
-      .post-card a {
-        text-decoration: none;
-        color: inherit;
-        display: block;
-        height: 100%;
-      }
-
-      .post-image {
-        width: 100%;
-        height: 200px;
-        overflow: hidden;
-        background: var(--bg-secondary);
-      }
-
-      .post-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.3s ease;
-      }
-
-      .post-card:hover .post-image img {
-        transform: scale(1.02);
-      }
-
-      .post-content {
-        padding: 1.5rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-      }
-
-      .post-meta {
-        color: var(--text-secondary);
-        font-size: 0.85rem;
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
-
-      .post-title {
-        margin: 0;
-        font-size: 1.25rem;
-        font-weight: 600;
-        line-height: 1.3;
-        color: var(--text-primary);
-        transition: color 0.3s ease;
-      }
-
-      .post-card:hover .post-title {
-        color: var(--accent);
-      }
-
-      .post-description {
-        margin: 0;
-        color: var(--text-secondary);
-        line-height: 1.5;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-      }
-
-      /* Mobile hamburger menu button */
-      .mobile-menu-toggle {
-        display: none;
-        position: fixed;
-        top: 1rem;
-        left: 1rem;
-        z-index: 1001;
-        background: var(--bg-primary);
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        padding: 0.5rem;
-        cursor: pointer;
-        box-shadow: var(--box-shadow);
-      }
-
-      .mobile-menu-toggle svg {
-        width: 24px;
-        height: 24px;
-        color: var(--text-primary);
-      }
-
-      /* Responsive */
-      @media (max-width: 768px) {
-        .main-content {
-          margin-left: 0;
-        }
-
-        .sidebar.sidebar-text {
-          transform: translateX(-100%);
-          transition: transform 0.3s ease;
-        }
-
-        .sidebar.sidebar-text.mobile-open {
-          transform: translateX(0);
-        }
-
-        .mobile-menu-toggle {
-          display: block;
-        }
-
-        main {
-          padding: 1rem;
-        }
-
-        .intro-heading {
-          font-size: 1.5rem;
-        }
-
-        .section-header {
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 0.5rem;
-        }
-
-        .social-links {
-          gap: 1rem;
-        }
-
-        .posts-grid {
-          grid-template-columns: 1fr;
-          gap: 1.5rem;
-        }
-
-        .post-image {
-          height: 150px;
-        }
-
-        .post-content {
-          padding: 1.25rem;
-        }
-
-        .post-title {
-          font-size: 1.1rem;
-        }
-
-        .brand-name {
-          font-size: 1.25rem;
-        }
-
-        .brand-subtitle {
-          font-size: 0.7rem;
-        }
-
-        .nav-links :global(a) {
-          padding: 0.75rem 1rem;
-          font-size: 0.9rem;
-        }
-      }
-
-      @media (max-width: 480px) {
-        .sidebar.sidebar-text {
-          width: 260px;
-        }
-
-        .sidebar.sidebar-text {
-          padding: 1rem;
-        }
-
-        main {
-          padding: 1rem 0.75rem;
-        }
-
-        .intro-heading {
-          font-size: 1.25rem;
-        }
-
-        .section-title {
-          font-size: 1.25rem;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="main">
-      <div class="sidebar sidebar-text">
-        <div class="sidebar-top">
-          <div class="brand-section">
-            <h1 class="brand-name">Thomas Holst</h1>
-            <span class="brand-subtitle">Personal Tech Blog</span>
-          </div>
-
-          <nav class="nav-section">
-            <div class="nav-links">
-              <HeaderLink href="/blog">Posts</HeaderLink>
-              <HeaderLink href="/about">About</HeaderLink>
-            </div>
-          </nav>
-
-          <div class="theme-toggle-section">
-            <button
-              id="theme-toggle"
-              aria-label="Toggle theme"
-              class="theme-toggle"
-            >
-              <div class="toggle-track">
-                <div class="toggle-thumb">
-                  <svg
-                    class="sun-icon"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <circle cx="12" cy="12" r="5"></circle>
-                    <line x1="12" y1="1" x2="12" y2="3"></line>
-                    <line x1="12" y1="21" x2="12" y2="23"></line>
-                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                    <line x1="1" y1="12" x2="3" y2="12"></line>
-                    <line x1="21" y1="12" x2="23" y2="12"></line>
-                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                  </svg>
-                  <svg
-                    class="moon-icon"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"
-                    ></path>
-                  </svg>
+<BaseLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
+  <main>
+    <!-- Personal Introduction Section -->
+    <section class="intro-section">
+      <div class="separator"></div>
+      <div class="intro-content">
+        <h2 class="intro-heading">
+          Hi! My name is Thomas. I write about web development, React, Docker,
+          and technology. Here's what I've worked on.
+        </h2>
+        <div class="social-links">
+          <a href="mailto:hello@example.com" class="social-link">EMAIL</a>
+          <a href="#" class="social-link">GITHUB</a>
+          <a href="#" class="social-link">LINKEDIN</a>
+          <a href="#" class="social-link">X</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Selected Articles Section -->
+    <section class="articles-section">
+      <div class="separator"></div>
+      <div class="section-header">
+        <h2 class="section-title">Selected articles</h2>
+        <div class="see-all">
+          <span class="arrow">→</span>
+          <a href="/blog" class="see-all-link">SEE ALL ARTICLES</a>
+        </div>
+      </div>
+      <p class="section-description">
+        "To understand something, write about it," they say. I'm curious. So I
+        started writing: exploring web development, React patterns, Docker
+        workflows, and the technologies that shape how we build for the web.
+        Here's a selection of my recent explorations:
+      </p>
+
+      <div class="posts-grid">
+        {
+          posts.slice(0, 6).map((post) => (
+            <article class="post-card">
+              <a href={`/blog/${post.id}/`}>
+                {post.data.heroImage && (
+                  <div class="post-image">
+                    <Image
+                      width={280}
+                      height={150}
+                      src={post.data.heroImage}
+                      alt=""
+                    />
+                  </div>
+                )}
+                <div class="post-content">
+                  <div class="post-meta">
+                    <FormattedDate date={post.data.pubDate} />
+                  </div>
+                  <h3 class="post-title">{post.data.title}</h3>
+                  <p class="post-description">{post.data.description}</p>
                 </div>
-              </div>
-            </button>
-          </div>
-        </div>
-
-        <div class="sidebar-index-hidden">
-          <!-- Additional sidebar content can go here -->
-        </div>
+              </a>
+            </article>
+          ))
+        }
       </div>
+    </section>
+  </main>
+</BaseLayout>
 
-      <div class="main-content">
-        <main>
-          <!-- Personal Introduction Section -->
-          <section class="intro-section">
-            <div class="separator"></div>
-            <div class="intro-content">
-              <h2 class="intro-heading">
-                Hi! My name is Thomas. I write about web development, React,
-                Docker, and technology. Here's what I've worked on.
-              </h2>
-              <div class="social-links">
-                <a href="mailto:hello@example.com" class="social-link">EMAIL</a>
-                <a href="#" class="social-link">GITHUB</a>
-                <a href="#" class="social-link">LINKEDIN</a>
-                <a href="#" class="social-link">X</a>
-              </div>
-            </div>
-          </section>
+<style>
+  main {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem;
+    line-height: 1.6;
+  }
 
-          <!-- Selected Articles Section -->
-          <section class="articles-section">
-            <div class="separator"></div>
-            <div class="section-header">
-              <h2 class="section-title">Selected articles</h2>
-              <div class="see-all">
-                <span class="arrow">→</span>
-                <a href="/blog" class="see-all-link">SEE ALL ARTICLES</a>
-              </div>
-            </div>
-            <p class="section-description">
-              "To understand something, write about it," they say. I'm curious.
-              So I started writing: exploring web development, React patterns,
-              Docker workflows, and the technologies that shape how we build for
-              the web. Here's a selection of my recent explorations:
-            </p>
+  /* Separator */
+  .separator {
+    width: 100%;
+    height: 1px;
+    background: var(--border-color);
+    margin-bottom: 2rem;
+  }
 
-            <div class="posts-grid">
-              {
-                posts.slice(0, 6).map((post) => (
-                  <article class="post-card">
-                    <a href={`/blog/${post.id}/`}>
-                      {post.data.heroImage && (
-                        <div class="post-image">
-                          <Image
-                            width={280}
-                            height={150}
-                            src={post.data.heroImage}
-                            alt=""
-                          />
-                        </div>
-                      )}
-                      <div class="post-content">
-                        <div class="post-meta">
-                          <FormattedDate date={post.data.pubDate} />
-                        </div>
-                        <h3 class="post-title">{post.data.title}</h3>
-                        <p class="post-description">{post.data.description}</p>
-                      </div>
-                    </a>
-                  </article>
-                ))
-              }
-            </div>
-          </section>
-        </main>
+  /* Intro Section */
+  .intro-section {
+    margin-bottom: 3rem;
+  }
 
-        <Footer />
-      </div>
-    </div>
+  .intro-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
 
-    <button
-      class="mobile-menu-toggle"
-      id="mobile-menu-toggle"
-      aria-label="Toggle mobile menu"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <line x1="3" y1="6" x2="21" y2="6"></line>
-        <line x1="3" y1="12" x2="21" y2="12"></line>
-        <line x1="3" y1="18" x2="21" y2="18"></line>
-      </svg>
-    </button>
+  .intro-heading {
+    font-size: 1.75rem;
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--text-primary);
+    margin: 0;
+    max-width: 800px;
+  }
 
-    <script>
-      const theme = (() => {
-        if (
-          typeof localStorage !== 'undefined' &&
-          localStorage.getItem('theme')
-        ) {
-          return localStorage.getItem('theme') || 'light';
-        }
-        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          return 'dark';
-        }
-        return 'light';
-      })();
+  .social-links {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
 
-      if (theme === 'light') {
-        document.documentElement.classList.remove('dark');
-      } else {
-        document.documentElement.classList.add('dark');
-      }
+  .social-link {
+    color: var(--text-primary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid transparent;
+    transition: all 0.3s ease;
+  }
 
-      window.localStorage.setItem('theme', theme);
+  .social-link:hover {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
 
-      const handleToggleClick = () => {
-        const element = document.documentElement;
-        element.classList.toggle('dark');
+  /* Articles Section */
+  .articles-section {
+    margin-bottom: 3rem;
+  }
 
-        const isDark = element.classList.contains('dark');
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
-      };
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
 
-      const toggleButton = document.getElementById('theme-toggle');
-      if (toggleButton) {
-        toggleButton.addEventListener('click', handleToggleClick);
-      }
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: var(--text-primary);
+    margin: 0;
+  }
 
-      // Mobile menu functionality
-      const handleMobileMenuToggle = () => {
-        const sidebar = document.querySelector('.sidebar');
-        if (sidebar) {
-          sidebar.classList.toggle('mobile-open');
-        }
-      };
+  .see-all {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+  }
 
-      const mobileMenuButton = document.getElementById('mobile-menu-toggle');
-      if (mobileMenuButton) {
-        mobileMenuButton.addEventListener('click', handleMobileMenuToggle);
-      }
+  .arrow {
+    color: var(--text-secondary);
+    font-weight: 300;
+  }
 
-      // Close mobile menu when clicking outside
-      document.addEventListener('click', (event) => {
-        const sidebar = document.querySelector('.sidebar');
-        const mobileButton = document.getElementById('mobile-menu-toggle');
+  .see-all-link {
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: color 0.3s ease;
+  }
 
-        if (
-          sidebar &&
-          mobileButton &&
-          event.target instanceof Node &&
-          !sidebar.contains(event.target) &&
-          !mobileButton.contains(event.target) &&
-          sidebar.classList.contains('mobile-open')
-        ) {
-          sidebar.classList.remove('mobile-open');
-        }
-      });
-    </script>
-  </body>
-</html>
+  .see-all-link:hover {
+    color: var(--accent);
+  }
+
+  .section-description {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0 0 2rem 0;
+    max-width: 800px;
+  }
+
+  /* Posts Grid */
+  .posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+
+  .post-card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+  }
+
+  .post-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border-color: var(--accent);
+  }
+
+  .post-card a {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    height: 100%;
+  }
+
+  .post-image {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    background: var(--bg-secondary);
+  }
+
+  .post-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .post-card:hover .post-image img {
+    transform: scale(1.02);
+  }
+
+  .post-content {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .post-meta {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .post-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--text-primary);
+    transition: color 0.3s ease;
+  }
+
+  .post-card:hover .post-title {
+    color: var(--accent);
+  }
+
+  .post-description {
+    margin: 0;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    main {
+      padding: 1rem;
+    }
+
+    .intro-heading {
+      font-size: 1.5rem;
+    }
+
+    .section-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .social-links {
+      gap: 1rem;
+    }
+
+    .posts-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .post-image {
+      height: 150px;
+    }
+
+    .post-content {
+      padding: 1.25rem;
+    }
+
+    .post-title {
+      font-size: 1.1rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    main {
+      padding: 1rem 0.75rem;
+    }
+
+    .intro-heading {
+      font-size: 1.25rem;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+    }
+  }
+</style>
