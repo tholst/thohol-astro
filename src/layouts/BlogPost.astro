@@ -28,18 +28,20 @@ const tocHeadings = headings.filter(
 ---
 
 <BaseLayout title={title} description={description}>
-  <div class="post-layout">
+  <div class="post-frame">
     {
       tocHeadings.length > 0 && (
-        <aside class="toc" aria-label="Table of contents">
-          <p class="toc-title">On this page</p>
-          <ul>
-            {tocHeadings.map((heading) => (
-              <li class:list={{ 'is-sub': heading.depth === 3 }}>
-                <a href={`#${heading.slug}`}>{heading.text}</a>
-              </li>
-            ))}
-          </ul>
+        <aside class="toc-floating" aria-label="Table of contents">
+          <div class="toc">
+            <p class="toc-title">On this page</p>
+            <ul>
+              {tocHeadings.map((heading) => (
+                <li class:list={{ 'is-sub': heading.depth === 3 }}>
+                  <a href={`#${heading.slug}`}>{heading.text}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
         </aside>
       )
     }
@@ -84,26 +86,19 @@ const tocHeadings = headings.filter(
 </BaseLayout>
 
 <style>
-  .post-layout {
-    display: grid;
-    grid-template-columns: 210px minmax(0, 1fr);
-    gap: 1.2rem;
-    align-items: start;
-  }
-
-  .post-main {
+  .post-frame {
     min-width: 0;
   }
 
+  .toc-floating {
+    margin-bottom: 0.9rem;
+  }
+
   .toc {
-    position: sticky;
-    top: 0.8rem;
     border: 1px solid var(--line);
     border-radius: 8px;
     background: #f9fbff;
     padding: 0.7rem;
-    max-height: calc(100vh - 1.6rem);
-    overflow: auto;
   }
 
   .toc-title {
@@ -136,6 +131,10 @@ const tocHeadings = headings.filter(
 
   .toc a:hover {
     color: var(--accent);
+  }
+
+  .post-main {
+    min-width: 0;
   }
 
   .back-link {
@@ -177,13 +176,19 @@ const tocHeadings = headings.filter(
     height: auto;
   }
 
-  @media (max-width: 1080px) {
-    .post-layout {
-      grid-template-columns: 1fr;
+  @media (min-width: 1400px) {
+    .toc-floating {
+      display: block;
+      position: fixed;
+      top: 6rem;
+      left: calc(50% - 430px - 226px);
+      width: 210px;
+      margin-bottom: 0;
     }
 
     .toc {
-      position: static;
+      max-height: calc(100vh - 1.6rem);
+      overflow: auto;
     }
   }
 </style>

@@ -31,7 +31,7 @@
   --accent-soft: #d7e6ff;
   --radius: 8px;
   --shadow: 0 8px 20px rgba(16, 24, 40, 0.06);
-  --max-width: 1120px;
+  --max-width: 860px;
   --gutter: clamp(1rem, 3vw, 2rem);
 }
 
