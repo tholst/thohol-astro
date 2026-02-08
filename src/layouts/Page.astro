@@ -8,7 +8,6 @@ const { title, description } = Astro.props;
   <main>
     <article class="prose page-prose">
       <header class="page-header">
-        <p class="kicker">Notes</p>
         <h1>{title}</h1>
       </header>
       <slot />
@@ -19,17 +18,8 @@ const { title, description } = Astro.props;
 <style>
   .page-header {
     border-bottom: 1px solid var(--line);
-    padding-bottom: 0.8rem;
-    margin-bottom: 1rem;
-  }
-
-  .kicker {
-    margin: 0;
-    color: var(--ink-soft);
-    font-family: var(--font-mono);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    font-size: 0.75rem;
+    padding-bottom: 0.65rem;
+    margin-bottom: 0.9rem;
   }
 
   .page-prose p:first-of-type {

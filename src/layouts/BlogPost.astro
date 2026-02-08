@@ -3,51 +3,141 @@ import type { CollectionEntry } from 'astro:content';
 import BaseLayout from './BaseLayout.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 
-type Props = CollectionEntry<'blog'>['data'];
+interface TocHeading {
+  depth: number;
+  slug: string;
+  text: string;
+}
 
-const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+type Props = CollectionEntry<'blog'>['data'] & {
+  headings?: TocHeading[];
+};
+
+const {
+  title,
+  description,
+  pubDate,
+  updatedDate,
+  heroImage,
+  headings = [],
+} = Astro.props;
+
+const tocHeadings = headings.filter(
+  (heading) => heading.depth === 2 || heading.depth === 3
+);
 ---
 
 <BaseLayout title={title} description={description}>
-  <main>
-    <article class="prose post-prose">
-      <a class="back-link" href="/blog/">← Back to archive</a>
+  <div class="post-layout">
+    {
+      tocHeadings.length > 0 && (
+        <aside class="toc" aria-label="Table of contents">
+          <p class="toc-title">On this page</p>
+          <ul>
+            {tocHeadings.map((heading) => (
+              <li class:list={{ 'is-sub': heading.depth === 3 }}>
+                <a href={`#${heading.slug}`}>{heading.text}</a>
+              </li>
+            ))}
+          </ul>
+        </aside>
+      )
+    }
 
-      <header class="post-header">
-        <p class="meta">
-          <FormattedDate date={pubDate} />
-          {
-            updatedDate && (
-              <>
-                {' · Updated '}
-                <FormattedDate date={updatedDate} />
-              </>
-            )
-          }
-        </p>
-        <h1>{title}</h1>
-        <p class="dek">{description}</p>
-      </header>
+    <main class="post-main">
+      <article class="prose post-prose">
+        <a class="back-link" href="/">← Back to posts</a>
 
-      {
-        heroImage && (
-          <figure class="hero-image">
-            <img
-              src={heroImage.src}
-              width={heroImage.width}
-              height={heroImage.height}
-              alt=""
-            />
-          </figure>
-        )
-      }
+        <header class="post-header">
+          <p class="meta">
+            <FormattedDate date={pubDate} />
+            {
+              updatedDate && (
+                <>
+                  {' · Updated '}
+                  <FormattedDate date={updatedDate} />
+                </>
+              )
+            }
+          </p>
+          <h1>{title}</h1>
+          <p class="dek">{description}</p>
+        </header>
 
-      <slot />
-    </article>
-  </main>
+        {
+          heroImage && (
+            <figure class="hero-image">
+              <img
+                src={heroImage.src}
+                width={heroImage.width}
+                height={heroImage.height}
+                alt=""
+              />
+            </figure>
+          )
+        }
+
+        <slot />
+      </article>
+    </main>
+  </div>
 </BaseLayout>
 
 <style>
+  .post-layout {
+    display: grid;
+    grid-template-columns: 210px minmax(0, 1fr);
+    gap: 1.2rem;
+    align-items: start;
+  }
+
+  .post-main {
+    min-width: 0;
+  }
+
+  .toc {
+    position: sticky;
+    top: 0.8rem;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #f9fbff;
+    padding: 0.7rem;
+    max-height: calc(100vh - 1.6rem);
+    overflow: auto;
+  }
+
+  .toc-title {
+    margin: 0 0 0.5rem;
+    color: var(--ink-soft);
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .toc ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 0.4rem;
+  }
+
+  .toc li.is-sub {
+    padding-left: 0.65rem;
+  }
+
+  .toc a {
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-size: 0.88rem;
+    line-height: 1.3;
+  }
+
+  .toc a:hover {
+    color: var(--accent);
+  }
+
   .back-link {
     display: inline-block;
     margin-bottom: 0.85rem;
@@ -85,5 +175,15 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
     border-radius: 8px;
     border: 1px solid var(--line);
     height: auto;
+  }
+
+  @media (max-width: 1080px) {
+    .post-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .toc {
+      position: static;
+    }
   }
 </style>

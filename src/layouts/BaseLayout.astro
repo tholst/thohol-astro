@@ -11,9 +11,9 @@ export interface Props {
 const { title, description } = Astro.props;
 
 const navItems = [
-  { href: '/', label: 'Home' },
-  { href: '/blog/', label: 'Archive' },
+  { href: '/', label: 'Posts' },
   { href: '/about/', label: 'About' },
+  { href: '/now/', label: 'Now' },
 ];
 
 const pathname = Astro.url.pathname;
@@ -51,21 +51,9 @@ const isActive = (href: string) => {
         </nav>
       </header>
 
-      <div class="layout-grid">
-        <aside class="workbench-rail" aria-label="Context panel">
-          <p class="rail-heading">Workbench</p>
-          <ul class="rail-list">
-            <li>Developer notes</li>
-            <li>Static-first architecture</li>
-            <li>Markdown source of truth</li>
-            <li>Visual system: signal</li>
-          </ul>
-        </aside>
-
-        <div class="content-wrap">
-          <slot />
-          <Footer />
-        </div>
+      <div class="content-wrap">
+        <slot />
+        <Footer />
       </div>
     </div>
   </body>
