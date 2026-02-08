@@ -6,55 +6,33 @@ const { title, description } = Astro.props;
 
 <BaseLayout title={title} description={description}>
   <main>
-    <article>
-      <div class="prose">
-        <div class="title">
-          <h1>{title}</h1>
-          <hr />
-        </div>
-        <slot />
-      </div>
+    <article class="prose page-prose">
+      <header class="page-header">
+        <p class="kicker">Notes</p>
+        <h1>{title}</h1>
+      </header>
+      <slot />
     </article>
   </main>
 </BaseLayout>
 
 <style>
-  main {
-    flex: 1;
-    width: 100%;
-    max-width: 800px;
-    margin: 0 auto;
-    padding: var(--space-xl) var(--space-lg);
+  .page-header {
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 0.8rem;
+    margin-bottom: 1rem;
   }
 
-  .prose {
-    width: 100%;
-    max-width: 720px;
-    margin: 0 auto;
-    color: var(--text-primary);
-    transition: color 0.3s ease;
+  .kicker {
+    margin: 0;
+    color: var(--ink-soft);
+    font-family: var(--font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 0.75rem;
   }
 
-  .title {
-    margin-bottom: var(--space-lg);
-    padding: var(--space-md) 0;
-    text-align: center;
-    line-height: 1;
-  }
-
-  .title h1 {
-    margin: 0 0 0.5em 0;
-    color: var(--text-primary);
-    transition: color 0.3s ease;
-  }
-
-  @media (max-width: 768px) {
-    main {
-      padding: var(--space-md) var(--space-sm);
-    }
-
-    .title {
-      padding: var(--space-sm) 0;
-    }
+  .page-prose p:first-of-type {
+    margin-top: 0;
   }
 </style>

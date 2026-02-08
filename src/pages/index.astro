@@ -1,333 +1,207 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
-import { getCollection } from 'astro:content';
 import FormattedDate from '../components/FormattedDate.astro';
-import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import { SITE_DESCRIPTION, SITE_TITLE, SOCIAL_LINKS } from '../consts';
 
 const allPosts = await getCollection('blog');
-// In production, filter out unpublished posts; in dev, show all
 const posts = (
   import.meta.env.PROD
     ? allPosts.filter((post) => post.data.published !== false)
     : allPosts
 ).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const featured = posts.slice(0, 3);
+const backlog = posts.slice(3, 9);
 ---
 
 <BaseLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
   <main>
-    <!-- Personal Introduction Section -->
-    <section class="intro-section">
-      <div class="separator"></div>
-      <div class="intro-content">
-        <h2 class="intro-heading">
-          Hi! My name is Thomas. I write about web development, React, Docker,
-          and technology. Here's what I've worked on.
-        </h2>
-        <div class="social-links">
-          <a href="mailto:hello@example.com" class="social-link">EMAIL</a>
-          <a href="#" class="social-link">GITHUB</a>
-          <a href="#" class="social-link">LINKEDIN</a>
-          <a href="#" class="social-link">X</a>
-        </div>
-      </div>
+    <section class="hero">
+      <p class="kicker">Developer Blog</p>
+      <h1>Notes from the workbench.</h1>
+      <p class="summary">
+        I write practical engineering notes about React, Docker, architecture,
+        and the small implementation details that decide whether a system stays
+        maintainable.
+      </p>
+      <ul class="hero-links">
+        {
+          SOCIAL_LINKS.map((link) => (
+            <li>
+              <a href={link.href}>{link.label}</a>
+            </li>
+          ))
+        }
+      </ul>
     </section>
 
-    <!-- Selected Articles Section -->
-    <section class="articles-section">
-      <div class="separator"></div>
-      <div class="section-header">
-        <h2 class="section-title">Selected articles</h2>
-        <div class="see-all">
-          <span class="arrow">→</span>
-          <a href="/blog" class="see-all-link">SEE ALL ARTICLES</a>
-        </div>
-      </div>
-      <p class="section-description">
-        "To understand something, write about it," they say. I'm curious. So I
-        started writing: exploring web development, React patterns, Docker
-        workflows, and the technologies that shape how we build for the web.
-        Here's a selection of my recent explorations:
-      </p>
+    <section class="featured" aria-label="Featured posts">
+      <header>
+        <h2>Featured</h2>
+        <a href="/blog/">Open archive</a>
+      </header>
 
-      <div class="posts-grid">
+      <div class="feature-grid">
         {
-          posts.slice(0, 6).map((post) => (
-            <article class="post-card">
-              <a href={`/blog/${post.id}/`}>
-                {post.data.heroImage && (
-                  <div class="post-image">
-                    <Image
-                      width={280}
-                      height={150}
-                      src={post.data.heroImage}
-                      alt=""
-                    />
-                  </div>
-                )}
-                <div class="post-content">
-                  <div class="post-meta">
-                    <FormattedDate date={post.data.pubDate} />
-                  </div>
-                  <h3 class="post-title">{post.data.title}</h3>
-                  <p class="post-description">{post.data.description}</p>
-                </div>
-              </a>
+          featured.map((post) => (
+            <article class="feature-card">
+              <p class="meta">
+                <FormattedDate date={post.data.pubDate} />
+              </p>
+              <h3>
+                <a href={`/blog/${post.id}/`}>{post.data.title}</a>
+              </h3>
+              <p>{post.data.description}</p>
             </article>
           ))
         }
       </div>
     </section>
+
+    <section class="backlog" aria-label="Additional posts">
+      <h2>Archive preview</h2>
+      <ul>
+        {
+          backlog.map((post) => (
+            <li>
+              <time datetime={post.data.pubDate.toISOString()}>
+                <FormattedDate date={post.data.pubDate} />
+              </time>
+              <a href={`/blog/${post.id}/`}>{post.data.title}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
   </main>
 </BaseLayout>
 
 <style>
-  main {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 2rem;
-    line-height: 1.6;
+  .hero {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: clamp(1rem, 2vw, 1.4rem);
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--accent) 8%, white) 0%,
+      var(--panel) 100%
+    );
   }
 
-  /* Separator */
-  .separator {
-    width: 100%;
-    height: 1px;
-    background: var(--border-color);
-    margin-bottom: 2rem;
-  }
-
-  /* Intro Section */
-  .intro-section {
-    margin-bottom: 3rem;
-  }
-
-  .intro-content {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-
-  .intro-heading {
-    font-size: 1.75rem;
-    font-weight: 400;
-    line-height: 1.4;
-    color: var(--text-primary);
+  .kicker {
     margin: 0;
-    max-width: 800px;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-soft);
+    font-size: 0.75rem;
   }
 
-  .social-links {
+  .summary {
+    max-width: 58ch;
+  }
+
+  .hero-links {
+    list-style: none;
     display: flex;
-    gap: 1.5rem;
+    gap: 0.55rem;
+    padding: 0;
+    margin: 1.1rem 0 0;
     flex-wrap: wrap;
   }
 
-  .social-link {
-    color: var(--text-primary);
+  .hero-links a {
+    display: inline-block;
+    padding: 0.3rem 0.68rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
     text-decoration: none;
-    font-size: 0.9rem;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid transparent;
-    transition: all 0.3s ease;
+    color: var(--ink-soft);
   }
 
-  .social-link:hover {
-    color: var(--accent);
-    border-bottom-color: var(--accent);
+  .featured {
+    margin-top: 1.3rem;
   }
 
-  /* Articles Section */
-  .articles-section {
-    margin-bottom: 3rem;
-  }
-
-  .section-header {
+  .featured header {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
-    gap: 1rem;
+    gap: 0.8rem;
+    margin-bottom: 0.8rem;
   }
 
-  .section-title {
-    font-size: 1.5rem;
-    font-weight: 400;
-    color: var(--text-primary);
-    margin: 0;
-  }
-
-  .see-all {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.9rem;
-  }
-
-  .arrow {
-    color: var(--text-secondary);
-    font-weight: 300;
-  }
-
-  .see-all-link {
-    color: var(--text-primary);
-    text-decoration: none;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    transition: color 0.3s ease;
-  }
-
-  .see-all-link:hover {
-    color: var(--accent);
-  }
-
-  .section-description {
-    color: var(--text-secondary);
-    line-height: 1.6;
-    margin: 0 0 2rem 0;
-    max-width: 800px;
-  }
-
-  /* Posts Grid */
-  .posts-grid {
+  .feature-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-    margin-top: 2rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.8rem;
   }
 
-  .post-card {
-    display: block;
-    text-decoration: none;
-    color: inherit;
-    transition: all 0.3s ease;
-    border-radius: 8px;
-    overflow: hidden;
-    background: var(--bg-primary);
-    border: 1px solid var(--border-color);
+  .feature-card {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 0.9rem;
+    background: var(--panel-soft);
+    transition:
+      transform 140ms ease,
+      border-color 140ms ease,
+      box-shadow 140ms ease;
   }
 
-  .post-card:hover {
+  .feature-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    border-color: var(--accent);
+    border-color: color-mix(in srgb, var(--accent) 35%, var(--line));
+    box-shadow: 0 12px 22px rgba(16, 24, 40, 0.08);
   }
 
-  .post-card a {
-    text-decoration: none;
-    color: inherit;
-    display: block;
-    height: 100%;
+  .feature-card h3 {
+    margin-bottom: 0.55rem;
   }
 
-  .post-image {
-    width: 100%;
-    height: 200px;
-    overflow: hidden;
-    background: var(--bg-secondary);
-  }
-
-  .post-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-  }
-
-  .post-card:hover .post-image img {
-    transform: scale(1.02);
-  }
-
-  .post-content {
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .post-meta {
-    color: var(--text-secondary);
-    font-size: 0.85rem;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .post-title {
+  .meta {
     margin: 0;
-    font-size: 1.25rem;
-    font-weight: 600;
-    line-height: 1.3;
-    color: var(--text-primary);
-    transition: color 0.3s ease;
+    color: var(--ink-soft);
+    font-size: 0.82rem;
+    font-family: var(--font-mono);
   }
 
-  .post-card:hover .post-title {
-    color: var(--accent);
+  .backlog {
+    margin-top: 1.3rem;
   }
 
-  .post-description {
+  .backlog ul {
     margin: 0;
-    color: var(--text-secondary);
-    line-height: 1.5;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--line);
   }
 
-  /* Responsive */
-  @media (max-width: 768px) {
-    main {
-      padding: 1rem;
-    }
+  .backlog li {
+    display: grid;
+    grid-template-columns: 154px 1fr;
+    gap: 1rem;
+    align-items: center;
+    padding: 0.8rem 0.2rem;
+    border-bottom: 1px solid var(--line);
+  }
 
-    .intro-heading {
-      font-size: 1.5rem;
-    }
+  .backlog time {
+    color: var(--ink-soft);
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+  }
 
-    .section-header {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0.5rem;
-    }
-
-    .social-links {
-      gap: 1rem;
-    }
-
-    .posts-grid {
+  @media (max-width: 920px) {
+    .feature-grid {
       grid-template-columns: 1fr;
-      gap: 1.5rem;
-    }
-
-    .post-image {
-      height: 150px;
-    }
-
-    .post-content {
-      padding: 1.25rem;
-    }
-
-    .post-title {
-      font-size: 1.1rem;
     }
   }
 
-  @media (max-width: 480px) {
-    main {
-      padding: 1rem 0.75rem;
-    }
-
-    .intro-heading {
-      font-size: 1.25rem;
-    }
-
-    .section-title {
-      font-size: 1.25rem;
+  @media (max-width: 600px) {
+    .backlog li {
+      grid-template-columns: 1fr;
+      gap: 0.35rem;
     }
   }
 </style>

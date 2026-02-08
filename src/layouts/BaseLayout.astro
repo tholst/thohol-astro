@@ -1,8 +1,7 @@
 ---
 import BaseHead from '../components/BaseHead.astro';
-import HeaderLink from '../components/HeaderLink.astro';
-import ThemeToggle from '../components/ThemeToggle.astro';
 import Footer from '../components/Footer.astro';
+import { SITE_TITLE } from '../consts';
 
 export interface Props {
   title: string;
@@ -10,301 +9,64 @@ export interface Props {
 }
 
 const { title, description } = Astro.props;
+
+const navItems = [
+  { href: '/', label: 'Home' },
+  { href: '/blog/', label: 'Archive' },
+  { href: '/about/', label: 'About' },
+];
+
+const pathname = Astro.url.pathname;
+const isActive = (href: string) => {
+  if (href === '/') return pathname === '/';
+  return pathname.startsWith(href);
+};
 ---
 
 <html lang="en">
   <head>
     <BaseHead title={title} description={description} />
-    <style>
-      .main {
-        min-height: 100vh;
-        display: flex;
-      }
-
-      .sidebar.sidebar-text {
-        position: fixed;
-        top: 0;
-        left: 0;
-        height: 100vh;
-        width: 280px;
-        background: var(--bg-primary);
-        border-right: 1px solid var(--border-color);
-        box-shadow: var(--box-shadow);
-        z-index: 1000;
-        transition: all 0.3s ease;
-        overflow-y: auto;
-        overflow-x: hidden;
-        display: flex;
-        flex-direction: column;
-        padding: 1.5rem;
-        gap: 1.5rem;
-      }
-
-      .sidebar.sidebar-text:hover {
-        box-shadow: var(--box-shadow-lg);
-      }
-
-      .sidebar-top {
-        flex-shrink: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-      }
-
-      .brand-section {
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-        text-align: center;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid var(--border-color);
-      }
-
-      .brand-name {
-        font-size: 1.25rem;
-        font-weight: 800;
-        color: var(--text-primary);
-        margin: 0;
-        line-height: 1.2;
-        letter-spacing: -0.025em;
-        background: linear-gradient(
-          135deg,
-          var(--accent) 0%,
-          var(--accent-dark) 100%
-        );
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-        transition: all 0.3s ease;
-      }
-
-      .brand-name:hover {
-        transform: scale(1.02);
-        filter: brightness(1.1);
-      }
-
-      .brand-subtitle {
-        font-size: 0.7rem;
-        color: var(--text-secondary);
-        font-weight: 500;
-        letter-spacing: 0.5px;
-        text-transform: uppercase;
-        opacity: 0.8;
-      }
-
-      .nav-section {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-      }
-
-      .nav-links {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-      }
-
-      .nav-links :global(a) {
-        display: block;
-        padding: 0.875rem 1.25rem;
-        color: var(--text-primary);
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 0.95rem;
-        border-radius: 12px;
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-      }
-
-      .nav-links :global(a:hover) {
-        color: var(--accent);
-        background: rgba(var(--accent), 0.1);
-        transform: translateX(4px);
-      }
-
-      .nav-links :global(a.active) {
-        color: white;
-        background: linear-gradient(
-          135deg,
-          var(--accent) 0%,
-          var(--accent-dark) 100%
-        );
-        box-shadow: var(--box-shadow);
-      }
-
-      .nav-links :global(a.active:hover) {
-        transform: translateX(4px);
-        box-shadow: var(--box-shadow-lg);
-      }
-
-      .theme-toggle-section {
-        flex-shrink: 0;
-        display: flex;
-        justify-content: center;
-        padding-top: 1rem;
-        border-top: 1px solid var(--border-color);
-      }
-
-      .sidebar-index-hidden {
-        display: none;
-      }
-
-      .main-content {
-        flex: 1;
-        margin-left: 280px;
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-      }
-
-      /* Mobile hamburger menu button */
-      .mobile-menu-toggle {
-        display: none;
-        position: fixed;
-        top: 1rem;
-        left: 1rem;
-        z-index: 1001;
-        background: var(--bg-primary);
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        padding: 0.5rem;
-        cursor: pointer;
-        box-shadow: var(--box-shadow);
-      }
-
-      .mobile-menu-toggle svg {
-        width: 24px;
-        height: 24px;
-        color: var(--text-primary);
-      }
-
-      @media (max-width: 768px) {
-        .main-content {
-          margin-left: 0;
-        }
-
-        .sidebar.sidebar-text {
-          transform: translateX(-100%);
-          transition: transform 0.3s ease;
-        }
-
-        .sidebar.sidebar-text.mobile-open {
-          transform: translateX(0);
-        }
-
-        .mobile-menu-toggle {
-          display: block;
-        }
-
-        .brand-name {
-          font-size: 1.25rem;
-        }
-
-        .brand-subtitle {
-          font-size: 0.7rem;
-        }
-
-        .nav-links :global(a) {
-          padding: 0.75rem 1rem;
-          font-size: 0.9rem;
-        }
-      }
-
-      @media (max-width: 480px) {
-        .sidebar.sidebar-text {
-          width: 260px;
-        }
-
-        .sidebar.sidebar-text {
-          padding: 1rem;
-        }
-      }
-    </style>
   </head>
 
   <body>
-    <div class="main">
-      <div class="sidebar sidebar-text">
-        <div class="sidebar-top">
-          <div class="brand-section">
-            <h1 class="brand-name">Thomas Holst</h1>
-            <span class="brand-subtitle">Personal Tech Blog</span>
-          </div>
+    <div class="layout-shell">
+      <header class="site-header">
+        <a class="brand" href="/">
+          <span class="brand-dot"></span>
+          <span>{SITE_TITLE}</span>
+        </a>
 
-          <nav class="nav-section">
-            <div class="nav-links">
-              <HeaderLink href="/blog">Posts</HeaderLink>
-              <HeaderLink href="/about">About</HeaderLink>
-            </div>
-          </nav>
+        <nav aria-label="Main">
+          <ul class="site-nav">
+            {
+              navItems.map((item) => (
+                <li>
+                  <a href={item.href} data-active={isActive(item.href)}>
+                    {item.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+      </header>
 
-          <div class="theme-toggle-section">
-            <ThemeToggle />
-          </div>
+      <div class="layout-grid">
+        <aside class="workbench-rail" aria-label="Context panel">
+          <p class="rail-heading">Workbench</p>
+          <ul class="rail-list">
+            <li>Developer notes</li>
+            <li>Static-first architecture</li>
+            <li>Markdown source of truth</li>
+            <li>Visual system: signal</li>
+          </ul>
+        </aside>
+
+        <div class="content-wrap">
+          <slot />
+          <Footer />
         </div>
-
-        <div class="sidebar-index-hidden">
-          <!-- Additional sidebar content can go here -->
-        </div>
-      </div>
-
-      <div class="main-content">
-        <slot />
-        <Footer />
       </div>
     </div>
-
-    <button
-      class="mobile-menu-toggle"
-      id="mobile-menu-toggle"
-      aria-label="Toggle mobile menu"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <line x1="3" y1="6" x2="21" y2="6"></line>
-        <line x1="3" y1="12" x2="21" y2="12"></line>
-        <line x1="3" y1="18" x2="21" y2="18"></line>
-      </svg>
-    </button>
-
-    <script>
-      // Mobile menu functionality
-      const handleMobileMenuToggle = () => {
-        const sidebar = document.querySelector('.sidebar');
-        if (sidebar) {
-          sidebar.classList.toggle('mobile-open');
-        }
-      };
-
-      const mobileMenuButton = document.getElementById('mobile-menu-toggle');
-      if (mobileMenuButton) {
-        mobileMenuButton.addEventListener('click', handleMobileMenuToggle);
-      }
-
-      // Close mobile menu when clicking outside
-      document.addEventListener('click', (event) => {
-        const sidebar = document.querySelector('.sidebar');
-        const mobileButton = document.getElementById('mobile-menu-toggle');
-
-        if (
-          sidebar &&
-          mobileButton &&
-          event.target instanceof Node &&
-          !sidebar.contains(event.target) &&
-          !mobileButton.contains(event.target) &&
-          sidebar.classList.contains('mobile-open')
-        ) {
-          sidebar.classList.remove('mobile-open');
-        }
-      });
-    </script>
   </body>
 </html>

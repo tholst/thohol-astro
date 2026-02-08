@@ -1,0 +1,191 @@
+---
+import HeaderLink from './HeaderLink.astro';
+import ThemeToggle from './ThemeToggle.astro';
+---
+
+<div class="sidebar sidebar-text">
+  <div class="sidebar-top">
+    <div class="brand-section">
+      <h1 class="brand-name">Thomas Holst</h1>
+      <span class="brand-subtitle">Personal Tech Blog</span>
+    </div>
+
+    <nav class="nav-section">
+      <div class="nav-links">
+        <HeaderLink href="/blog">Posts</HeaderLink>
+        <HeaderLink href="/about">About</HeaderLink>
+      </div>
+    </nav>
+
+    <div class="theme-toggle-section">
+      <ThemeToggle />
+    </div>
+  </div>
+
+  <div class="sidebar-index-hidden">
+    <!-- Additional sidebar content can go here -->
+  </div>
+</div>
+
+<style>
+  .sidebar.sidebar-text {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 280px;
+    background: var(--bg-primary);
+    z-index: 1000;
+    transition: all 0.3s ease;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    gap: 1.5rem;
+  }
+
+  .sidebar.sidebar-text:hover {
+    box-shadow: var(--box-shadow-lg);
+  }
+
+  .sidebar-top {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .brand-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    text-align: center;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .brand-name {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+    background: linear-gradient(
+      135deg,
+      var(--accent) 0%,
+      var(--accent-dark) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    transition: all 0.3s ease;
+  }
+
+  .brand-name:hover {
+    transform: scale(1.02);
+    filter: brightness(1.1);
+  }
+
+  .brand-subtitle {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    opacity: 0.8;
+  }
+
+  .nav-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .nav-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .nav-links :global(a) {
+    display: block;
+    padding: 0.875rem 1.25rem;
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .nav-links :global(a:hover) {
+    color: var(--accent);
+    background: rgba(var(--accent), 0.1);
+    transform: translateX(4px);
+  }
+
+  .nav-links :global(a.active) {
+    color: white;
+    background: linear-gradient(
+      135deg,
+      var(--accent) 0%,
+      var(--accent-dark) 100%
+    );
+    box-shadow: var(--box-shadow);
+  }
+
+  .nav-links :global(a.active:hover) {
+    transform: translateX(4px);
+    box-shadow: var(--box-shadow-lg);
+  }
+
+  .theme-toggle-section {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .sidebar-index-hidden {
+    display: none;
+  }
+
+  @media (max-width: 768px) {
+    .sidebar.sidebar-text {
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar.sidebar-text.mobile-open {
+      transform: translateX(0);
+    }
+
+    .brand-name {
+      font-size: 1.25rem;
+    }
+
+    .brand-subtitle {
+      font-size: 0.7rem;
+    }
+
+    .nav-links :global(a) {
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .sidebar.sidebar-text {
+      width: 260px;
+    }
+
+    .sidebar.sidebar-text {
+      padding: 1rem;
+    }
+  }
+</style>
