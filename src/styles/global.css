@@ -222,14 +222,6 @@ blockquote {
   align-items: baseline;
 }
 
-.footer-mark {
-  color: var(--ink);
-  font-family: var(--font-mono);
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  font-size: 0.74rem;
-}
-
 .footer-links {
   list-style: none;
   padding: 0;
