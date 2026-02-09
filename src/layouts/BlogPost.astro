@@ -47,6 +47,45 @@ const tocHeadings = headings.filter(
     }
 
     <main class="post-main">
+      {
+        tocHeadings.length > 0 && (
+          <>
+            <button
+              type="button"
+              class="toc-mobile-toggle"
+              id="toc-mobile-toggle"
+              aria-controls="toc-mobile-dialog"
+              aria-expanded="false"
+            >
+              Contents
+            </button>
+
+            <div class="toc-mobile-dialog" id="toc-mobile-dialog" hidden>
+              <button
+                type="button"
+                class="toc-mobile-backdrop"
+                aria-label="Close table of contents"
+              />
+              <aside class="toc-mobile-sheet" aria-label="Table of contents">
+                <div class="toc-mobile-head">
+                  <p>On this page</p>
+                  <button type="button" class="toc-mobile-close">
+                    Close
+                  </button>
+                </div>
+                <ul>
+                  {tocHeadings.map((heading) => (
+                    <li class:list={{ 'is-sub': heading.depth === 3 }}>
+                      <a href={`#${heading.slug}`}>{heading.text}</a>
+                    </li>
+                  ))}
+                </ul>
+              </aside>
+            </div>
+          </>
+        )
+      }
+
       <article class="prose post-prose">
         <a class="back-link" href="/">← Back to posts</a>
 
@@ -91,6 +130,7 @@ const tocHeadings = headings.filter(
   }
 
   .toc-floating {
+    display: none;
     margin-bottom: 0.9rem;
   }
 
@@ -135,6 +175,108 @@ const tocHeadings = headings.filter(
 
   .post-main {
     min-width: 0;
+    position: relative;
+  }
+
+  .toc-mobile-toggle {
+    position: absolute;
+    top: 0.7rem;
+    right: 0.7rem;
+    z-index: 2;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: #ffffff;
+    color: var(--ink-soft);
+    padding: 0.28rem 0.64rem;
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .toc-mobile-toggle:hover {
+    color: var(--ink);
+    border-color: var(--accent);
+  }
+
+  .toc-mobile-dialog {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+  }
+
+  .toc-mobile-backdrop {
+    position: absolute;
+    inset: 0;
+    border: 0;
+    background: rgba(16, 24, 40, 0.32);
+    cursor: pointer;
+  }
+
+  .toc-mobile-sheet {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: min(340px, 88vw);
+    background: #ffffff;
+    border-left: 1px solid var(--line);
+    box-shadow: -12px 0 24px rgba(16, 24, 40, 0.14);
+    padding: 0.9rem;
+    overflow: auto;
+  }
+
+  .toc-mobile-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.8rem;
+    margin-bottom: 0.7rem;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 0.5rem;
+  }
+
+  .toc-mobile-head p {
+    margin: 0;
+    color: var(--ink-soft);
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .toc-mobile-close {
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--ink-soft);
+    font-size: 0.78rem;
+    padding: 0.2rem 0.55rem;
+    cursor: pointer;
+  }
+
+  .toc-mobile-dialog ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  .toc-mobile-dialog li.is-sub {
+    padding-left: 0.65rem;
+  }
+
+  .toc-mobile-dialog a {
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-size: 0.92rem;
+    line-height: 1.3;
+  }
+
+  .toc-mobile-dialog a:hover {
+    color: var(--accent);
   }
 
   .back-link {
@@ -177,6 +319,11 @@ const tocHeadings = headings.filter(
   }
 
   @media (min-width: 1400px) {
+    .toc-mobile-toggle,
+    .toc-mobile-dialog {
+      display: none;
+    }
+
     .toc-floating {
       display: block;
       position: fixed;
@@ -190,5 +337,40 @@ const tocHeadings = headings.filter(
       max-height: calc(100vh - 1.6rem);
       overflow: auto;
     }
+
+    .post-main {
+      position: static;
+    }
   }
 </style>
+
+<script is:inline>
+  const toggleButton = document.getElementById('toc-mobile-toggle');
+  const dialog = document.getElementById('toc-mobile-dialog');
+
+  if (toggleButton && dialog) {
+    const closeButton = dialog.querySelector('.toc-mobile-close');
+    const backdrop = dialog.querySelector('.toc-mobile-backdrop');
+    const tocLinks = dialog.querySelectorAll('a');
+
+    const openDialog = () => {
+      dialog.hidden = false;
+      toggleButton.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    };
+
+    const closeDialog = () => {
+      dialog.hidden = true;
+      toggleButton.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    };
+
+    toggleButton.addEventListener('click', openDialog);
+    closeButton?.addEventListener('click', closeDialog);
+    backdrop?.addEventListener('click', closeDialog);
+    tocLinks.forEach((link) => link.addEventListener('click', closeDialog));
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !dialog.hidden) closeDialog();
+    });
+  }
+</script>
