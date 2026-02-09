@@ -30,13 +30,17 @@ const isSubnetPlanner = tool.id === 'subnet-planner';
       <h1>{tool.data.title}</h1>
       <p>{tool.data.description}</p>
       <p class="updated-at">
-        Last updated at <FormattedDate date={tool.data.updatedAt} />
+        Last updated on <FormattedDate date={tool.data.updatedAt} />
       </p>
     </section>
 
-    <article class="prose tool-prose">
-      <Content />
-    </article>
+    {
+      !isSubnetPlanner && (
+        <article class="prose tool-prose">
+          <Content />
+        </article>
+      )
+    }
 
     {
       isSubnetPlanner && (
@@ -54,19 +58,19 @@ const isSubnetPlanner = tool.id === 'subnet-planner';
             </label>
 
             <label>
-              Number of subnets
+              Number of required subnets
               <input
                 name="count"
                 type="number"
                 min="1"
-                max="256"
-                value="4"
+                max="65535"
+                value="8"
                 required
               />
             </label>
 
             <label class="slider-field full-row">
-              IPs per subnet (slider)
+              Subnet split (IPs per subnet)
               <input
                 id="splitLevel"
                 name="splitLevel"
@@ -76,34 +80,63 @@ const isSubnetPlanner = tool.id === 'subnet-planner';
                 value="8"
                 step="1"
               />
+              <div class="slider-scale">
+                <span>1 subnet</span>
+                <span>Maximum subnets</span>
+              </div>
               <small id="splitSummary">
                 /24 · 256 IPs/subnet · max 256 subnets
               </small>
             </label>
 
             <label class="full-row">
+              Subnet name prefix
+              <input name="namePrefix" value="subnet" />
+            </label>
+
+            <label class="full-row">
               Names (optional, comma-separated)
-              <input name="names" placeholder="app, data, ingress, batch" />
+              <input
+                name="names"
+                value="hub-shared,aks-nodes,aks-pods,agw-ingress,bastion,azure-firewall,private-endpoints,data-services"
+                placeholder="app, data, ingress, batch"
+              />
             </label>
           </form>
 
           <p id="planner-message" class="planner-message" aria-live="polite" />
 
-          <div class="table-wrap">
-            <table id="subnet-table" hidden>
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>CIDR</th>
-                  <th>Network</th>
-                  <th>First usable</th>
-                  <th>Last usable</th>
-                  <th>Broadcast</th>
-                  <th>Hosts</th>
-                </tr>
-              </thead>
-              <tbody />
-            </table>
+          <div class="results-box">
+            <div class="results-header">
+              <h3>Generated subnets</h3>
+              <button
+                type="button"
+                id="copy-subnets"
+                class="copy-icon"
+                aria-label="Copy name and CIDR list"
+                title="Copy name + CIDR"
+                disabled
+              >
+                ⧉
+              </button>
+            </div>
+
+            <div class="table-wrap">
+              <table id="subnet-table" hidden>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>CIDR</th>
+                    <th>Network</th>
+                    <th>First usable</th>
+                    <th>Last usable</th>
+                    <th>Broadcast</th>
+                    <th>Hosts</th>
+                  </tr>
+                </thead>
+                <tbody />
+              </table>
+            </div>
           </div>
         </section>
       )
@@ -134,7 +167,6 @@ const isSubnetPlanner = tool.id === 'subnet-planner';
 
   .tool-prose {
     margin-top: 1rem;
-    border-top: 1px solid var(--line);
     padding-top: 0.9rem;
   }
 
@@ -180,10 +212,66 @@ const isSubnetPlanner = tool.id === 'subnet-planner';
     font-size: 0.78rem;
   }
 
+  .slider-scale {
+    display: flex;
+    justify-content: space-between;
+    color: var(--ink-soft);
+    font-size: 0.75rem;
+  }
+
   .planner-message {
     margin: 0.8rem 0 0;
     color: var(--ink-soft);
     min-height: 1.2em;
+  }
+
+  .results-box {
+    margin-top: 0.5rem;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 0.6rem 0.6rem 0.2rem;
+    background: #fff;
+  }
+
+  .results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.45rem;
+  }
+
+  .results-header h3 {
+    margin: 0;
+    font-size: 0.82rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    font-family: var(--font-mono);
+  }
+
+  .copy-icon {
+    inline-size: 1.8rem;
+    block-size: 1.8rem;
+    display: inline-grid;
+    place-items: center;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: #fff;
+    color: var(--ink-soft);
+    font-size: 1rem;
+    line-height: 1;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .copy-icon:hover:not(:disabled) {
+    border-color: var(--ink-soft);
+    color: var(--ink);
+  }
+
+  .copy-icon:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 
   .table-wrap {
@@ -220,12 +308,14 @@ const isSubnetPlanner = tool.id === 'subnet-planner';
 </style>
 
 <script is:inline>
+  const MAX_RENDERED_ROWS = 512;
   const form = document.getElementById('subnet-form');
   const table = document.getElementById('subnet-table');
   const tbody = table?.querySelector('tbody');
   const message = document.getElementById('planner-message');
   const slider = document.getElementById('splitLevel');
   const splitSummary = document.getElementById('splitSummary');
+  const copyButton = document.getElementById('copy-subnets');
 
   const ipToInt = (ip) => {
     const parts = ip.split('.').map((v) => Number(v));
@@ -254,11 +344,11 @@ const isSubnetPlanner = tool.id === 'subnet-planner';
   const parseCidr = (value) => {
     const [ip, prefixRaw] = value.trim().split('/');
     const prefix = Number(prefixRaw);
-    if (!ip || !Number.isInteger(prefix) || prefix < 1 || prefix > 32)
+    if (!ip || !Number.isInteger(prefix) || prefix < 0 || prefix > 32)
       return null;
     const ipInt = ipToInt(ip);
     if (ipInt === null) return null;
-    const mask = (0xffffffff << (32 - prefix)) >>> 0;
+    const mask = prefix === 0 ? 0 : (0xffffffff << (32 - prefix)) >>> 0;
     const network = ipInt & mask;
     return { prefix, network };
   };
@@ -266,12 +356,19 @@ const isSubnetPlanner = tool.id === 'subnet-planner';
   const clearTable = () => {
     if (tbody) tbody.innerHTML = '';
     if (table) table.hidden = true;
+    if (copyButton) copyButton.disabled = true;
   };
 
   const setMessage = (text, isError = false) => {
     if (!message) return;
     message.textContent = text;
     message.style.color = isError ? '#b42318' : '';
+  };
+
+  const appendCell = (row, text) => {
+    const td = document.createElement('td');
+    td.textContent = text;
+    row.appendChild(td);
   };
 
   const generate = () => {
@@ -282,6 +379,7 @@ const isSubnetPlanner = tool.id === 'subnet-planner';
     const baseCidr = String(data.get('baseCidr') || '');
     const countRaw = Number(data.get('count'));
     const splitLevel = Number(data.get('splitLevel'));
+    const namePrefix = String(data.get('namePrefix') || 'subnet').trim();
     const names = String(data.get('names') || '');
 
     const parsed = parseCidr(baseCidr);
@@ -291,12 +389,30 @@ const isSubnetPlanner = tool.id === 'subnet-planner';
     }
 
     const maxSplit = 32 - parsed.prefix;
-    if (slider) {
-      slider.max = String(maxSplit);
-      if (splitLevel > maxSplit) slider.value = String(maxSplit);
+    const maxPossibleSubnets = 2 ** maxSplit;
+    const count = Math.max(1, Number.isInteger(countRaw) ? countRaw : 1);
+
+    if (count > maxPossibleSubnets) {
+      setMessage(
+        `Requested ${count} subnet(s), but at most ${maxPossibleSubnets} fit in ${baseCidr}.`,
+        true
+      );
+      return;
     }
 
-    const split = Math.min(Number(slider?.value || splitLevel), maxSplit);
+    const minRequiredSplit = Math.ceil(Math.log2(count));
+    if (slider) {
+      slider.max = String(maxSplit);
+      slider.min = String(minRequiredSplit);
+      if (splitLevel > maxSplit) slider.value = String(maxSplit);
+      if (splitLevel < minRequiredSplit)
+        slider.value = String(minRequiredSplit);
+    }
+
+    const split = Math.min(
+      Math.max(Number(slider?.value || splitLevel), minRequiredSplit),
+      maxSplit
+    );
     const subnetPrefix = parsed.prefix + split;
     const subnetSize = 2 ** (32 - subnetPrefix);
     const maxSubnets = 2 ** split;
@@ -305,13 +421,11 @@ const isSubnetPlanner = tool.id === 'subnet-planner';
       splitSummary.textContent = `/${subnetPrefix} · ${subnetSize} IPs/subnet · max ${maxSubnets} subnets`;
     }
 
-    const count = Math.max(1, Number.isInteger(countRaw) ? countRaw : 1);
     const limitedCount = Math.min(count, maxSubnets);
+    const renderedCount = Math.min(limitedCount, MAX_RENDERED_ROWS);
     const countInput = form.elements.namedItem('count');
     if (countInput && 'max' in countInput) {
-      countInput.max = String(maxSubnets);
-      if (Number(countInput.value) !== limitedCount)
-        countInput.value = String(limitedCount);
+      countInput.max = String(maxPossibleSubnets);
     }
 
     const namesList = names
@@ -321,7 +435,7 @@ const isSubnetPlanner = tool.id === 'subnet-planner';
 
     if (!tbody || !table) return;
 
-    for (let i = 0; i < limitedCount; i += 1) {
+    for (let i = 0; i < renderedCount; i += 1) {
       const network = (parsed.network + i * subnetSize) >>> 0;
       const broadcast = (network + subnetSize - 1) >>> 0;
       const firstUsable = subnetSize > 2 ? (network + 1) >>> 0 : network;
@@ -329,23 +443,64 @@ const isSubnetPlanner = tool.id === 'subnet-planner';
       const usableHosts = subnetSize > 2 ? subnetSize - 2 : 0;
 
       const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${namesList[i] || `subnet-${i + 1}`}</td>
-        <td>${intToIp(network)}/${subnetPrefix}</td>
-        <td>${intToIp(network)}</td>
-        <td>${intToIp(firstUsable)}</td>
-        <td>${intToIp(lastUsable)}</td>
-        <td>${intToIp(broadcast)}</td>
-        <td>${usableHosts}</td>
-      `;
+      appendCell(
+        tr,
+        namesList[i] ||
+          `${(namePrefix || 'subnet').replace(/\s+/g, '-')}-${i + 1}`
+      );
+      appendCell(tr, `${intToIp(network)}/${subnetPrefix}`);
+      appendCell(tr, intToIp(network));
+      appendCell(tr, intToIp(firstUsable));
+      appendCell(tr, intToIp(lastUsable));
+      appendCell(tr, intToIp(broadcast));
+      appendCell(tr, String(usableHosts));
       tbody.appendChild(tr);
     }
 
     table.hidden = false;
-    setMessage(`Generated ${limitedCount} subnet(s).`);
+    if (copyButton) copyButton.disabled = renderedCount === 0;
+    if (limitedCount > renderedCount) {
+      setMessage(
+        `Generated ${limitedCount} subnet(s); showing first ${renderedCount} for readability.`
+      );
+    } else {
+      setMessage(`Generated ${limitedCount} subnet(s).`);
+    }
   };
 
   form?.addEventListener('submit', (event) => event.preventDefault());
   form?.addEventListener('input', generate);
+
+  copyButton?.addEventListener('click', async () => {
+    if (!tbody) return;
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    if (rows.length === 0) {
+      setMessage('Nothing to copy yet.', true);
+      return;
+    }
+
+    const lines = rows
+      .map((row) => {
+        const cells = row.querySelectorAll('td');
+        const name = cells[0]?.textContent?.trim();
+        const cidr = cells[1]?.textContent?.trim();
+        return name && cidr ? `${name}: ${cidr}` : null;
+      })
+      .filter(Boolean)
+      .join('\n');
+
+    if (!lines) {
+      setMessage('Nothing to copy yet.', true);
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(lines);
+      setMessage(`Copied ${rows.length} subnet line(s) to clipboard.`);
+    } catch {
+      setMessage('Copy failed. Clipboard access was blocked.', true);
+    }
+  });
+
   generate();
 </script>

@@ -5,11 +5,9 @@ import { SITE_TITLE } from '../../consts';
 import { getCollection } from 'astro:content';
 
 const allTools = await getCollection('tools');
-const tools = (
-  import.meta.env.PROD
-    ? allTools.filter((tool) => tool.data.published !== false)
-    : allTools
-).sort((a, b) => a.data.order - b.data.order);
+const tools = allTools
+  .filter((tool) => tool.data.published !== false)
+  .sort((a, b) => a.data.order - b.data.order);
 ---
 
 <BaseLayout
@@ -22,21 +20,25 @@ const tools = (
       <p>Small interactive utilities for day-to-day engineering tasks.</p>
     </section>
 
-    <ul class="tool-list" aria-label="Available tools">
-      {
-        tools.map((tool) => (
-          <li>
-            <h2>
-              <a href={`/tools/${tool.id}/`}>{tool.data.title}</a>
-            </h2>
-            <p>{tool.data.description}</p>
-            <p class="updated-at">
-              Last updated at <FormattedDate date={tool.data.updatedAt} />
-            </p>
-          </li>
-        ))
-      }
-    </ul>
+    {
+      tools.length === 0 ? (
+        <p class="empty-tools">No tools published yet.</p>
+      ) : (
+        <ul class="tool-list" aria-label="Available tools">
+          {tools.map((tool) => (
+            <li>
+              <h2>
+                <a href={`/tools/${tool.id}/`}>{tool.data.title}</a>
+              </h2>
+              <p>{tool.data.description}</p>
+              <p class="updated-at">
+                Last updated on <FormattedDate date={tool.data.updatedAt} />
+              </p>
+            </li>
+          ))}
+        </ul>
+      )
+    }
   </main>
 </BaseLayout>
 
@@ -72,5 +74,10 @@ const tools = (
     margin-top: 0.3rem;
     font-family: var(--font-mono);
     font-size: 0.8rem;
+  }
+
+  .empty-tools {
+    margin-top: 1rem;
+    color: var(--ink-soft);
   }
 </style>
