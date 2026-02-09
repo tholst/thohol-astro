@@ -1,0 +1,351 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import FormattedDate from '../../components/FormattedDate.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const tools = await getCollection('tools');
+  const filteredTools = import.meta.env.PROD
+    ? tools.filter((tool) => tool.data.published !== false)
+    : tools;
+
+  return filteredTools.map((tool) => ({
+    params: { slug: tool.id },
+    props: { tool },
+  }));
+}
+
+const { tool } = Astro.props;
+const { Content } = await render(tool);
+const isSubnetPlanner = tool.id === 'subnet-planner';
+---
+
+<BaseLayout
+  title={`${tool.data.title} · Tools`}
+  description={tool.data.description}
+>
+  <main>
+    <section class="tool-header">
+      <a class="back-link" href="/tools/">← Back to tools</a>
+      <h1>{tool.data.title}</h1>
+      <p>{tool.data.description}</p>
+      <p class="updated-at">
+        Last updated at <FormattedDate date={tool.data.updatedAt} />
+      </p>
+    </section>
+
+    <article class="prose tool-prose">
+      <Content />
+    </article>
+
+    {
+      isSubnetPlanner && (
+        <section class="tool-card" aria-label="Subnet Planner">
+          <h2>Planner</h2>
+          <p>
+            Updates live while you type. Slider controls subnet size from one
+            large subnet to the maximum possible split.
+          </p>
+
+          <form id="subnet-form" class="planner-form">
+            <label>
+              Base CIDR
+              <input name="baseCidr" value="10.42.0.0/16" required />
+            </label>
+
+            <label>
+              Number of subnets
+              <input
+                name="count"
+                type="number"
+                min="1"
+                max="256"
+                value="4"
+                required
+              />
+            </label>
+
+            <label class="slider-field full-row">
+              IPs per subnet (slider)
+              <input
+                id="splitLevel"
+                name="splitLevel"
+                type="range"
+                min="0"
+                max="16"
+                value="8"
+                step="1"
+              />
+              <small id="splitSummary">
+                /24 · 256 IPs/subnet · max 256 subnets
+              </small>
+            </label>
+
+            <label class="full-row">
+              Names (optional, comma-separated)
+              <input name="names" placeholder="app, data, ingress, batch" />
+            </label>
+          </form>
+
+          <p id="planner-message" class="planner-message" aria-live="polite" />
+
+          <div class="table-wrap">
+            <table id="subnet-table" hidden>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>CIDR</th>
+                  <th>Network</th>
+                  <th>First usable</th>
+                  <th>Last usable</th>
+                  <th>Broadcast</th>
+                  <th>Hosts</th>
+                </tr>
+              </thead>
+              <tbody />
+            </table>
+          </div>
+        </section>
+      )
+    }
+  </main>
+</BaseLayout>
+
+<style>
+  .tool-header p {
+    margin: 0;
+    color: var(--ink-soft);
+  }
+
+  .updated-at {
+    margin-top: 0.45rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+  }
+
+  .back-link {
+    display: inline-block;
+    margin-bottom: 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    text-decoration: none;
+  }
+
+  .tool-prose {
+    margin-top: 1rem;
+    border-top: 1px solid var(--line);
+    padding-top: 0.9rem;
+  }
+
+  .tool-card {
+    margin-top: 1rem;
+    padding-top: 0.2rem;
+  }
+
+  .planner-form {
+    display: grid;
+    gap: 0.75rem;
+    margin-top: 0.7rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .planner-form label {
+    display: grid;
+    gap: 0.35rem;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+
+  .planner-form .full-row {
+    grid-column: 1 / -1;
+  }
+
+  .planner-form input {
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 0.42rem 0.55rem;
+    font: inherit;
+    color: var(--ink);
+    background: #fff;
+  }
+
+  .planner-form input[type='range'] {
+    padding: 0;
+  }
+
+  .slider-field small {
+    color: var(--ink-soft);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+  }
+
+  .planner-message {
+    margin: 0.8rem 0 0;
+    color: var(--ink-soft);
+    min-height: 1.2em;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    margin-top: 0.5rem;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+
+  th,
+  td {
+    border-bottom: 1px solid var(--line);
+    padding: 0.45rem 0.3rem;
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  td:first-child,
+  th:first-child {
+    position: sticky;
+    left: 0;
+    background: #fff;
+  }
+
+  @media (max-width: 780px) {
+    .planner-form {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script is:inline>
+  const form = document.getElementById('subnet-form');
+  const table = document.getElementById('subnet-table');
+  const tbody = table?.querySelector('tbody');
+  const message = document.getElementById('planner-message');
+  const slider = document.getElementById('splitLevel');
+  const splitSummary = document.getElementById('splitSummary');
+
+  const ipToInt = (ip) => {
+    const parts = ip.split('.').map((v) => Number(v));
+    if (
+      parts.length !== 4 ||
+      parts.some((v) => !Number.isInteger(v) || v < 0 || v > 255)
+    ) {
+      return null;
+    }
+    return (
+      ((parts[0] << 24) >>> 0) +
+      ((parts[1] << 16) >>> 0) +
+      ((parts[2] << 8) >>> 0) +
+      (parts[3] >>> 0)
+    );
+  };
+
+  const intToIp = (intVal) =>
+    [
+      (intVal >>> 24) & 255,
+      (intVal >>> 16) & 255,
+      (intVal >>> 8) & 255,
+      intVal & 255,
+    ].join('.');
+
+  const parseCidr = (value) => {
+    const [ip, prefixRaw] = value.trim().split('/');
+    const prefix = Number(prefixRaw);
+    if (!ip || !Number.isInteger(prefix) || prefix < 1 || prefix > 32)
+      return null;
+    const ipInt = ipToInt(ip);
+    if (ipInt === null) return null;
+    const mask = (0xffffffff << (32 - prefix)) >>> 0;
+    const network = ipInt & mask;
+    return { prefix, network };
+  };
+
+  const clearTable = () => {
+    if (tbody) tbody.innerHTML = '';
+    if (table) table.hidden = true;
+  };
+
+  const setMessage = (text, isError = false) => {
+    if (!message) return;
+    message.textContent = text;
+    message.style.color = isError ? '#b42318' : '';
+  };
+
+  const generate = () => {
+    if (!form) return;
+    clearTable();
+
+    const data = new FormData(form);
+    const baseCidr = String(data.get('baseCidr') || '');
+    const countRaw = Number(data.get('count'));
+    const splitLevel = Number(data.get('splitLevel'));
+    const names = String(data.get('names') || '');
+
+    const parsed = parseCidr(baseCidr);
+    if (!parsed) {
+      setMessage('Invalid base CIDR. Example: 10.42.0.0/16', true);
+      return;
+    }
+
+    const maxSplit = 32 - parsed.prefix;
+    if (slider) {
+      slider.max = String(maxSplit);
+      if (splitLevel > maxSplit) slider.value = String(maxSplit);
+    }
+
+    const split = Math.min(Number(slider?.value || splitLevel), maxSplit);
+    const subnetPrefix = parsed.prefix + split;
+    const subnetSize = 2 ** (32 - subnetPrefix);
+    const maxSubnets = 2 ** split;
+
+    if (splitSummary) {
+      splitSummary.textContent = `/${subnetPrefix} · ${subnetSize} IPs/subnet · max ${maxSubnets} subnets`;
+    }
+
+    const count = Math.max(1, Number.isInteger(countRaw) ? countRaw : 1);
+    const limitedCount = Math.min(count, maxSubnets);
+    const countInput = form.elements.namedItem('count');
+    if (countInput && 'max' in countInput) {
+      countInput.max = String(maxSubnets);
+      if (Number(countInput.value) !== limitedCount)
+        countInput.value = String(limitedCount);
+    }
+
+    const namesList = names
+      .split(',')
+      .map((v) => v.trim())
+      .filter(Boolean);
+
+    if (!tbody || !table) return;
+
+    for (let i = 0; i < limitedCount; i += 1) {
+      const network = (parsed.network + i * subnetSize) >>> 0;
+      const broadcast = (network + subnetSize - 1) >>> 0;
+      const firstUsable = subnetSize > 2 ? (network + 1) >>> 0 : network;
+      const lastUsable = subnetSize > 2 ? (broadcast - 1) >>> 0 : broadcast;
+      const usableHosts = subnetSize > 2 ? subnetSize - 2 : 0;
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${namesList[i] || `subnet-${i + 1}`}</td>
+        <td>${intToIp(network)}/${subnetPrefix}</td>
+        <td>${intToIp(network)}</td>
+        <td>${intToIp(firstUsable)}</td>
+        <td>${intToIp(lastUsable)}</td>
+        <td>${intToIp(broadcast)}</td>
+        <td>${usableHosts}</td>
+      `;
+      tbody.appendChild(tr);
+    }
+
+    table.hidden = false;
+    setMessage(`Generated ${limitedCount} subnet(s).`);
+  };
+
+  form?.addEventListener('submit', (event) => event.preventDefault());
+  form?.addEventListener('input', generate);
+  generate();
+</script>

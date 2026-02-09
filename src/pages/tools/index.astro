@@ -1,0 +1,76 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import FormattedDate from '../../components/FormattedDate.astro';
+import { SITE_TITLE } from '../../consts';
+import { getCollection } from 'astro:content';
+
+const allTools = await getCollection('tools');
+const tools = (
+  import.meta.env.PROD
+    ? allTools.filter((tool) => tool.data.published !== false)
+    : allTools
+).sort((a, b) => a.data.order - b.data.order);
+---
+
+<BaseLayout
+  title={`Tools · ${SITE_TITLE}`}
+  description="Interactive utilities for practical engineering work."
+>
+  <main>
+    <section class="intro">
+      <h1>Tools</h1>
+      <p>Small interactive utilities for day-to-day engineering tasks.</p>
+    </section>
+
+    <ul class="tool-list" aria-label="Available tools">
+      {
+        tools.map((tool) => (
+          <li>
+            <h2>
+              <a href={`/tools/${tool.id}/`}>{tool.data.title}</a>
+            </h2>
+            <p>{tool.data.description}</p>
+            <p class="updated-at">
+              Last updated at <FormattedDate date={tool.data.updatedAt} />
+            </p>
+          </li>
+        ))
+      }
+    </ul>
+  </main>
+</BaseLayout>
+
+<style>
+  .intro p {
+    margin: 0;
+    color: var(--ink-soft);
+  }
+
+  .tool-list {
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--line);
+  }
+
+  .tool-list li {
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .tool-list h2 {
+    margin: 0 0 0.25rem;
+    font-size: clamp(1.05rem, 2vw, 1.25rem);
+  }
+
+  .tool-list p {
+    margin: 0;
+    color: var(--ink-soft);
+  }
+
+  .tool-list .updated-at {
+    margin-top: 0.3rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+  }
+</style>
