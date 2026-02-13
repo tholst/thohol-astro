@@ -1,0 +1,279 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import StackLane from '../../components/StackLane.astro';
+import { getCollection } from 'astro:content';
+import { SITE_TITLE } from '../../consts';
+
+type Category =
+  | 'Languages'
+  | 'Databases'
+  | 'Backend'
+  | 'Frontend'
+  | 'Infra'
+  | 'Tooling'
+  | 'AI/Assistants';
+
+type TechRef = string | { label: string; href?: string };
+type ResolvedTech = { key: string; label: string; href?: string };
+type StackEvent = { date: Date; title: string; note?: string; tech: TechRef[] };
+type StackPeriod = {
+  from: Date;
+  to?: Date;
+  summary?: string;
+  stack: Record<Category, TechRef[]>;
+  events: StackEvent[];
+};
+type StackContext = {
+  id: string;
+  title: string;
+  kind: 'employer' | 'personal' | 'project';
+  parent?: string;
+  order: number;
+  periods: StackPeriod[];
+};
+type ContextNode = StackContext & { children: ContextNode[] };
+type PeriodEvent = {
+  dateIso: string;
+  dateLabel: string;
+  title: string;
+  note?: string;
+  tech: ResolvedTech[];
+};
+type ResolvedPeriod = {
+  from: Date;
+  to?: Date;
+  fromIso: string;
+  toIso?: string;
+  rangeLabel: string;
+  summary?: string;
+  stack: Record<Category, ResolvedTech[]>;
+  events: PeriodEvent[];
+  diff?: PeriodDiff;
+};
+type PeriodDiff = {
+  added: Record<Category, ResolvedTech[]>;
+  removed: Record<Category, ResolvedTech[]>;
+};
+
+const CATEGORY_ORDER: Category[] = [
+  'Languages',
+  'Databases',
+  'Backend',
+  'Frontend',
+  'Infra',
+  'Tooling',
+  'AI/Assistants',
+];
+
+const allContexts = await getCollection('stacks');
+const contexts: StackContext[] = allContexts
+  .filter((c) => c.data.published !== false)
+  .map((c) => ({
+    id: c.id,
+    title: c.data.title,
+    kind: c.data.kind,
+    parent: c.data.parent,
+    order: c.data.order,
+    periods: c.data.periods,
+  }))
+  .sort((a, b) => a.order - b.order || a.title.localeCompare(b.title));
+
+const allTech = await getCollection('tech');
+const techById = new Map(
+  allTech.filter((t) => t.data.published !== false).map((t) => [t.id, t.data])
+);
+
+function formatMonthYear(date: Date) {
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    year: 'numeric',
+  }).format(date);
+}
+
+function formatRange(from: Date, to: Date | undefined) {
+  const fromLabel = formatMonthYear(from);
+  if (!to) return `${fromLabel} – present`;
+  const toLabel = formatMonthYear(to);
+  if (fromLabel === toLabel) return fromLabel;
+  return `${fromLabel} – ${toLabel}`;
+}
+
+function resolveRef(ref: TechRef): ResolvedTech {
+  if (typeof ref === 'string') {
+    const found = techById.get(ref);
+    if (found)
+      return { key: `id:${ref}`, label: found.title, href: found.href };
+    // Fallback: treat unknown ids as readable labels.
+    return { key: `id:${ref}`, label: ref };
+  }
+  return { key: `label:${ref.label}`, label: ref.label, href: ref.href };
+}
+
+function resolvePeriod(period: StackPeriod): ResolvedPeriod {
+  const stack = Object.fromEntries(
+    CATEGORY_ORDER.map((c) => [c, (period.stack?.[c] ?? []).map(resolveRef)])
+  ) as Record<Category, ResolvedTech[]>;
+
+  const events = (period.events ?? []).map((ev) => ({
+    dateIso: ev.date.toISOString(),
+    dateLabel: formatMonthYear(ev.date),
+    title: ev.title,
+    note: ev.note,
+    tech: (ev.tech ?? []).map(resolveRef),
+  }));
+
+  return {
+    from: period.from,
+    to: period.to,
+    fromIso: period.from.toISOString(),
+    toIso: period.to?.toISOString(),
+    rangeLabel: formatRange(period.from, period.to),
+    summary: period.summary,
+    stack,
+    events,
+  };
+}
+
+function makeEmptyCategoryMap<T>(factory: () => T): Record<Category, T> {
+  return Object.fromEntries(
+    CATEGORY_ORDER.map((c) => [c, factory()])
+  ) as Record<Category, T>;
+}
+
+function computeDiff(
+  prev: ResolvedPeriod | undefined,
+  cur: ResolvedPeriod
+): PeriodDiff | undefined {
+  if (!prev) return undefined;
+
+  const added = makeEmptyCategoryMap((): ResolvedTech[] => []);
+  const removed = makeEmptyCategoryMap((): ResolvedTech[] => []);
+
+  for (const cat of CATEGORY_ORDER) {
+    const prevKeys = new Set(prev.stack[cat].map((t) => t.key));
+    const curKeys = new Set(cur.stack[cat].map((t) => t.key));
+
+    added[cat] = cur.stack[cat].filter((t) => !prevKeys.has(t.key));
+    removed[cat] = prev.stack[cat].filter((t) => !curKeys.has(t.key));
+  }
+
+  return { added, removed };
+}
+
+// Tree of contexts (work/personal/projects), built from `parent` references.
+// Each node keeps its `children` but is otherwise a direct projection of content.
+
+const nodeById = new Map<string, ContextNode>();
+for (const ctx of contexts) nodeById.set(ctx.id, { ...ctx, children: [] });
+
+const roots: ContextNode[] = [];
+for (const node of nodeById.values()) {
+  if (node.parent && nodeById.has(node.parent)) {
+    const parent = nodeById.get(node.parent);
+    if (parent) parent.children.push(node);
+  } else {
+    roots.push(node);
+  }
+}
+
+function sortTree(nodes: ContextNode[]) {
+  nodes.sort((a, b) => a.order - b.order || a.title.localeCompare(b.title));
+  for (const n of nodes) sortTree(n.children);
+}
+sortTree(roots);
+
+function computeViewForContext(ctx: StackContext) {
+  const sorted = [...ctx.periods].sort(
+    (a, b) => a.from.valueOf() - b.from.valueOf()
+  );
+  const resolved = sorted.map(resolvePeriod);
+  const diffs = resolved.map((p, idx) =>
+    computeDiff(idx > 0 ? resolved[idx - 1] : undefined, p)
+  );
+  const withDiff = resolved.map((p, idx) => ({ ...p, diff: diffs[idx] }));
+
+  const currentIndex = (() => {
+    for (let i = withDiff.length - 1; i >= 0; i -= 1) {
+      if (!withDiff[i].to) return i;
+    }
+    return withDiff.length - 1;
+  })();
+
+  const current = withDiff[currentIndex];
+  const past = withDiff
+    .filter((_, idx) => idx !== currentIndex)
+    .sort((a, b) => b.from.valueOf() - a.from.valueOf());
+
+  return { current, past };
+}
+
+function flattenTree(
+  nodes: ContextNode[],
+  depth = 0
+): Array<{ node: ContextNode; depth: number }> {
+  const out: Array<{ node: ContextNode; depth: number }> = [];
+  for (const node of nodes) {
+    out.push({ node, depth });
+    out.push(...flattenTree(node.children, depth + 1));
+  }
+  return out;
+}
+
+const flattened = flattenTree(roots);
+---
+
+<BaseLayout
+  title={`Stack · ${SITE_TITLE}`}
+  description="Tech stacks over time, across contexts and projects."
+>
+  <main>
+    <section class="intro">
+      <h1>Stack</h1>
+      <p>
+        A timeline of the tech I use, split across contexts (work, personal, and
+        specific projects). Each context tracks changes over time.
+      </p>
+    </section>
+
+    {
+      roots.length === 0 ? (
+        <p class="empty">No stack contexts published yet.</p>
+      ) : (
+        <section class="lanes" aria-label="Stack timeline by context">
+          {flattened.map(({ node, depth }) => {
+            const view = computeViewForContext(node);
+            return (
+              <StackLane
+                contextId={node.id}
+                title={node.title}
+                kind={node.kind}
+                depth={depth}
+                current={view.current}
+                past={view.past}
+                categoryOrder={CATEGORY_ORDER}
+              />
+            );
+          })}
+        </section>
+      )
+    }
+  </main>
+</BaseLayout>
+
+<style>
+  .intro p {
+    margin: 0;
+    color: var(--ink-soft);
+  }
+
+  .lanes {
+    margin-top: 1rem;
+    display: grid;
+    gap: 1.3rem;
+  }
+
+  .empty {
+    margin-top: 1rem;
+    color: var(--ink-soft);
+  }
+</style>

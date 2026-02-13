@@ -1,0 +1,55 @@
+---
+interface Props {
+  label: string;
+  href?: string;
+  tone?: 'neutral' | 'added' | 'removed';
+}
+
+const { label, href, tone = 'neutral' } = Astro.props;
+---
+
+{
+  href ? (
+    <a class="tech-badge" data-tone={tone} href={href}>
+      {label}
+    </a>
+  ) : (
+    <span class="tech-badge" data-tone={tone}>
+      {label}
+    </span>
+  )
+}
+
+<style>
+  .tech-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.22rem 0.55rem;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: color-mix(in srgb, var(--panel) 70%, var(--accent-soft));
+    color: var(--ink);
+    text-decoration: none;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    letter-spacing: 0.01em;
+    line-height: 1.35;
+    white-space: nowrap;
+  }
+
+  a.tech-badge:hover {
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 12%, var(--panel));
+  }
+
+  .tech-badge[data-tone='added'] {
+    border-color: color-mix(in srgb, #12b76a 45%, var(--line));
+    background: color-mix(in srgb, #12b76a 10%, var(--panel));
+  }
+
+  .tech-badge[data-tone='removed'] {
+    border-color: color-mix(in srgb, #f04438 45%, var(--line));
+    background: color-mix(in srgb, #f04438 10%, var(--panel));
+  }
+</style>

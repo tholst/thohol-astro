@@ -26,4 +26,12 @@ export default [
       'no-undef': 'off',
     },
   },
+  {
+    files: ['astro.config.*'],
+    languageOptions: {
+      globals: {
+        process: 'readonly',
+      },
+    },
+  },
 ];

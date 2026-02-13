@@ -1,0 +1,391 @@
+---
+import TechBadge from './TechBadge.astro';
+
+type Category =
+  | 'Languages'
+  | 'Databases'
+  | 'Backend'
+  | 'Frontend'
+  | 'Infra'
+  | 'Tooling'
+  | 'AI/Assistants';
+
+type ResolvedTech = { key: string; label: string; href?: string };
+type PeriodEvent = {
+  dateIso: string;
+  dateLabel: string;
+  title: string;
+  note?: string;
+  tech: ResolvedTech[];
+};
+type PeriodDiff = {
+  added: Record<Category, ResolvedTech[]>;
+  removed: Record<Category, ResolvedTech[]>;
+};
+
+interface Props {
+  isCurrent?: boolean;
+  fromIso: string;
+  toIso?: string;
+  rangeLabel: string;
+  summary?: string;
+  stack: Record<Category, ResolvedTech[]>;
+  events: PeriodEvent[];
+  diff?: PeriodDiff;
+  categoryOrder: Category[];
+}
+
+const {
+  isCurrent = false,
+  fromIso,
+  toIso,
+  rangeLabel,
+  summary,
+  stack,
+  events,
+  diff,
+  categoryOrder,
+} = Astro.props;
+
+const hasAnyDiff =
+  !!diff &&
+  categoryOrder.some(
+    (c) => diff.added[c].length > 0 || diff.removed[c].length > 0
+  );
+---
+
+<section
+  class="period"
+  data-current={isCurrent}
+  data-from={fromIso}
+  data-to={toIso}
+>
+  <header class="period-head">
+    <div class="period-date">
+      <span class="date-chip">
+        <time datetime={fromIso}>{rangeLabel}</time>
+      </span>
+      {isCurrent && <span class="current-chip">Current</span>}
+    </div>
+    {summary && <p class="period-summary">{summary}</p>}
+  </header>
+
+  <div class="stack-grid" aria-label="Stack categories">
+    {
+      categoryOrder.map((category) => (
+        <section class="cat" aria-label={category}>
+          <h3 class="cat-title">{category}</h3>
+          <div class="cat-items">
+            {stack[category].length === 0 ? (
+              <span class="cat-empty">-</span>
+            ) : (
+              stack[category].map((t) => (
+                <TechBadge label={t.label} href={t.href} />
+              ))
+            )}
+          </div>
+        </section>
+      ))
+    }
+  </div>
+
+  {
+    hasAnyDiff && (
+      <section class="diff" aria-label="Changes compared to previous period">
+        <h3 class="diff-title">Changes</h3>
+        <div class="diff-grid">
+          {categoryOrder.map((category) => (
+            <section class="diff-cat" aria-label={`${category} changes`}>
+              <p class="diff-cat-title">{category}</p>
+              <div class="diff-rows">
+                {diff!.added[category].length > 0 && (
+                  <div class="diff-row">
+                    <span class="diff-label">Added</span>
+                    <div class="diff-items">
+                      {diff!.added[category].map((t) => (
+                        <TechBadge label={t.label} href={t.href} tone="added" />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {diff!.removed[category].length > 0 && (
+                  <div class="diff-row">
+                    <span class="diff-label">Removed</span>
+                    <div class="diff-items">
+                      {diff!.removed[category].map((t) => (
+                        <TechBadge
+                          label={t.label}
+                          href={t.href}
+                          tone="removed"
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {diff!.added[category].length === 0 &&
+                  diff!.removed[category].length === 0 && (
+                    <span class="diff-none">No changes</span>
+                  )}
+              </div>
+            </section>
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  {
+    events.length > 0 && (
+      <section class="events" aria-label="Change events">
+        <h3 class="events-title">Events</h3>
+        <ol class="events-list">
+          {events.map((ev) => (
+            <li class="event">
+              <p class="event-head">
+                <time datetime={ev.dateIso} class="event-date">
+                  {ev.dateLabel}
+                </time>
+                <span class="event-title">{ev.title}</span>
+              </p>
+              {ev.note && <p class="event-note">{ev.note}</p>}
+              {ev.tech.length > 0 && (
+                <div class="event-tech" aria-label="Related tech">
+                  {ev.tech.map((t) => (
+                    <TechBadge label={t.label} href={t.href} />
+                  ))}
+                </div>
+              )}
+            </li>
+          ))}
+        </ol>
+      </section>
+    )
+  }
+</section>
+
+<style>
+  .period {
+    position: relative;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--panel);
+    box-shadow: var(--shadow);
+    padding: 0.9rem;
+  }
+
+  .period::before {
+    content: '';
+    position: absolute;
+    left: 0.75rem;
+    top: 0.95rem;
+    bottom: 0.95rem;
+    width: 2px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--accent) 35%, var(--line));
+    opacity: 0.85;
+  }
+
+  .period[data-current='true']::before {
+    background: var(--accent);
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 12%, transparent);
+  }
+
+  .period-head {
+    padding-left: 1.05rem;
+  }
+
+  .period-date {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .date-chip {
+    font-family: var(--font-mono);
+    font-size: 0.86rem;
+    color: var(--ink);
+    border: 1px solid var(--line);
+    background: #f4f7fc;
+    border-radius: 999px;
+    padding: 0.15rem 0.55rem;
+  }
+
+  .current-chip {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--ink) 85%, var(--accent));
+    border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line));
+    background: color-mix(in srgb, var(--accent) 12%, var(--panel));
+    border-radius: 999px;
+    padding: 0.12rem 0.48rem;
+  }
+
+  .period-summary {
+    margin: 0.55rem 0 0;
+    color: var(--ink-soft);
+  }
+
+  .stack-grid {
+    margin-top: 0.85rem;
+    padding-left: 1.05rem;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.8rem;
+  }
+
+  .cat {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 0.65rem 0.7rem;
+    background: color-mix(in srgb, var(--panel) 75%, #f4f7fc);
+  }
+
+  .cat-title {
+    margin: 0 0 0.45rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .cat-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    align-items: center;
+  }
+
+  .cat-empty {
+    font-family: var(--font-mono);
+    color: var(--ink-soft);
+    font-size: 0.85rem;
+  }
+
+  .diff {
+    margin-top: 0.95rem;
+    padding-left: 1.05rem;
+  }
+
+  .diff-title {
+    margin: 0 0 0.55rem;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+  }
+
+  .diff-grid {
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .diff-cat {
+    border: 1px dashed color-mix(in srgb, var(--line) 80%, var(--accent));
+    border-radius: 10px;
+    padding: 0.6rem 0.7rem;
+    background: color-mix(in srgb, var(--panel) 85%, transparent);
+  }
+
+  .diff-cat-title {
+    margin: 0 0 0.35rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .diff-rows {
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  .diff-row {
+    display: grid;
+    grid-template-columns: 4.5rem 1fr;
+    gap: 0.5rem;
+    align-items: start;
+  }
+
+  .diff-label {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    padding-top: 0.15rem;
+  }
+
+  .diff-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .diff-none {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+  }
+
+  .events {
+    margin-top: 0.95rem;
+    padding-left: 1.05rem;
+  }
+
+  .events-title {
+    margin: 0 0 0.45rem;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+  }
+
+  .events-list {
+    margin: 0;
+    padding-left: 1.15rem;
+    display: grid;
+    gap: 0.6rem;
+  }
+
+  .event-head {
+    margin: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+  }
+
+  .event-date {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    border: 1px solid var(--line);
+    background: #f4f7fc;
+    border-radius: 999px;
+    padding: 0.1rem 0.45rem;
+  }
+
+  .event-title {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .event-note {
+    margin: 0.25rem 0 0;
+    color: var(--ink-soft);
+  }
+
+  .event-tech {
+    margin-top: 0.35rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  @media (max-width: 720px) {
+    .stack-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
