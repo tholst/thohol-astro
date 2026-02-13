@@ -2,24 +2,9 @@
   box-sizing: border-box;
 }
 
-@font-face {
-  font-family: 'Atkinson';
-  src: url('/fonts/atkinson-regular.woff') format('woff');
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Atkinson';
-  src: url('/fonts/atkinson-bold.woff') format('woff');
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-}
-
 :root {
-  --font-ui: 'Atkinson', 'Avenir Next', 'Segoe UI', sans-serif;
+  --font-body: 'IBM Plex Sans', 'Avenir Next', 'Segoe UI', sans-serif;
+  --font-head: 'IBM Plex Sans', 'Avenir Next', 'Segoe UI', sans-serif;
   --font-mono: 'IBM Plex Mono', 'Menlo', 'Consolas', monospace;
 
   --bg: #f7f8fb;
@@ -42,7 +27,7 @@ body {
 }
 
 body {
-  font-family: var(--font-ui);
+  font-family: var(--font-body);
   color: var(--ink);
   background: var(--bg);
   line-height: 1.65;
@@ -146,7 +131,7 @@ h1,
 h2,
 h3,
 h4 {
-  font-family: var(--font-ui);
+  font-family: var(--font-head);
   letter-spacing: -0.015em;
   line-height: 1.25;
   margin: 0 0 0.8rem;
