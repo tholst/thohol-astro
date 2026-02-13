@@ -15,7 +15,7 @@ help:
 
 # Development server
 dev:
-	npm run dev
+	VITE_USE_POLLING=1 npm run dev
 
 # Build production site
 build:

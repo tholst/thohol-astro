@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import FormattedDate from '../components/FormattedDate.astro';
 import { getCollection } from 'astro:content';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 
@@ -10,35 +9,166 @@ const posts = (
     ? allPosts.filter((post) => post.data.published !== false)
     : allPosts
 ).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+type Post = (typeof posts)[number];
+
+function formatArchiveDate(date: Date) {
+  // Day-first, e.g. "28 December, 2025"
+  const parts = new Intl.DateTimeFormat('en-US', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }).formatToParts(date);
+
+  const day = parts.find((p) => p.type === 'day')?.value ?? '';
+  const month = parts.find((p) => p.type === 'month')?.value ?? '';
+  const year = parts.find((p) => p.type === 'year')?.value ?? '';
+
+  return `${day} ${month}, ${year}`.trim();
+}
+
+function estimateReadingMinutes(text: string) {
+  const words = text.trim().split(/\s+/).filter(Boolean).length;
+  const minutes = Math.round(words / 220);
+  return Math.max(1, minutes);
+}
+
+const monthNameLong = (date: Date) =>
+  new Intl.DateTimeFormat('en-US', { month: 'long' }).format(date);
+
+const archive: Array<{
+  year: number;
+  count: number;
+  months: Array<{
+    monthIndex: number;
+    monthLabel: string;
+    count: number;
+    posts: Post[];
+  }>;
+}> = [];
+
+for (const post of posts) {
+  const d = post.data.pubDate;
+  const year = d.getFullYear();
+  const monthIndex = d.getMonth();
+
+  let yearBucket = archive[archive.length - 1];
+  if (!yearBucket || yearBucket.year !== year) {
+    yearBucket = { year, count: 0, months: [] };
+    archive.push(yearBucket);
+  }
+
+  yearBucket.count += 1;
+
+  let monthBucket = yearBucket.months[yearBucket.months.length - 1];
+  if (!monthBucket || monthBucket.monthIndex !== monthIndex) {
+    monthBucket = {
+      monthIndex,
+      monthLabel: monthNameLong(d),
+      count: 0,
+      posts: [],
+    };
+    yearBucket.months.push(monthBucket);
+  }
+
+  monthBucket.count += 1;
+  monthBucket.posts.push(post);
+}
 ---
 
 <BaseLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
   <main>
     <section class="intro">
-      <h1>Posts</h1>
-      <p>
-        Practical notes on frontend engineering, architecture, Docker, and web
-        systems.
-      </p>
+      <h1>All Posts</h1>
+      <p>Browse all blog posts by year and month.</p>
     </section>
 
-    <ul class="post-list" aria-label="Blog posts">
+    <div class="archive" aria-label="Blog posts by year and month">
       {
-        posts.map((post) => (
-          <li>
-            <time datetime={post.data.pubDate.toISOString()}>
-              <FormattedDate date={post.data.pubDate} />
-            </time>
-            <div>
-              <h2>
-                <a href={`/blog/${post.id}/`}>{post.data.title}</a>
-              </h2>
-              <p>{post.data.description}</p>
-            </div>
-          </li>
+        archive.map((yearGroup) => (
+          <section class="year" aria-label={`Posts from ${yearGroup.year}`}>
+            <header class="year-head">
+              <h2 class="year-title">{yearGroup.year}</h2>
+            </header>
+
+            {yearGroup.months.map((monthGroup) => (
+              <section
+                class="month"
+                aria-label={`${monthGroup.monthLabel} ${yearGroup.year}`}
+              >
+                <header class="month-head">
+                  <h3 class="month-title">{monthGroup.monthLabel}</h3>
+                </header>
+
+                <ul class="post-list" aria-label="Posts">
+                  {monthGroup.posts.map((post) => (
+                    <li class="post-item">
+                      <div class="post-main">
+                        <h4 class="post-title">
+                          <a href={`/blog/${post.id}/`}>{post.data.title}</a>
+                        </h4>
+
+                        <p class="post-meta">
+                          <span class="meta-icon" aria-hidden="true">
+                            <svg
+                              viewBox="0 0 24 24"
+                              width="13"
+                              height="13"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="1.8"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            >
+                              <path d="M8 2v3M16 2v3" />
+                              <path d="M3 9h18" />
+                              <path d="M5 5h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z" />
+                            </svg>
+                          </span>
+                          <span class="sr-only">Published: </span>
+                          <time datetime={post.data.pubDate.toISOString()}>
+                            {formatArchiveDate(post.data.pubDate)}
+                          </time>
+                          {(() => {
+                            const body =
+                              'body' in post && typeof post.body === 'string'
+                                ? post.body
+                                : '';
+                            if (!body.trim()) return null;
+                            const mins = estimateReadingMinutes(body);
+                            return (
+                              <>
+                                <span aria-hidden="true">•</span>
+                                <span>{mins} min read</span>
+                              </>
+                            );
+                          })()}
+                        </p>
+
+                        <div class="post-desc-row">
+                          {post.data.heroImage && (
+                            <img
+                              class="post-thumb"
+                              src={post.data.heroImage.src}
+                              width={post.data.heroImage.width}
+                              height={post.data.heroImage.height}
+                              alt=""
+                              loading="lazy"
+                              decoding="async"
+                            />
+                          )}
+                          <p class="post-desc">{post.data.description}</p>
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ))}
+          </section>
         ))
       }
-    </ul>
+    </div>
   </main>
 </BaseLayout>
 
@@ -48,46 +178,178 @@ const posts = (
     color: var(--ink-soft);
   }
 
-  .post-list {
-    margin: 1rem 0 0;
-    padding: 0;
-    list-style: none;
-    border-top: 1px solid var(--line);
-  }
-
-  .post-list li {
+  .archive {
+    margin-top: 1rem;
     display: grid;
-    grid-template-columns: 138px 1fr;
-    gap: 0.95rem;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid var(--line);
+    gap: 2.15rem;
   }
 
-  .post-list time {
-    color: var(--ink-soft);
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
+  .year {
     padding-top: 0.2rem;
   }
 
-  .post-list h2 {
-    margin: 0 0 0.3rem;
-    font-size: clamp(1.04rem, 2vw, 1.2rem);
+  .year-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.8rem;
+    margin-bottom: 1.15rem;
+    padding-bottom: 0.65rem;
+    border-bottom: 1px solid var(--line);
   }
 
-  .post-list p {
+  .year-title {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 1.55rem;
+    letter-spacing: -0.02em;
+    text-transform: none;
+    color: var(--ink);
+  }
+
+  .month {
+    margin-top: 1.35rem;
+  }
+
+  .month + .month {
+    margin-top: 1.75rem;
+  }
+
+  .month-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.8rem;
+    margin: 0 0 0.75rem;
+  }
+
+  .month-title {
+    margin: 0;
+    font-size: 1.22rem;
+    color: var(--ink);
+  }
+
+  .post-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 1.65rem;
+  }
+
+  .post-item {
+    padding: 0;
+  }
+
+  .post-title {
+    margin: 0;
+    font-size: clamp(1.2rem, 2.2vw, 1.5rem);
+    line-height: 1.22;
+    font-weight: 700;
+  }
+
+  .post-title a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .post-title a:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.22em;
+  }
+
+  .post-meta {
+    margin: 0;
+    color: var(--ink-soft);
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    line-height: 1.25;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  /* global.css sets `time { font-size: ... }`, override it for the meta row */
+  .post-meta time {
+    font-size: inherit;
+    line-height: inherit;
+  }
+
+  .meta-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink-soft);
+    line-height: 0;
+  }
+
+  .meta-icon svg {
+    display: block;
+    /* Optical tweak: SVG sits slightly low when vertically centered next to text */
+    transform: translateY(-2px);
+  }
+
+  .post-main {
+    min-width: 0;
+    display: grid;
+    gap: 0.28rem;
+  }
+
+  .post-desc-row {
+    margin-top: 0.62rem;
+    display: flex;
+    gap: 1rem;
+    align-items: start;
+  }
+
+  .post-thumb {
+    width: 168px;
+    height: auto;
+    flex: 0 0 168px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: #ffffff;
+    box-shadow: 0 6px 18px rgba(16, 24, 40, 0.06);
+  }
+
+  .post-desc {
+    flex: 1;
+    min-width: 0;
     margin: 0;
     color: var(--ink-soft);
   }
 
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
   @media (max-width: 640px) {
-    .post-list li {
-      grid-template-columns: 1fr;
-      gap: 0.35rem;
+    .year-head,
+    .month-head {
+      align-items: center;
     }
 
-    .post-list time {
-      padding-top: 0;
+    .year-title {
+      font-size: 1.35rem;
+    }
+
+    .post-desc-row {
+      flex-direction: column;
+      gap: 0.65rem;
+      margin-top: 0.55rem;
+    }
+
+    .post-thumb {
+      width: 100%;
+      flex-basis: auto;
     }
   }
 </style>
