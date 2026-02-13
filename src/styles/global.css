@@ -26,6 +26,18 @@ body {
   min-height: 100%;
 }
 
+/* Prevent layout "jiggle" when navigating between short and long pages
+   (scrollbar appears/disappears). */
+html {
+  scrollbar-gutter: stable;
+}
+
+@supports not (scrollbar-gutter: stable) {
+  html {
+    overflow-y: scroll;
+  }
+}
+
 body {
   font-family: var(--font-body);
   color: var(--ink);
