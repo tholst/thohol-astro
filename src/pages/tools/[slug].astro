@@ -18,13 +18,23 @@ export async function getStaticPaths() {
 const { tool } = Astro.props;
 const { Content } = await render(tool);
 const isSubnetPlanner = tool.id === 'subnet-planner';
+const isColorContrastChecker = tool.id === 'color-contrast-checker';
+const isRegexPlayground = tool.id === 'regex-playground';
+const isCssGradientBuilder = tool.id === 'css-gradient-builder';
+const isTimezoneMeetingPlanner = tool.id === 'timezone-meeting-planner';
+const isInteractiveTool =
+  isSubnetPlanner ||
+  isColorContrastChecker ||
+  isRegexPlayground ||
+  isCssGradientBuilder ||
+  isTimezoneMeetingPlanner;
 ---
 
 <BaseLayout
   title={`${tool.data.title} · Tools`}
   description={tool.data.description}
 >
-  <main>
+  <main data-tool-id={tool.id}>
     <section class="tool-header">
       <a class="back-link" href="/tools/">← Back to tools</a>
       <h1>{tool.data.title}</h1>
@@ -35,7 +45,7 @@ const isSubnetPlanner = tool.id === 'subnet-planner';
     </section>
 
     {
-      !isSubnetPlanner && (
+      !isInteractiveTool && (
         <article class="prose tool-prose">
           <Content />
         </article>
@@ -104,7 +114,9 @@ const isSubnetPlanner = tool.id === 'subnet-planner';
             </label>
           </form>
 
-          <p id="planner-message" class="planner-message" aria-live="polite" />
+          <p id="subnet-message" class="tool-message" aria-live="polite">
+            {' '}
+          </p>
 
           <div class="results-box">
             <div class="results-header">
@@ -134,9 +146,273 @@ const isSubnetPlanner = tool.id === 'subnet-planner';
                     <th>Hosts</th>
                   </tr>
                 </thead>
-                <tbody />
+                <tbody>
+                  <tr hidden />
+                </tbody>
               </table>
             </div>
+          </div>
+        </section>
+      )
+    }
+
+    {
+      isColorContrastChecker && (
+        <section class="tool-card" aria-label="Color Contrast Checker">
+          <h2>Checker</h2>
+          <p>
+            Compare foreground and background colors with WCAG contrast checks
+            for normal and large text.
+          </p>
+
+          <form id="contrast-form" class="planner-form contrast-form">
+            <label>
+              Foreground color
+              <input name="foregroundHex" value="#101828" />
+            </label>
+            <label>
+              Background color
+              <input name="backgroundHex" value="#ffffff" />
+            </label>
+            <label>
+              Foreground picker
+              <input name="foregroundPicker" type="color" value="#101828" />
+            </label>
+            <label>
+              Background picker
+              <input name="backgroundPicker" type="color" value="#ffffff" />
+            </label>
+          </form>
+
+          <div class="inline-actions">
+            <button type="button" id="swap-contrast" class="secondary-btn">
+              Swap colors
+            </button>
+          </div>
+
+          <p id="contrast-message" class="tool-message" aria-live="polite">
+            {' '}
+          </p>
+
+          <div id="contrast-preview" class="contrast-preview">
+            <p class="preview-title">Preview text</p>
+            <p>
+              Fast software teams ship often. Accessible interfaces keep every
+              user in the loop.
+            </p>
+          </div>
+
+          <div class="results-box">
+            <h3>Accessibility status</h3>
+            <ul id="contrast-results" class="status-list">
+              <li hidden />
+            </ul>
+          </div>
+        </section>
+      )
+    }
+
+    {
+      isRegexPlayground && (
+        <section class="tool-card" aria-label="Regex Playground">
+          <h2>Playground</h2>
+          <p>
+            Test expressions with live matches, capture groups, and highlighted
+            text output.
+          </p>
+
+          <form id="regex-form" class="planner-form regex-form">
+            <label>
+              Pattern
+              <input name="pattern" value="\\b[A-Z][a-z]+\\b" />
+            </label>
+            <label>
+              Flags
+              <input name="flags" value="g" placeholder="gim" />
+            </label>
+            <label class="full-row">
+              Test text
+              <textarea name="sample" rows="8">{`Alice met Bob in Berlin.
+Error: Timeout at 14:32.
+Owner: Charlie.`}</textarea>
+            </label>
+          </form>
+
+          <p id="regex-message" class="tool-message" aria-live="polite">
+            {' '}
+          </p>
+
+          <div class="results-box">
+            <h3>Highlighted output</h3>
+            <pre id="regex-highlight" class="regex-highlight">
+              {' '}
+            </pre>
+          </div>
+
+          <div class="results-box">
+            <h3>Matches</h3>
+            <ul id="regex-matches" class="match-list">
+              <li hidden />
+            </ul>
+          </div>
+        </section>
+      )
+    }
+
+    {
+      isCssGradientBuilder && (
+        <section class="tool-card" aria-label="CSS Gradient Builder">
+          <h2>Builder</h2>
+          <p>
+            Tune gradient stops visually, preview instantly, and copy the final
+            CSS value.
+          </p>
+
+          <form id="gradient-form" class="planner-form gradient-form">
+            <label>
+              Gradient type
+              <select name="gradientType">
+                <option value="linear">Linear</option>
+                <option value="radial">Radial</option>
+              </select>
+            </label>
+            <label id="angle-field">
+              Angle (degrees)
+              <input
+                name="angle"
+                type="range"
+                min="0"
+                max="360"
+                value="135"
+                step="1"
+              />
+              <small id="angle-value">135deg</small>
+            </label>
+
+            <label>
+              Color stop 1
+              <input name="color1" type="color" value="#003049" />
+            </label>
+            <label>
+              Stop 1 position (%)
+              <input
+                name="stop1"
+                type="range"
+                min="0"
+                max="100"
+                value="0"
+                step="1"
+              />
+              <small id="stop1-value">0%</small>
+            </label>
+            <label>
+              Color stop 2
+              <input name="color2" type="color" value="#f77f00" />
+            </label>
+            <label>
+              Stop 2 position (%)
+              <input
+                name="stop2"
+                type="range"
+                min="0"
+                max="100"
+                value="52"
+                step="1"
+              />
+              <small id="stop2-value">52%</small>
+            </label>
+            <label>
+              Color stop 3
+              <input name="color3" type="color" value="#fcbf49" />
+            </label>
+            <label>
+              Stop 3 position (%)
+              <input
+                name="stop3"
+                type="range"
+                min="0"
+                max="100"
+                value="100"
+                step="1"
+              />
+              <small id="stop3-value">100%</small>
+            </label>
+          </form>
+
+          <p id="gradient-message" class="tool-message" aria-live="polite">
+            {' '}
+          </p>
+
+          <div id="gradient-preview" class="gradient-preview">
+            {' '}
+          </div>
+
+          <div class="results-box">
+            <div class="results-header">
+              <h3>Generated CSS</h3>
+              <button
+                type="button"
+                id="copy-gradient"
+                class="copy-icon"
+                aria-label="Copy CSS"
+                title="Copy CSS"
+              >
+                ⧉
+              </button>
+            </div>
+            <pre id="gradient-output" class="gradient-output">
+              {' '}
+            </pre>
+          </div>
+        </section>
+      )
+    }
+
+    {
+      isTimezoneMeetingPlanner && (
+        <section class="tool-card" aria-label="Timezone Meeting Planner">
+          <h2>Planner</h2>
+          <p>
+            Add each participant as a row with timezone and local availability,
+            then inspect shared overlap windows in a single timeline.
+          </p>
+
+          <section
+            id="timezone-rows"
+            class="timezone-rows"
+            aria-label="Timezone rows"
+          />
+
+          <div class="inline-actions">
+            <button type="button" id="add-timezone-row" class="secondary-btn">
+              Add row
+            </button>
+          </div>
+
+          <p id="timezone-message" class="tool-message" aria-live="polite">
+            {' '}
+          </p>
+
+          <div class="results-box">
+            <h3>Overlap windows (UTC)</h3>
+            <ul id="timezone-overlap-list" class="match-list">
+              <li hidden />
+            </ul>
+          </div>
+
+          <div class="results-box">
+            <h3>Availability diagram</h3>
+            <div class="timezone-scale" aria-hidden="true">
+              <span class="scale-spacer" />
+              <div class="scale-ticks">
+                <span>00:00</span>
+                <span>06:00</span>
+                <span>12:00</span>
+                <span>18:00</span>
+                <span>24:00</span>
+              </div>
+            </div>
+            <div id="timezone-chart" class="timezone-chart" />
           </div>
         </section>
       )
@@ -193,7 +469,9 @@ const isSubnetPlanner = tool.id === 'subnet-planner';
     grid-column: 1 / -1;
   }
 
-  .planner-form input {
+  .planner-form input,
+  .planner-form textarea,
+  .planner-form select {
     border: 1px solid var(--line);
     border-radius: 6px;
     padding: 0.42rem 0.55rem;
@@ -219,14 +497,14 @@ const isSubnetPlanner = tool.id === 'subnet-planner';
     font-size: 0.75rem;
   }
 
-  .planner-message {
+  .tool-message {
     margin: 0.8rem 0 0;
     color: var(--ink-soft);
     min-height: 1.2em;
   }
 
   .results-box {
-    margin-top: 0.5rem;
+    margin-top: 0.75rem;
     border: 1px solid var(--line);
     border-radius: 10px;
     padding: 0.6rem 0.6rem 0.2rem;
@@ -240,6 +518,7 @@ const isSubnetPlanner = tool.id === 'subnet-planner';
     margin-bottom: 0.45rem;
   }
 
+  .results-box h3,
   .results-header h3 {
     margin: 0;
     font-size: 0.82rem;
@@ -300,207 +579,1248 @@ const isSubnetPlanner = tool.id === 'subnet-planner';
     background: #fff;
   }
 
+  .inline-actions {
+    margin-top: 0.75rem;
+  }
+
+  .secondary-btn {
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: #fff;
+    padding: 0.32rem 0.7rem;
+    cursor: pointer;
+    font: inherit;
+    color: var(--ink-soft);
+  }
+
+  .secondary-btn:hover {
+    color: var(--ink);
+    border-color: var(--accent);
+  }
+
+  .contrast-preview {
+    margin-top: 0.6rem;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 0.8rem;
+  }
+
+  .contrast-preview .preview-title {
+    margin: 0 0 0.3rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .status-list,
+  .match-list {
+    margin: 0.6rem 0 0.3rem;
+    padding-left: 1.1rem;
+  }
+
+  .status-list li,
+  .match-list li {
+    margin: 0.25rem 0;
+    color: var(--ink-soft);
+  }
+
+  .regex-highlight,
+  .gradient-output {
+    margin-top: 0.6rem;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 0.6rem;
+    background: #f7f8fb;
+    white-space: pre-wrap;
+    word-break: break-word;
+    min-height: 3.4rem;
+  }
+
+  .regex-highlight mark {
+    background: rgba(250, 204, 21, 0.34);
+    border-radius: 3px;
+    padding: 0.05rem 0.12rem;
+  }
+
+  .gradient-preview {
+    margin-top: 0.6rem;
+    height: 170px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+  }
+
+  :global(.timezone-rows) {
+    margin-top: 0.7rem;
+    display: grid;
+    gap: 0.55rem;
+  }
+
+  :global(.timezone-row) {
+    display: grid;
+    gap: 0.55rem;
+    grid-template-columns:
+      minmax(0, 2.2fr) minmax(120px, 1fr) minmax(120px, 1fr)
+      auto;
+    align-items: end;
+    padding: 0.55rem;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+  }
+
+  :global(.timezone-row label) {
+    display: grid;
+    gap: 0.28rem;
+    color: var(--ink-soft);
+    font-size: 0.82rem;
+  }
+
+  :global(.timezone-scale) {
+    display: grid;
+    grid-template-columns: minmax(210px, 300px) minmax(0, 1fr);
+    color: var(--ink-soft);
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    margin-top: 0.35rem;
+  }
+
+  :global(.timezone-scale .scale-spacer) {
+    display: block;
+  }
+
+  :global(.timezone-scale .scale-ticks) {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    min-width: 0;
+  }
+
+  :global(.timezone-scale .scale-ticks span:last-child) {
+    text-align: right;
+  }
+
+  :global(.timezone-chart) {
+    margin-top: 0.4rem;
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  :global(.timeline-row) {
+    display: grid;
+    grid-template-columns: minmax(210px, 300px) minmax(0, 1fr);
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  :global(.timeline-label) {
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    font-family: var(--font-mono);
+    line-height: 1.35;
+  }
+
+  :global(.timeline-bar) {
+    position: relative;
+    height: 16px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: repeating-linear-gradient(
+        to right,
+        rgba(16, 24, 40, 0.12) 0,
+        rgba(16, 24, 40, 0.12) 1px,
+        transparent 1px,
+        transparent calc(100% / 24)
+      )
+      #f8fafc;
+    overflow: hidden;
+  }
+
+  :global(.timeline-segment) {
+    position: absolute;
+    top: 2px;
+    height: calc(100% - 4px);
+    border-radius: 999px;
+  }
+
+  :global(.timeline-segment-row) {
+    background: rgba(29, 78, 216, 0.75);
+  }
+
+  :global(.timeline-segment-overlap) {
+    background: rgba(21, 128, 61, 0.82);
+  }
+
   @media (max-width: 780px) {
     .planner-form {
       grid-template-columns: 1fr;
+    }
+
+    :global(.timezone-row) {
+      grid-template-columns: 1fr;
+      align-items: stretch;
+    }
+
+    :global(.timeline-row) {
+      grid-template-columns: 1fr;
+      gap: 0.22rem;
+    }
+
+    :global(.timezone-scale) {
+      grid-template-columns: 1fr;
+    }
+
+    :global(.timezone-scale .scale-spacer) {
+      display: none;
     }
   }
 </style>
 
 <script is:inline>
-  const MAX_RENDERED_ROWS = 512;
-  const form = document.getElementById('subnet-form');
-  const table = document.getElementById('subnet-table');
-  const tbody = table?.querySelector('tbody');
-  const message = document.getElementById('planner-message');
-  const slider = document.getElementById('splitLevel');
-  const splitSummary = document.getElementById('splitSummary');
-  const copyButton = document.getElementById('copy-subnets');
+  const toolId = document.querySelector('main')?.dataset.toolId || '';
 
-  const ipToInt = (ip) => {
-    const parts = ip.split('.').map((v) => Number(v));
-    if (
-      parts.length !== 4 ||
-      parts.some((v) => !Number.isInteger(v) || v < 0 || v > 255)
-    ) {
-      return null;
-    }
-    return (
-      ((parts[0] << 24) >>> 0) +
-      ((parts[1] << 16) >>> 0) +
-      ((parts[2] << 8) >>> 0) +
-      (parts[3] >>> 0)
-    );
+  const setMessage = (element, text, isError = false) => {
+    if (!element) return;
+    element.textContent = text;
+    element.style.color = isError ? '#b42318' : '';
   };
 
-  const intToIp = (intVal) =>
-    [
-      (intVal >>> 24) & 255,
-      (intVal >>> 16) & 255,
-      (intVal >>> 8) & 255,
-      intVal & 255,
-    ].join('.');
-
-  const parseCidr = (value) => {
-    const [ip, prefixRaw] = value.trim().split('/');
-    const prefix = Number(prefixRaw);
-    if (!ip || !Number.isInteger(prefix) || prefix < 0 || prefix > 32)
-      return null;
-    const ipInt = ipToInt(ip);
-    if (ipInt === null) return null;
-    const mask = prefix === 0 ? 0 : (0xffffffff << (32 - prefix)) >>> 0;
-    const network = ipInt & mask;
-    return { prefix, network };
-  };
-
-  const clearTable = () => {
-    if (tbody) tbody.innerHTML = '';
-    if (table) table.hidden = true;
-    if (copyButton) copyButton.disabled = true;
-  };
-
-  const setMessage = (text, isError = false) => {
-    if (!message) return;
-    message.textContent = text;
-    message.style.color = isError ? '#b42318' : '';
-  };
-
-  const appendCell = (row, text) => {
-    const td = document.createElement('td');
-    td.textContent = text;
-    row.appendChild(td);
-  };
-
-  const generate = () => {
+  const initSubnetPlanner = () => {
+    const MAX_RENDERED_ROWS = 512;
+    const form = document.getElementById('subnet-form');
     if (!form) return;
-    clearTable();
 
-    const data = new FormData(form);
-    const baseCidr = String(data.get('baseCidr') || '');
-    const countRaw = Number(data.get('count'));
-    const splitLevel = Number(data.get('splitLevel'));
-    const namePrefix = String(data.get('namePrefix') || 'subnet').trim();
-    const names = String(data.get('names') || '');
+    const table = document.getElementById('subnet-table');
+    const tbody = table?.querySelector('tbody');
+    const message = document.getElementById('subnet-message');
+    const slider = document.getElementById('splitLevel');
+    const splitSummary = document.getElementById('splitSummary');
+    const copyButton = document.getElementById('copy-subnets');
 
-    const parsed = parseCidr(baseCidr);
-    if (!parsed) {
-      setMessage('Invalid base CIDR. Example: 10.42.0.0/16', true);
-      return;
-    }
-
-    const maxSplit = 32 - parsed.prefix;
-    const maxPossibleSubnets = 2 ** maxSplit;
-    const count = Math.max(1, Number.isInteger(countRaw) ? countRaw : 1);
-
-    if (count > maxPossibleSubnets) {
-      setMessage(
-        `Requested ${count} subnet(s), but at most ${maxPossibleSubnets} fit in ${baseCidr}.`,
-        true
+    const ipToInt = (ip) => {
+      const parts = ip.split('.').map((v) => Number(v));
+      if (
+        parts.length !== 4 ||
+        parts.some((v) => !Number.isInteger(v) || v < 0 || v > 255)
+      ) {
+        return null;
+      }
+      return (
+        ((parts[0] << 24) >>> 0) +
+        ((parts[1] << 16) >>> 0) +
+        ((parts[2] << 8) >>> 0) +
+        (parts[3] >>> 0)
       );
-      return;
-    }
+    };
 
-    const minRequiredSplit = Math.ceil(Math.log2(count));
-    if (slider) {
-      slider.max = String(maxSplit);
-      slider.min = String(minRequiredSplit);
-      if (splitLevel > maxSplit) slider.value = String(maxSplit);
-      if (splitLevel < minRequiredSplit)
-        slider.value = String(minRequiredSplit);
-    }
+    const intToIp = (intVal) =>
+      [
+        (intVal >>> 24) & 255,
+        (intVal >>> 16) & 255,
+        (intVal >>> 8) & 255,
+        intVal & 255,
+      ].join('.');
 
-    const split = Math.min(
-      Math.max(Number(slider?.value || splitLevel), minRequiredSplit),
-      maxSplit
-    );
-    const subnetPrefix = parsed.prefix + split;
-    const subnetSize = 2 ** (32 - subnetPrefix);
-    const maxSubnets = 2 ** split;
+    const parseCidr = (value) => {
+      const [ip, prefixRaw] = value.trim().split('/');
+      const prefix = Number(prefixRaw);
+      if (!ip || !Number.isInteger(prefix) || prefix < 0 || prefix > 32)
+        return null;
+      const ipInt = ipToInt(ip);
+      if (ipInt === null) return null;
+      const mask = prefix === 0 ? 0 : (0xffffffff << (32 - prefix)) >>> 0;
+      const network = ipInt & mask;
+      return { prefix, network };
+    };
 
-    if (splitSummary) {
-      splitSummary.textContent = `/${subnetPrefix} · ${subnetSize} IPs/subnet · max ${maxSubnets} subnets`;
-    }
+    const clearTable = () => {
+      if (tbody) tbody.innerHTML = '';
+      if (table) table.hidden = true;
+      if (copyButton) copyButton.disabled = true;
+    };
 
-    const limitedCount = Math.min(count, maxSubnets);
-    const renderedCount = Math.min(limitedCount, MAX_RENDERED_ROWS);
-    const countInput = form.elements.namedItem('count');
-    if (countInput && 'max' in countInput) {
-      countInput.max = String(maxPossibleSubnets);
-    }
+    const appendCell = (row, text) => {
+      const td = document.createElement('td');
+      td.textContent = text;
+      row.appendChild(td);
+    };
 
-    const namesList = names
-      .split(',')
-      .map((v) => v.trim())
-      .filter(Boolean);
+    const generate = () => {
+      clearTable();
 
-    if (!tbody || !table) return;
+      const data = new FormData(form);
+      const baseCidr = String(data.get('baseCidr') || '');
+      const countRaw = Number(data.get('count'));
+      const splitLevel = Number(data.get('splitLevel'));
+      const namePrefix = String(data.get('namePrefix') || 'subnet').trim();
+      const names = String(data.get('names') || '');
 
-    for (let i = 0; i < renderedCount; i += 1) {
-      const network = (parsed.network + i * subnetSize) >>> 0;
-      const broadcast = (network + subnetSize - 1) >>> 0;
-      const firstUsable = subnetSize > 2 ? (network + 1) >>> 0 : network;
-      const lastUsable = subnetSize > 2 ? (broadcast - 1) >>> 0 : broadcast;
-      const usableHosts = subnetSize > 2 ? subnetSize - 2 : 0;
+      const parsed = parseCidr(baseCidr);
+      if (!parsed) {
+        setMessage(message, 'Invalid base CIDR. Example: 10.42.0.0/16', true);
+        return;
+      }
 
-      const tr = document.createElement('tr');
-      appendCell(
-        tr,
-        namesList[i] ||
-          `${(namePrefix || 'subnet').replace(/\s+/g, '-')}-${i + 1}`
+      const maxSplit = 32 - parsed.prefix;
+      const maxPossibleSubnets = 2 ** maxSplit;
+      const count = Math.max(1, Number.isInteger(countRaw) ? countRaw : 1);
+
+      if (count > maxPossibleSubnets) {
+        setMessage(
+          message,
+          `Requested ${count} subnet(s), but at most ${maxPossibleSubnets} fit in ${baseCidr}.`,
+          true
+        );
+        return;
+      }
+
+      const minRequiredSplit = Math.ceil(Math.log2(count));
+      if (slider) {
+        slider.max = String(maxSplit);
+        slider.min = String(minRequiredSplit);
+        if (splitLevel > maxSplit) slider.value = String(maxSplit);
+        if (splitLevel < minRequiredSplit)
+          slider.value = String(minRequiredSplit);
+      }
+
+      const split = Math.min(
+        Math.max(Number(slider?.value || splitLevel), minRequiredSplit),
+        maxSplit
       );
-      appendCell(tr, `${intToIp(network)}/${subnetPrefix}`);
-      appendCell(tr, intToIp(network));
-      appendCell(tr, intToIp(firstUsable));
-      appendCell(tr, intToIp(lastUsable));
-      appendCell(tr, intToIp(broadcast));
-      appendCell(tr, String(usableHosts));
-      tbody.appendChild(tr);
-    }
+      const subnetPrefix = parsed.prefix + split;
+      const subnetSize = 2 ** (32 - subnetPrefix);
+      const maxSubnets = 2 ** split;
 
-    table.hidden = false;
-    if (copyButton) copyButton.disabled = renderedCount === 0;
-    if (limitedCount > renderedCount) {
-      setMessage(
-        `Generated ${limitedCount} subnet(s); showing first ${renderedCount} for readability.`
-      );
-    } else {
-      setMessage(`Generated ${limitedCount} subnet(s).`);
-    }
+      if (splitSummary) {
+        splitSummary.textContent = `/${subnetPrefix} · ${subnetSize} IPs/subnet · max ${maxSubnets} subnets`;
+      }
+
+      const limitedCount = Math.min(count, maxSubnets);
+      const renderedCount = Math.min(limitedCount, MAX_RENDERED_ROWS);
+      const countInput = form.elements.namedItem('count');
+      if (countInput && 'max' in countInput) {
+        countInput.max = String(maxPossibleSubnets);
+      }
+
+      const namesList = names
+        .split(',')
+        .map((v) => v.trim())
+        .filter(Boolean);
+
+      if (!tbody || !table) return;
+
+      for (let i = 0; i < renderedCount; i += 1) {
+        const network = (parsed.network + i * subnetSize) >>> 0;
+        const broadcast = (network + subnetSize - 1) >>> 0;
+        const firstUsable = subnetSize > 2 ? (network + 1) >>> 0 : network;
+        const lastUsable = subnetSize > 2 ? (broadcast - 1) >>> 0 : broadcast;
+        const usableHosts = subnetSize > 2 ? subnetSize - 2 : 0;
+
+        const tr = document.createElement('tr');
+        appendCell(
+          tr,
+          namesList[i] ||
+            `${(namePrefix || 'subnet').replace(/\s+/g, '-')}-${i + 1}`
+        );
+        appendCell(tr, `${intToIp(network)}/${subnetPrefix}`);
+        appendCell(tr, intToIp(network));
+        appendCell(tr, intToIp(firstUsable));
+        appendCell(tr, intToIp(lastUsable));
+        appendCell(tr, intToIp(broadcast));
+        appendCell(tr, String(usableHosts));
+        tbody.appendChild(tr);
+      }
+
+      table.hidden = false;
+      if (copyButton) copyButton.disabled = renderedCount === 0;
+      if (limitedCount > renderedCount) {
+        setMessage(
+          message,
+          `Generated ${limitedCount} subnet(s); showing first ${renderedCount} for readability.`
+        );
+      } else {
+        setMessage(message, `Generated ${limitedCount} subnet(s).`);
+      }
+    };
+
+    form.addEventListener('submit', (event) => event.preventDefault());
+    form.addEventListener('input', generate);
+
+    copyButton?.addEventListener('click', async () => {
+      if (!tbody) return;
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+      if (rows.length === 0) {
+        setMessage(message, 'Nothing to copy yet.', true);
+        return;
+      }
+
+      const lines = rows
+        .map((row) => {
+          const cells = row.querySelectorAll('td');
+          const name = cells[0]?.textContent?.trim();
+          const cidr = cells[1]?.textContent?.trim();
+          return name && cidr ? `${name}: ${cidr}` : null;
+        })
+        .filter(Boolean)
+        .join('\n');
+
+      if (!lines) {
+        setMessage(message, 'Nothing to copy yet.', true);
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(lines);
+        setMessage(
+          message,
+          `Copied ${rows.length} subnet line(s) to clipboard.`
+        );
+      } catch {
+        setMessage(message, 'Copy failed. Clipboard access was blocked.', true);
+      }
+    });
+
+    generate();
   };
 
-  form?.addEventListener('submit', (event) => event.preventDefault());
-  form?.addEventListener('input', generate);
+  const initColorContrastChecker = () => {
+    const form = document.getElementById('contrast-form');
+    if (!form) return;
 
-  copyButton?.addEventListener('click', async () => {
-    if (!tbody) return;
-    const rows = Array.from(tbody.querySelectorAll('tr'));
-    if (rows.length === 0) {
-      setMessage('Nothing to copy yet.', true);
-      return;
-    }
+    const preview = document.getElementById('contrast-preview');
+    const message = document.getElementById('contrast-message');
+    const list = document.getElementById('contrast-results');
+    const swap = document.getElementById('swap-contrast');
 
-    const lines = rows
-      .map((row) => {
-        const cells = row.querySelectorAll('td');
-        const name = cells[0]?.textContent?.trim();
-        const cidr = cells[1]?.textContent?.trim();
-        return name && cidr ? `${name}: ${cidr}` : null;
+    const fgText = form.elements.namedItem('foregroundHex');
+    const bgText = form.elements.namedItem('backgroundHex');
+    const fgPicker = form.elements.namedItem('foregroundPicker');
+    const bgPicker = form.elements.namedItem('backgroundPicker');
+
+    const normalizeHex = (value) => {
+      const raw = String(value || '').trim();
+      const hex = raw.startsWith('#') ? raw.slice(1) : raw;
+      if (/^[0-9a-f]{3}$/i.test(hex)) {
+        return `#${hex
+          .split('')
+          .map((part) => part + part)
+          .join('')
+          .toLowerCase()}`;
+      }
+      if (/^[0-9a-f]{6}$/i.test(hex)) return `#${hex.toLowerCase()}`;
+      return null;
+    };
+
+    const hexToRgb = (hex) => {
+      const normalized = normalizeHex(hex);
+      if (!normalized) return null;
+      const value = normalized.slice(1);
+      return {
+        r: Number.parseInt(value.slice(0, 2), 16),
+        g: Number.parseInt(value.slice(2, 4), 16),
+        b: Number.parseInt(value.slice(4, 6), 16),
+      };
+    };
+
+    const channelToLinear = (channel) => {
+      const normalized = channel / 255;
+      return normalized <= 0.03928
+        ? normalized / 12.92
+        : ((normalized + 0.055) / 1.055) ** 2.4;
+    };
+
+    const luminance = (rgb) =>
+      0.2126 * channelToLinear(rgb.r) +
+      0.7152 * channelToLinear(rgb.g) +
+      0.0722 * channelToLinear(rgb.b);
+
+    const ratioFrom = (fg, bg) => {
+      const light = Math.max(fg, bg);
+      const dark = Math.min(fg, bg);
+      return (light + 0.05) / (dark + 0.05);
+    };
+
+    const statusLine = (label, ratio, min) => {
+      const ok = ratio >= min;
+      return `${label}: ${ok ? 'pass' : 'fail'} (needs ${min.toFixed(1)}:1)`;
+    };
+
+    const render = () => {
+      const fg = normalizeHex(fgText?.value);
+      const bg = normalizeHex(bgText?.value);
+      if (!fg || !bg) {
+        setMessage(
+          message,
+          'Enter valid HEX values like #0f172a or #fff.',
+          true
+        );
+        if (list) list.innerHTML = '';
+        return;
+      }
+
+      if (fgPicker) fgPicker.value = fg;
+      if (bgPicker) bgPicker.value = bg;
+
+      const fgRgb = hexToRgb(fg);
+      const bgRgb = hexToRgb(bg);
+      if (!fgRgb || !bgRgb) return;
+
+      const ratio = ratioFrom(luminance(fgRgb), luminance(bgRgb));
+      const roundedRatio = Math.round(ratio * 100) / 100;
+
+      if (preview) {
+        preview.style.color = fg;
+        preview.style.background = bg;
+        preview.style.borderColor = fg;
+      }
+
+      if (list) {
+        const lines = [
+          `Contrast ratio: ${roundedRatio.toFixed(2)}:1`,
+          statusLine('WCAG AA normal text', ratio, 4.5),
+          statusLine('WCAG AA large text', ratio, 3),
+          statusLine('WCAG AAA normal text', ratio, 7),
+          statusLine('WCAG AAA large text', ratio, 4.5),
+        ];
+        list.innerHTML = lines.map((line) => `<li>${line}</li>`).join('');
+      }
+
+      setMessage(message, 'Updated accessibility results.');
+    };
+
+    form.addEventListener('input', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLInputElement)) return;
+
+      if (target.name === 'foregroundPicker' && fgText) {
+        fgText.value = target.value;
+      }
+      if (target.name === 'backgroundPicker' && bgText) {
+        bgText.value = target.value;
+      }
+      if (target.name === 'foregroundHex' && fgPicker) {
+        const normalized = normalizeHex(target.value);
+        if (normalized) fgPicker.value = normalized;
+      }
+      if (target.name === 'backgroundHex' && bgPicker) {
+        const normalized = normalizeHex(target.value);
+        if (normalized) bgPicker.value = normalized;
+      }
+
+      render();
+    });
+
+    swap?.addEventListener('click', () => {
+      if (!fgText || !bgText) return;
+      const nextFg = bgText.value;
+      const nextBg = fgText.value;
+      fgText.value = nextFg;
+      bgText.value = nextBg;
+      if (fgPicker) fgPicker.value = normalizeHex(nextFg) || '#000000';
+      if (bgPicker) bgPicker.value = normalizeHex(nextBg) || '#ffffff';
+      render();
+    });
+
+    render();
+  };
+
+  const initRegexPlayground = () => {
+    const form = document.getElementById('regex-form');
+    if (!form) return;
+
+    const message = document.getElementById('regex-message');
+    const highlight = document.getElementById('regex-highlight');
+    const matches = document.getElementById('regex-matches');
+
+    const patternInput = form.elements.namedItem('pattern');
+    const flagsInput = form.elements.namedItem('flags');
+    const sampleInput = form.elements.namedItem('sample');
+
+    const escapeHtml = (value) =>
+      value
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;');
+
+    const normalizeFlags = (value) => {
+      const allowed = new Set(['d', 'g', 'i', 'm', 's', 'u', 'v', 'y']);
+      const unique = [];
+      for (const flag of String(value || '')) {
+        if (allowed.has(flag) && !unique.includes(flag)) unique.push(flag);
+      }
+      return unique.join('');
+    };
+
+    const render = () => {
+      const pattern = String(patternInput?.value || '');
+      const flags = normalizeFlags(flagsInput?.value || '');
+      const sample = String(sampleInput?.value || '');
+
+      if (flagsInput) flagsInput.value = flags;
+      if (!pattern) {
+        setMessage(message, 'Enter a regex pattern to start.', true);
+        if (highlight) highlight.textContent = sample;
+        if (matches) matches.innerHTML = '';
+        return;
+      }
+
+      try {
+        new RegExp(pattern, flags);
+      } catch (error) {
+        setMessage(
+          message,
+          `Invalid regex: ${error instanceof Error ? error.message : 'unknown error'}`,
+          true
+        );
+        if (highlight) highlight.textContent = sample;
+        if (matches) matches.innerHTML = '';
+        return;
+      }
+
+      const matchFlags = flags.includes('g') ? flags : `${flags}g`;
+      const globalRegex = new RegExp(pattern, matchFlags);
+      const found = Array.from(sample.matchAll(globalRegex)).slice(0, 120);
+
+      if (matches) {
+        if (found.length === 0) {
+          matches.innerHTML = '<li>No matches in sample text.</li>';
+        } else {
+          matches.innerHTML = found
+            .map((hit, index) => {
+              const groups =
+                hit.length > 1
+                  ? ` | groups: ${hit
+                      .slice(1)
+                      .map((group) => (group === undefined ? '∅' : group))
+                      .join(', ')}`
+                  : '';
+              const label = `${index + 1}. "${escapeHtml(hit[0])}" at index ${hit.index}${groups}`;
+              return `<li>${label}</li>`;
+            })
+            .join('');
+        }
+      }
+
+      if (highlight) {
+        if (found.length === 0) {
+          highlight.textContent = sample;
+        } else {
+          let cursor = 0;
+          const parts = [];
+          for (const hit of found) {
+            const start = hit.index ?? 0;
+            const value = hit[0] || '';
+            const end = start + value.length;
+            if (end <= cursor) continue;
+            parts.push(escapeHtml(sample.slice(cursor, start)));
+            parts.push(`<mark>${escapeHtml(sample.slice(start, end))}</mark>`);
+            cursor = end;
+          }
+          parts.push(escapeHtml(sample.slice(cursor)));
+          highlight.innerHTML = parts.join('');
+        }
+      }
+
+      const inspectedRegex = new RegExp(pattern, flags);
+      const firstHit = inspectedRegex.exec(sample);
+      const summary = firstHit
+        ? `Found ${found.length} match(es).`
+        : 'Compiled successfully, no matches found.';
+      setMessage(message, summary);
+    };
+
+    form.addEventListener('input', render);
+    render();
+  };
+
+  const initCssGradientBuilder = () => {
+    const form = document.getElementById('gradient-form');
+    if (!form) return;
+
+    const preview = document.getElementById('gradient-preview');
+    const output = document.getElementById('gradient-output');
+    const message = document.getElementById('gradient-message');
+    const copyButton = document.getElementById('copy-gradient');
+    const angleField = document.getElementById('angle-field');
+    const angleValue = document.getElementById('angle-value');
+    const stop1Value = document.getElementById('stop1-value');
+    const stop2Value = document.getElementById('stop2-value');
+    const stop3Value = document.getElementById('stop3-value');
+
+    const angleInput = form.elements.namedItem('angle');
+    const stop1Input = form.elements.namedItem('stop1');
+    const stop2Input = form.elements.namedItem('stop2');
+    const stop3Input = form.elements.namedItem('stop3');
+
+    const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+    const inputValue = (input, fallback) => {
+      if (!(input instanceof HTMLInputElement)) return fallback;
+      return Number.isFinite(Number(input.value))
+        ? Number(input.value)
+        : fallback;
+    };
+
+    const syncStops = (changedField = '') => {
+      if (
+        !(stop1Input instanceof HTMLInputElement) ||
+        !(stop2Input instanceof HTMLInputElement) ||
+        !(stop3Input instanceof HTMLInputElement)
+      ) {
+        return { stop1: 0, stop2: 50, stop3: 100 };
+      }
+
+      let stop1 = clamp(inputValue(stop1Input, 0), 0, 100);
+      let stop2 = clamp(inputValue(stop2Input, 50), 0, 100);
+      let stop3 = clamp(inputValue(stop3Input, 100), 0, 100);
+
+      if (changedField === 'stop1') {
+        stop2 = Math.max(stop2, stop1);
+        stop3 = Math.max(stop3, stop2);
+      } else if (changedField === 'stop3') {
+        stop2 = Math.min(stop2, stop3);
+        stop1 = Math.min(stop1, stop2);
+      } else {
+        stop1 = Math.min(stop1, stop2);
+        stop3 = Math.max(stop3, stop2);
+      }
+
+      stop1 = clamp(stop1, 0, 100);
+      stop2 = clamp(stop2, stop1, 100);
+      stop3 = clamp(stop3, stop2, 100);
+
+      stop1Input.value = String(stop1);
+      stop2Input.value = String(stop2);
+      stop3Input.value = String(stop3);
+
+      stop1Input.max = String(stop2);
+      stop2Input.min = String(stop1);
+      stop2Input.max = String(stop3);
+      stop3Input.min = String(stop2);
+
+      if (stop1Value) stop1Value.textContent = `${stop1}%`;
+      if (stop2Value) stop2Value.textContent = `${stop2}%`;
+      if (stop3Value) stop3Value.textContent = `${stop3}%`;
+
+      return { stop1, stop2, stop3 };
+    };
+
+    const buildValue = (changedField = '') => {
+      const data = new FormData(form);
+      const type = String(data.get('gradientType') || 'linear');
+      const angle = clamp(
+        inputValue(angleInput, Number(data.get('angle') || 0)),
+        0,
+        360
+      );
+      const color1 = String(data.get('color1') || '#000000');
+      const color2 = String(data.get('color2') || '#888888');
+      const color3 = String(data.get('color3') || '#ffffff');
+      const { stop1, stop2, stop3 } = syncStops(changedField);
+
+      if (angleInput instanceof HTMLInputElement) {
+        angleInput.value = String(angle);
+      }
+      if (angleValue) {
+        angleValue.textContent = `${angle}deg`;
+      }
+
+      if (type === 'radial') {
+        return `radial-gradient(circle at center, ${color1} ${stop1}%, ${color2} ${stop2}%, ${color3} ${stop3}%)`;
+      }
+      return `linear-gradient(${angle}deg, ${color1} ${stop1}%, ${color2} ${stop2}%, ${color3} ${stop3}%)`;
+    };
+
+    const render = (changedField = '') => {
+      const data = new FormData(form);
+      const type = String(data.get('gradientType') || 'linear');
+      const gradient = buildValue(changedField);
+
+      if (angleField) {
+        angleField.style.display = type === 'radial' ? 'none' : '';
+      }
+      if (preview) {
+        preview.style.backgroundImage = gradient;
+      }
+
+      if (output) {
+        output.textContent = `background-image: ${gradient};`;
+      }
+
+      setMessage(message, 'Gradient preview updated.');
+    };
+
+    form.addEventListener('input', (event) => {
+      const target = event.target;
+      const changedField =
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLSelectElement
+          ? target.name
+          : '';
+      render(changedField);
+    });
+    copyButton?.addEventListener('click', async () => {
+      const line = output?.textContent?.trim();
+      if (!line) {
+        setMessage(message, 'Nothing to copy yet.', true);
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(line);
+        setMessage(message, 'Copied CSS declaration.');
+      } catch {
+        setMessage(message, 'Copy failed. Clipboard access was blocked.', true);
+      }
+    });
+
+    render();
+  };
+
+  const initTimezoneMeetingPlanner = () => {
+    const rowsContainer = document.getElementById('timezone-rows');
+    const addRowButton = document.getElementById('add-timezone-row');
+    const message = document.getElementById('timezone-message');
+    const overlapList = document.getElementById('timezone-overlap-list');
+    const chart = document.getElementById('timezone-chart');
+    if (!rowsContainer || !message || !overlapList || !chart) return;
+
+    const fallbackZones = [
+      'UTC',
+      'America/Los_Angeles',
+      'America/New_York',
+      'Europe/London',
+      'Europe/Berlin',
+      'Asia/Tokyo',
+      'Australia/Sydney',
+    ];
+
+    const supportedZones =
+      typeof Intl.supportedValuesOf === 'function'
+        ? Intl.supportedValuesOf('timeZone')
+        : fallbackZones;
+
+    const localZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+    const preferredZones = [
+      localZone,
+      'UTC',
+      'America/Los_Angeles',
+      'America/New_York',
+      'Europe/London',
+      'Europe/Berlin',
+      'Asia/Tokyo',
+      'Australia/Sydney',
+    ];
+    const orderedZones = [
+      ...new Set([
+        ...preferredZones.filter((zone) => supportedZones.includes(zone)),
+        ...supportedZones,
+      ]),
+    ];
+
+    const timeToMinutes = (value) => {
+      const [hoursRaw, minutesRaw] = String(value || '').split(':');
+      const hours = Number(hoursRaw);
+      const minutes = Number(minutesRaw);
+      if (
+        !Number.isInteger(hours) ||
+        !Number.isInteger(minutes) ||
+        hours < 0 ||
+        hours > 23 ||
+        minutes < 0 ||
+        minutes > 59
+      ) {
+        return null;
+      }
+      return hours * 60 + minutes;
+    };
+
+    const minutesToTime = (value) => {
+      const safe = ((value % 1440) + 1440) % 1440;
+      const hours = Math.floor(safe / 60);
+      const minutes = safe % 60;
+      return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+    };
+
+    const getCurrentDatePartsInZone = (timeZone) => {
+      const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
       })
-      .filter(Boolean)
-      .join('\n');
+        .formatToParts(new Date())
+        .reduce((acc, part) => {
+          if (part.type !== 'literal') acc[part.type] = part.value;
+          return acc;
+        }, {});
 
-    if (!lines) {
-      setMessage('Nothing to copy yet.', true);
-      return;
-    }
+      return {
+        year: Number(parts.year),
+        month: Number(parts.month),
+        day: Number(parts.day),
+      };
+    };
 
-    try {
-      await navigator.clipboard.writeText(lines);
-      setMessage(`Copied ${rows.length} subnet line(s) to clipboard.`);
-    } catch {
-      setMessage('Copy failed. Clipboard access was blocked.', true);
-    }
-  });
+    const getTimeZoneOffsetMinutes = (date, timeZone) => {
+      const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hourCycle: 'h23',
+      })
+        .formatToParts(date)
+        .reduce((acc, part) => {
+          if (part.type !== 'literal') acc[part.type] = part.value;
+          return acc;
+        }, {});
 
-  generate();
+      const asUtc = Date.UTC(
+        Number(parts.year),
+        Number(parts.month) - 1,
+        Number(parts.day),
+        Number(parts.hour),
+        Number(parts.minute),
+        Number(parts.second)
+      );
+      return (asUtc - date.getTime()) / 60000;
+    };
+
+    const zonedMinutesToUtcMinutes = (minutesInDay, timeZone, dateParts) => {
+      const hour = Math.floor(minutesInDay / 60);
+      const minute = minutesInDay % 60;
+      let guess = Date.UTC(
+        dateParts.year,
+        dateParts.month - 1,
+        dateParts.day,
+        hour,
+        minute,
+        0
+      );
+
+      for (let i = 0; i < 3; i += 1) {
+        const offset = getTimeZoneOffsetMinutes(new Date(guess), timeZone);
+        guess =
+          Date.UTC(
+            dateParts.year,
+            dateParts.month - 1,
+            dateParts.day,
+            hour,
+            minute,
+            0
+          ) -
+          offset * 60000;
+      }
+
+      const utcDate = new Date(guess);
+      return utcDate.getUTCHours() * 60 + utcDate.getUTCMinutes();
+    };
+
+    const splitLocalInterval = (start, end) => {
+      if (start === end) return null;
+      if (end > start) return [[start, end]];
+      return [
+        [start, 1440],
+        [0, end],
+      ];
+    };
+
+    const toUtcSegments = (start, end, zone, dateParts) => {
+      const localSegments = splitLocalInterval(start, end);
+      if (!localSegments) return null;
+      const segments = [];
+
+      for (const [segmentStart, segmentEnd] of localSegments) {
+        const utcStart = zonedMinutesToUtcMinutes(
+          segmentStart,
+          zone,
+          dateParts
+        );
+        const utcEnd = zonedMinutesToUtcMinutes(segmentEnd, zone, dateParts);
+
+        if (utcStart === utcEnd) continue;
+
+        if (utcEnd > utcStart) {
+          segments.push([utcStart, utcEnd]);
+        } else {
+          segments.push([utcStart, 1440], [0, utcEnd]);
+        }
+      }
+
+      return segments;
+    };
+
+    const mergeRanges = (ranges) => {
+      if (ranges.length === 0) return [];
+      const sorted = ranges
+        .map(([start, end]) => [start, end])
+        .sort((a, b) => a[0] - b[0]);
+      const merged = [sorted[0]];
+      for (let i = 1; i < sorted.length; i += 1) {
+        const [start, end] = sorted[i];
+        const last = merged[merged.length - 1];
+        if (start <= last[1]) {
+          last[1] = Math.max(last[1], end);
+        } else {
+          merged.push([start, end]);
+        }
+      }
+      return merged;
+    };
+
+    const overlapRanges = (rows) => {
+      if (rows.length === 0) return [];
+      const events = [];
+      for (const row of rows) {
+        for (const [start, end] of row.utcSegments) {
+          events.push([start, 1], [end, -1]);
+        }
+      }
+      if (events.length === 0) return [];
+      events.sort((a, b) => (a[0] === b[0] ? a[1] - b[1] : a[0] - b[0]));
+
+      const overlaps = [];
+      let count = 0;
+      let cursor = 0;
+      let index = 0;
+      while (index < events.length) {
+        const eventMinute = events[index][0];
+        if (count === rows.length && cursor < eventMinute) {
+          overlaps.push([cursor, eventMinute]);
+        }
+        while (index < events.length && events[index][0] === eventMinute) {
+          count += events[index][1];
+          index += 1;
+        }
+        cursor = eventMinute;
+      }
+      if (count === rows.length && cursor < 1440) {
+        overlaps.push([cursor, 1440]);
+      }
+      return mergeRanges(overlaps);
+    };
+
+    const durationLabel = (start, end) => {
+      const total = Math.max(0, end - start);
+      const hours = Math.floor(total / 60);
+      const minutes = total % 60;
+      return minutes === 0 ? `${hours}h` : `${hours}h ${minutes}m`;
+    };
+
+    const formatUtcSegments = (segments) =>
+      segments
+        .map(
+          ([start, end]) => `${minutesToTime(start)}-${minutesToTime(end)} UTC`
+        )
+        .join(', ');
+
+    const renderSegments = (bar, segments, className) => {
+      for (const [start, end] of segments) {
+        const segment = document.createElement('div');
+        segment.className = `timeline-segment ${className}`;
+        segment.style.left = `${(start / 1440) * 100}%`;
+        segment.style.width = `${((end - start) / 1440) * 100}%`;
+        bar.appendChild(segment);
+      }
+    };
+
+    const renderTimelineRow = (label, segments, className) => {
+      const row = document.createElement('div');
+      row.className = 'timeline-row';
+      const labelNode = document.createElement('div');
+      labelNode.className = 'timeline-label';
+      labelNode.textContent = label;
+      const bar = document.createElement('div');
+      bar.className = 'timeline-bar';
+      renderSegments(bar, segments, className);
+      row.append(labelNode, bar);
+      return row;
+    };
+
+    const updateRemoveButtons = () => {
+      const rows = Array.from(rowsContainer.querySelectorAll('.timezone-row'));
+      rows.forEach((row) => {
+        const button = row.querySelector('[data-remove-row]');
+        if (button instanceof HTMLButtonElement) {
+          button.disabled = rows.length <= 1;
+        }
+      });
+    };
+
+    const createZoneOptions = (selectedZone) =>
+      orderedZones
+        .map((zone) => {
+          const selected = zone === selectedZone ? ' selected' : '';
+          return `<option value="${zone}"${selected}>${zone}</option>`;
+        })
+        .join('');
+
+    const addRow = (zone = localZone, start = '09:00', end = '17:00') => {
+      const row = document.createElement('div');
+      row.className = 'timezone-row';
+      row.innerHTML = `
+        <label>
+          Timezone
+          <select data-zone>
+            ${createZoneOptions(zone)}
+          </select>
+        </label>
+        <label>
+          Local start
+          <input data-start type="time" value="${start}" />
+        </label>
+        <label>
+          Local end
+          <input data-end type="time" value="${end}" />
+        </label>
+        <button type="button" class="secondary-btn" data-remove-row>Remove</button>
+      `;
+      rowsContainer.appendChild(row);
+      updateRemoveButtons();
+      render();
+    };
+
+    const render = () => {
+      const rowNodes = Array.from(
+        rowsContainer.querySelectorAll('.timezone-row')
+      );
+      if (rowNodes.length === 0) {
+        setMessage(message, 'Add at least one timezone row.', true);
+        overlapList.innerHTML = '<li>Add a row to calculate overlap.</li>';
+        chart.innerHTML = '';
+        return;
+      }
+
+      const datePartsByZone = new Map();
+      const parsedRows = [];
+
+      for (const row of rowNodes) {
+        const zoneInput = row.querySelector('[data-zone]');
+        const startInput = row.querySelector('[data-start]');
+        const endInput = row.querySelector('[data-end]');
+        if (
+          !(zoneInput instanceof HTMLSelectElement) ||
+          !(startInput instanceof HTMLInputElement) ||
+          !(endInput instanceof HTMLInputElement)
+        ) {
+          continue;
+        }
+
+        const zone = zoneInput.value;
+        const startMinutes = timeToMinutes(startInput.value);
+        const endMinutes = timeToMinutes(endInput.value);
+
+        if (startMinutes === null || endMinutes === null) {
+          setMessage(
+            message,
+            'Every row needs valid local start/end times.',
+            true
+          );
+          return;
+        }
+        if (startMinutes === endMinutes) {
+          setMessage(
+            message,
+            'Start and end cannot be the same in a row.',
+            true
+          );
+          return;
+        }
+
+        if (!datePartsByZone.has(zone)) {
+          datePartsByZone.set(zone, getCurrentDatePartsInZone(zone));
+        }
+
+        const utcSegments = toUtcSegments(
+          startMinutes,
+          endMinutes,
+          zone,
+          datePartsByZone.get(zone)
+        );
+
+        if (!utcSegments) {
+          setMessage(message, `Invalid interval for ${zone}.`, true);
+          return;
+        }
+
+        parsedRows.push({
+          zone,
+          startMinutes,
+          endMinutes,
+          utcSegments: mergeRanges(utcSegments),
+        });
+      }
+
+      const overlaps = overlapRanges(parsedRows);
+      chart.innerHTML = '';
+
+      chart.appendChild(
+        renderTimelineRow(
+          'Shared overlap (UTC)',
+          overlaps,
+          'timeline-segment-overlap'
+        )
+      );
+      for (const row of parsedRows) {
+        const label = `${row.zone} · ${formatUtcSegments(row.utcSegments)}`;
+        chart.appendChild(
+          renderTimelineRow(label, row.utcSegments, 'timeline-segment-row')
+        );
+      }
+
+      if (overlaps.length === 0) {
+        overlapList.innerHTML =
+          '<li>No shared overlap window across all rows.</li>';
+      } else {
+        overlapList.innerHTML = overlaps
+          .map(
+            ([start, end]) =>
+              `<li>${minutesToTime(start)}-${minutesToTime(end)} UTC (${durationLabel(start, end)})</li>`
+          )
+          .join('');
+      }
+
+      setMessage(
+        message,
+        `Rendered overlap for ${parsedRows.length} row(s) using current timezone offsets.`
+      );
+    };
+
+    rowsContainer.addEventListener('input', render);
+    rowsContainer.addEventListener('click', (event) => {
+      const target = event.target;
+      if (
+        !(target instanceof HTMLElement) ||
+        !target.matches('[data-remove-row]')
+      )
+        return;
+      const row = target.closest('.timezone-row');
+      row?.remove();
+      updateRemoveButtons();
+      render();
+    });
+    addRowButton?.addEventListener('click', () => addRow(localZone));
+
+    addRow('Europe/Berlin', '09:00', '17:00');
+    addRow('America/New_York', '09:00', '17:00');
+    addRow('Asia/Singapore', '09:00', '17:00');
+  };
+
+  if (toolId === 'subnet-planner') {
+    initSubnetPlanner();
+  }
+  if (toolId === 'color-contrast-checker') {
+    initColorContrastChecker();
+  }
+  if (toolId === 'regex-playground') {
+    initRegexPlayground();
+  }
+  if (toolId === 'css-gradient-builder') {
+    initCssGradientBuilder();
+  }
+  if (toolId === 'timezone-meeting-planner') {
+    initTimezoneMeetingPlanner();
+  }
 </script>
