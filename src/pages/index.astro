@@ -112,8 +112,8 @@ for (const post of posts) {
                           <span class="meta-icon" aria-hidden="true">
                             <svg
                               viewBox="0 0 24 24"
-                              width="13"
-                              height="13"
+                              width="20"
+                              height="20"
                               fill="none"
                               stroke="currentColor"
                               stroke-width="1.8"
@@ -243,7 +243,7 @@ for (const post of posts) {
 
   .post-title {
     margin: 0;
-    font-size: clamp(1.2rem, 2.2vw, 1.5rem);
+    font-size: 18px;
     line-height: 1.22;
     font-weight: 700;
   }
@@ -251,6 +251,8 @@ for (const post of posts) {
   .post-title a {
     color: var(--accent);
     text-decoration: none;
+    font-size: inherit;
+    line-height: inherit;
   }
 
   .post-title a:hover {
@@ -262,7 +264,7 @@ for (const post of posts) {
     margin: 0;
     color: var(--ink-soft);
     font-family: var(--font-mono);
-    font-size: 0.76rem;
+    font-size: 14px;
     line-height: 1.25;
     display: inline-flex;
     align-items: center;
@@ -286,7 +288,7 @@ for (const post of posts) {
   .meta-icon svg {
     display: block;
     /* Optical tweak: SVG sits slightly low when vertically centered next to text */
-    transform: translateY(-2px);
+    transform: translateY(-1px);
   }
 
   .post-main {
@@ -317,6 +319,8 @@ for (const post of posts) {
     min-width: 0;
     margin: 0;
     color: var(--ink-soft);
+    font-size: 16px;
+    line-height: 1.6;
   }
 
   .sr-only {
