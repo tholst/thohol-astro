@@ -1,5 +1,5 @@
 ---
-import StackTechList from './StackTechList.astro';
+import StackTechFold from './StackTechFold.astro';
 
 type Category =
   | 'Languages'
@@ -50,7 +50,7 @@ const { contextId, title, preview, rangeLabel, summary, tech, events } =
 
     {summary && <p class="row-desc">{summary}</p>}
 
-    <StackTechList tech={tech} />
+    <StackTechFold tech={tech} />
 
     {
       events.length > 0 && (

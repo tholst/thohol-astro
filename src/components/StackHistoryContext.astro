@@ -1,5 +1,5 @@
 ---
-import StackTechList from './StackTechList.astro';
+import StackTechFold from './StackTechFold.astro';
 import TechBadge from './TechBadge.astro';
 
 type Category =
@@ -62,7 +62,7 @@ const { contextId, title, periods } = Astro.props;
                 {p.summary && <p class="period-summary">{p.summary}</p>}
               </header>
 
-              <StackTechList tech={p.tech} />
+              <StackTechFold tech={p.tech} />
 
               {p.diff &&
                 (p.diff.added.length > 0 || p.diff.removed.length > 0) && (

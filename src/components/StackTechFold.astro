@@ -1,0 +1,219 @@
+---
+import StackTechList from './StackTechList.astro';
+
+type Category =
+  | 'Languages'
+  | 'Databases'
+  | 'Backend'
+  | 'Frontend'
+  | 'Infra'
+  | 'Tooling'
+  | 'AI/Assistants';
+
+type Tech = { key: string; label: string; href?: string; tags: Category[] };
+
+interface Props {
+  tech: Tech[];
+}
+
+const { tech } = Astro.props;
+---
+
+<section
+  class="tech-fold"
+  data-tech-fold
+  data-open="false"
+  aria-label="Tech list"
+>
+  <div class="tech-fold__content" aria-label="Tech badges">
+    <StackTechList tech={tech} />
+  </div>
+
+  <button
+    type="button"
+    class="tech-fold__toggle"
+    aria-expanded="false"
+    aria-label="Toggle grouped tech view"
+  >
+    <span class="tech-fold__chev" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
+        <path
+          d="M6 9l6 6 6-6"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"></path>
+      </svg>
+    </span>
+  </button>
+
+  <script is:inline>
+    // One-time wiring for all tech folds on the page.
+    function initTechFolds() {
+      const prefersReduced = window.matchMedia?.(
+        '(prefers-reduced-motion: reduce)'
+      )?.matches;
+
+      const folds = Array.from(document.querySelectorAll('[data-tech-fold]'));
+      for (const fold of folds) {
+        if (fold.dataset.bound === 'true') continue;
+        fold.dataset.bound = 'true';
+
+        const btn = fold.querySelector('.tech-fold__toggle');
+        const content = fold.querySelector('.tech-fold__content');
+        if (!btn || !content) continue;
+
+        /** @type {Map<string, DOMRect>} */
+        let before = new Map();
+
+        const captureRects = () => {
+          const m = new Map();
+          const badges = content.querySelectorAll('[data-tech-key]');
+          for (const el of badges) {
+            const k = el.getAttribute('data-tech-key') || '';
+            if (!k) continue;
+            m.set(k, el.getBoundingClientRect());
+          }
+          return m;
+        };
+
+        const animateFlip = (after) => {
+          if (prefersReduced) return;
+          const badges = content.querySelectorAll('[data-tech-key]');
+          for (const el of badges) {
+            const k = el.getAttribute('data-tech-key') || '';
+            if (!k) continue;
+            const a = after.get(k);
+            const b = before.get(k);
+            if (!a || !b) continue;
+            const dx = b.left - a.left;
+            const dy = b.top - a.top;
+            if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) continue;
+            el.animate(
+              [
+                { transform: `translate(${dx}px, ${dy}px)` },
+                { transform: 'translate(0px, 0px)' },
+              ],
+              { duration: 220, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)' }
+            );
+          }
+        };
+
+        const setOpen = (nextOpen) => {
+          fold.setAttribute('data-open', nextOpen ? 'true' : 'false');
+          btn.setAttribute('aria-expanded', nextOpen ? 'true' : 'false');
+        };
+
+        const toggle = () => {
+          // Capture on click so it works for mouse + keyboard activation.
+          before = captureRects();
+          const nextOpen = fold.getAttribute('data-open') !== 'true';
+          setOpen(nextOpen);
+          // Two rAFs to ensure layout has fully settled after toggling styles.
+          requestAnimationFrame(() =>
+            requestAnimationFrame(() => {
+              const after = captureRects();
+              animateFlip(after);
+            })
+          );
+        };
+
+        btn.addEventListener('click', toggle);
+
+        // Make the whole tag area clickable, but don't hijack link clicks.
+        content.addEventListener('click', (e) => {
+          const target = e.target;
+          if (!target || typeof target.closest !== 'function') return;
+          if (target.closest('a')) return;
+          if (target.closest('button')) return;
+          toggle();
+        });
+      }
+    }
+
+    initTechFolds();
+  </script>
+</section>
+
+<style>
+  .tech-fold {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.6rem;
+    align-items: start;
+    min-width: 0;
+  }
+
+  .tech-fold__toggle {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink-soft);
+    transition:
+      transform 140ms ease,
+      color 140ms ease;
+  }
+
+  .tech-fold__toggle:hover {
+    color: var(--ink);
+  }
+
+  .tech-fold__toggle:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
+    outline-offset: 3px;
+  }
+
+  .tech-fold[data-open='true'] .tech-fold__toggle {
+    transform: rotate(180deg);
+  }
+
+  .tech-fold__content {
+    min-width: 0;
+  }
+
+  /* Compact mode: flatten group boxes into a single row of badges. */
+  .tech-fold[data-open='false'] :global(.tech-list__groups) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    overflow: visible;
+    padding-bottom: 0;
+    mask-image: none;
+  }
+
+  .tech-fold[data-open='false'] :global(.group) {
+    display: contents;
+  }
+
+  .tech-fold[data-open='false'] :global(.group-title) {
+    display: none;
+  }
+
+  .tech-fold[data-open='false'] :global(.group-items) {
+    display: contents;
+  }
+
+  /* Grouped mode: show the structured groups from StackTechList. */
+  .tech-fold[data-open='true'] :global(.tech-list__groups) {
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  @media (max-width: 720px) {
+    .tech-fold {
+      grid-template-columns: 1fr;
+      gap: 0.35rem;
+    }
+
+    .tech-fold__toggle {
+      justify-self: end;
+    }
+  }
+</style>

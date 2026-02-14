@@ -3,18 +3,19 @@ interface Props {
   label: string;
   href?: string;
   tone?: 'neutral' | 'added' | 'removed';
+  techKey?: string;
 }
 
-const { label, href, tone = 'neutral' } = Astro.props;
+const { label, href, tone = 'neutral', techKey } = Astro.props;
 ---
 
 {
   href ? (
-    <a class="tech-badge" data-tone={tone} href={href}>
+    <a class="tech-badge" data-tone={tone} data-tech-key={techKey} href={href}>
       {label}
     </a>
   ) : (
-    <span class="tech-badge" data-tone={tone}>
+    <span class="tech-badge" data-tone={tone} data-tech-key={techKey}>
       {label}
     </span>
   )

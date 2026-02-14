@@ -59,19 +59,15 @@ for (const t of tech) {
 const ungrouped = tech.filter((t) => !primaryGroupFor(t));
 ---
 
-<div class="tech" aria-label="Tech stack">
-  <div class="tech-flat" aria-label="Tech stack (compact)">
-    {tech.map((t) => <TechBadge label={t.label} href={t.href} />)}
-  </div>
-
-  <div class="tech-groups" aria-label="Tech stack (grouped)">
+<div class="tech-list" aria-label="Tech stack">
+  <div class="tech-list__groups">
     {
       GROUP_ORDER.filter((g) => (grouped.get(g) ?? []).length > 0).map((g) => (
         <section class="group" aria-label={GROUP_LABEL[g]}>
           <h4 class="group-title">{GROUP_LABEL[g]}</h4>
           <div class="group-items">
             {(grouped.get(g) ?? []).map((t) => (
-              <TechBadge label={t.label} href={t.href} />
+              <TechBadge label={t.label} href={t.href} techKey={t.key} />
             ))}
           </div>
         </section>
@@ -84,7 +80,7 @@ const ungrouped = tech.filter((t) => !primaryGroupFor(t));
           <h4 class="group-title">Other</h4>
           <div class="group-items">
             {ungrouped.map((t) => (
-              <TechBadge label={t.label} href={t.href} />
+              <TechBadge label={t.label} href={t.href} techKey={t.key} />
             ))}
           </div>
         </section>
@@ -94,24 +90,15 @@ const ungrouped = tech.filter((t) => !primaryGroupFor(t));
 </div>
 
 <style>
-  /* Global tech-view toggle lives on the page wrapper. */
-  :global([data-tech-view='flat']) .tech-groups {
-    display: none;
+  .tech-list {
+    min-width: 0;
   }
 
-  :global([data-tech-view='grouped']) .tech-flat {
-    display: none;
-  }
-
-  .tech-flat {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-  }
-
-  .tech-groups {
+  .tech-list__groups {
     display: grid;
     gap: 0.65rem;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    align-items: start;
   }
 
   .group {
@@ -134,5 +121,12 @@ const ungrouped = tech.filter((t) => !primaryGroupFor(t));
     display: flex;
     flex-wrap: wrap;
     gap: 0.4rem;
+    align-items: center;
+  }
+
+  @media (max-width: 520px) {
+    .tech-list__groups {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

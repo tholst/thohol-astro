@@ -220,22 +220,7 @@ function makePreview(tech: ResolvedTech[], max = 3) {
       contexts.length === 0 ? (
         <p class="empty">No stack contexts published yet.</p>
       ) : (
-        <div class="stack-wrap" data-tech-view="flat">
-          <section class="controls" aria-label="Stack display controls">
-            <div class="seg" role="group" aria-label="Tech grouping">
-              <button
-                type="button"
-                data-tech-view-btn="flat"
-                data-active="true"
-              >
-                Compact
-              </button>
-              <button type="button" data-tech-view-btn="grouped">
-                Grouped
-              </button>
-            </div>
-          </section>
-
+        <div class="stack-wrap">
           <section class="current" aria-label="Current stacks">
             <header class="section-head">
               <h2>Current</h2>
@@ -291,8 +276,6 @@ function makePreview(tech: ResolvedTech[], max = 3) {
               })}
             </div>
           </section>
-
-          <script is:inline src="/stack-controls.js" defer />
         </div>
       )
     }
@@ -309,54 +292,6 @@ function makePreview(tech: ResolvedTech[], max = 3) {
     margin-top: 1rem;
     display: grid;
     gap: 1.2rem;
-  }
-
-  .controls {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    flex-wrap: wrap;
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    background: color-mix(in srgb, var(--panel) 80%, #f4f7fc);
-    padding: 0.65rem 0.75rem;
-  }
-
-  .seg {
-    display: inline-flex;
-    gap: 0.35rem;
-    padding: 0.35rem;
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    background: var(--panel);
-  }
-
-  .seg button {
-    appearance: none;
-    border: 1px solid transparent;
-    border-radius: 999px;
-    background: transparent;
-    padding: 0.35rem 0.7rem;
-    font-family: var(--font-mono);
-    font-size: 0.82rem;
-    color: var(--ink-soft);
-    cursor: pointer;
-  }
-
-  .seg button[data-active='true'] {
-    color: var(--ink);
-    border-color: var(--accent);
-    background: color-mix(in srgb, var(--accent) 12%, var(--panel));
-  }
-
-  .toggle {
-    display: inline-flex;
-    gap: 0.55rem;
-    align-items: center;
-    font-family: var(--font-mono);
-    font-size: 0.82rem;
-    color: var(--ink-soft);
   }
 
   .section-head h2 {
