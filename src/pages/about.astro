@@ -51,7 +51,6 @@ import Layout from '../layouts/Page.astro';
     </div>
   </details>
 
-  <h2>Profile</h2>
   <p>
     I’m Thomas Holst, a software engineer in Hamburg. I work end-to-end across
     backend, frontend, and infrastructure, with a strong focus on building
@@ -67,7 +66,7 @@ import Layout from '../layouts/Page.astro';
     paper maps and long road trips with my father.
   </p>
 
-  <h2>Pop Culture Profile</h2>
+  <h2>Pop Culture</h2>
   <p>
     Kid of the 90s. Former Knight Rider era.<br />
     Pop and hip hop, plus T-Swizzle enthusiast.<br />
@@ -76,6 +75,20 @@ import Layout from '../layouts/Page.astro';
     Comedy corner: Loriot, Kein Pardon, and the Naked Gun / Hot Shots kind of thing.<br
     />
   </p>
+
+  <h2>Personal Projects</h2>
+  <figure class="about-gh" aria-label="Personal GitHub contribution chart">
+    <img
+      class="about-gh__chart"
+      src="https://ghchart.rshah.org/tholst"
+      alt="GitHub contribution chart for tholst (personal account)"
+      loading="lazy"
+      decoding="async"
+    />
+    <figcaption class="about-gh__caption">
+      GitHub activity (personal account)
+    </figcaption>
+  </figure>
 
   <h2>Work</h2>
   <ul>
@@ -176,5 +189,32 @@ import Layout from '../layouts/Page.astro';
     background: transparent;
     padding: 0;
     border-radius: 0;
+  }
+
+  /* Override global `.prose img` styles for this external SVG chart. */
+  .about-gh {
+    margin: 0.6rem 0 0;
+    display: inline-block;
+    position: relative;
+    max-width: 100%;
+  }
+
+  .about-gh__chart {
+    margin: 0;
+    max-width: 100%;
+    border: 0 !important;
+    border-radius: 0 !important;
+  }
+
+  .about-gh__caption {
+    margin: 0;
+    font-size: 0.7rem;
+    line-height: 1.2;
+    color: var(--ink-soft);
+    font-style: italic;
+    opacity: 0.82;
+    pointer-events: none;
+    text-align: right;
+    margin-top: 0.25rem;
   }
 </style>

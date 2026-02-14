@@ -11,9 +11,10 @@ export default defineConfig({
     server: {
       // If file watching/HMR is flaky (common in Docker, network drives, synced folders),
       // run: `VITE_USE_POLLING=1 npm run dev`
-      watch: process.env.VITE_USE_POLLING === '1'
-        ? { usePolling: true, interval: 120 }
-        : undefined,
+      watch:
+        process.env.VITE_USE_POLLING === '1'
+          ? { usePolling: true, interval: 120 }
+          : undefined,
     },
   },
 });

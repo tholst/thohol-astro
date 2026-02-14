@@ -1,0 +1,138 @@
+---
+import TechBadge from './TechBadge.astro';
+
+type Category =
+  | 'Languages'
+  | 'Databases'
+  | 'Backend'
+  | 'Frontend'
+  | 'Infra'
+  | 'Tooling'
+  | 'AI/Assistants';
+
+type Tech = { key: string; label: string; href?: string; tags: Category[] };
+
+interface Props {
+  tech: Tech[];
+}
+
+const { tech } = Astro.props;
+
+const GROUP_ORDER: Category[] = [
+  'Languages',
+  'Databases',
+  'Backend',
+  'Frontend',
+  'Infra',
+  'Tooling',
+  'AI/Assistants',
+];
+
+const GROUP_LABEL: Record<Category, string> = {
+  Languages: 'Language',
+  Databases: 'Storage',
+  Backend: 'Backend',
+  Frontend: 'Frontend',
+  Infra: 'Infra',
+  Tooling: 'Tooling',
+  'AI/Assistants': 'AI',
+};
+
+// If a tech has multiple tags, pick one "home" group to avoid duplication.
+const primaryGroupFor = (t: Tech): Category | undefined => {
+  if (!t.tags || t.tags.length === 0) return undefined;
+  for (const preferred of GROUP_ORDER) {
+    if (t.tags.includes(preferred)) return preferred;
+  }
+  return t.tags[0];
+};
+
+const grouped = new Map<Category, Tech[]>();
+for (const t of tech) {
+  const group = primaryGroupFor(t);
+  if (!group) continue;
+  const arr = grouped.get(group) ?? [];
+  arr.push(t);
+  grouped.set(group, arr);
+}
+
+const ungrouped = tech.filter((t) => !primaryGroupFor(t));
+---
+
+<div class="tech" aria-label="Tech stack">
+  <div class="tech-flat" aria-label="Tech stack (compact)">
+    {tech.map((t) => <TechBadge label={t.label} href={t.href} />)}
+  </div>
+
+  <div class="tech-groups" aria-label="Tech stack (grouped)">
+    {
+      GROUP_ORDER.filter((g) => (grouped.get(g) ?? []).length > 0).map((g) => (
+        <section class="group" aria-label={GROUP_LABEL[g]}>
+          <h4 class="group-title">{GROUP_LABEL[g]}</h4>
+          <div class="group-items">
+            {(grouped.get(g) ?? []).map((t) => (
+              <TechBadge label={t.label} href={t.href} />
+            ))}
+          </div>
+        </section>
+      ))
+    }
+
+    {
+      ungrouped.length > 0 && (
+        <section class="group" aria-label="Other">
+          <h4 class="group-title">Other</h4>
+          <div class="group-items">
+            {ungrouped.map((t) => (
+              <TechBadge label={t.label} href={t.href} />
+            ))}
+          </div>
+        </section>
+      )
+    }
+  </div>
+</div>
+
+<style>
+  /* Global tech-view toggle lives on the page wrapper. */
+  :global([data-tech-view='flat']) .tech-groups {
+    display: none;
+  }
+
+  :global([data-tech-view='grouped']) .tech-flat {
+    display: none;
+  }
+
+  .tech-flat {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .tech-groups {
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .group {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--panel) 85%, #f4f7fc);
+    padding: 0.6rem 0.7rem;
+  }
+
+  .group-title {
+    margin: 0 0 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .group-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+</style>

@@ -1,0 +1,200 @@
+---
+import StackTechList from './StackTechList.astro';
+
+type Category =
+  | 'Languages'
+  | 'Databases'
+  | 'Backend'
+  | 'Frontend'
+  | 'Infra'
+  | 'Tooling'
+  | 'AI/Assistants';
+
+type Tech = { key: string; label: string; href?: string; tags: Category[] };
+
+interface Props {
+  contextId: string;
+  title: string;
+  preview: string;
+  rangeLabel: string;
+  summary?: string;
+  tech: Tech[];
+  events: Array<{
+    dateIso: string;
+    dateLabel: string;
+    title: string;
+    note?: string;
+  }>;
+}
+
+const { contextId, title, preview, rangeLabel, summary, tech, events } =
+  Astro.props;
+---
+
+<details class="row" aria-label={`${title} current stack`}>
+  <summary class="row-summary">
+    <span class="row-left">
+      <span class="row-title">{title}</span>
+    </span>
+    <span class="row-right" aria-label="Stack preview">
+      {preview}
+    </span>
+  </summary>
+
+  <div class="row-body">
+    <p class="row-meta">
+      <span class="row-id">{contextId}</span>
+      <span aria-hidden="true">•</span>
+      <span>{rangeLabel}</span>
+    </p>
+
+    {summary && <p class="row-desc">{summary}</p>}
+
+    <StackTechList tech={tech} />
+
+    {
+      events.length > 0 && (
+        <div class="row-events" aria-label="Recent events">
+          <h4>Events</h4>
+          <ul>
+            {events.slice(0, 3).map((e) => (
+              <li>
+                <time datetime={e.dateIso}>{e.dateLabel}</time>
+                <span>{e.title}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )
+    }
+  </div>
+</details>
+
+<style>
+  details.row {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--panel);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .row-summary {
+    cursor: pointer;
+    list-style: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.75rem;
+    align-items: baseline;
+    padding: 0.7rem 0.8rem;
+  }
+
+  details.row > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .row-left {
+    display: flex;
+    min-width: 0;
+    align-items: baseline;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+  }
+
+  .row-title {
+    font-size: 1.05rem;
+    font-weight: 650;
+    line-height: 1.2;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .row-right {
+    font-family: var(--font-mono);
+    font-size: 0.86rem;
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+
+  details.row[open] .row-summary {
+    border-bottom: 1px solid var(--line);
+    background: color-mix(in srgb, var(--panel) 70%, #f4f7fc);
+  }
+
+  .row-body {
+    padding: 0.75rem 0.8rem 0.9rem;
+    display: grid;
+    gap: 0.7rem;
+  }
+
+  .row-meta {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .row-id {
+    color: var(--ink);
+  }
+
+  .row-desc {
+    margin: 0;
+    color: var(--ink-soft);
+  }
+
+  .row-events h4 {
+    margin: 0 0 0.35rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .row-events ul {
+    margin: 0;
+    padding-left: 1.15rem;
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  .row-events li {
+    display: flex;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+    align-items: baseline;
+  }
+
+  .row-events time {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    border: 1px solid var(--line);
+    background: #f4f7fc;
+    border-radius: 999px;
+    padding: 0.08rem 0.45rem;
+  }
+
+  @media (max-width: 720px) {
+    .row-summary {
+      grid-template-columns: 1fr;
+    }
+
+    .row-right {
+      white-space: normal;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .row-title {
+      white-space: normal;
+    }
+  }
+</style>

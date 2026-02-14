@@ -108,8 +108,6 @@ const stacks = defineCollection({
   loader: glob({ base: './src/content/stacks', pattern: '**/*.md' }),
   schema: z.object({
     title: z.string(),
-    kind: z.enum(['employer', 'personal', 'project']),
-    parent: z.string().optional(),
     published: z.boolean().optional().default(true),
     order: z.number().optional().default(100),
     periods: z.array(stackPeriod).min(1),

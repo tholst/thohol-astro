@@ -1,0 +1,292 @@
+---
+import StackTechList from './StackTechList.astro';
+import TechBadge from './TechBadge.astro';
+
+type Category =
+  | 'Languages'
+  | 'Databases'
+  | 'Backend'
+  | 'Frontend'
+  | 'Infra'
+  | 'Tooling'
+  | 'AI/Assistants';
+
+type Tech = { key: string; label: string; href?: string; tags: Category[] };
+type Diff = { added: Tech[]; removed: Tech[] };
+
+type Period = {
+  fromIso: string;
+  toIso?: string;
+  rangeLabel: string;
+  summary?: string;
+  tech: Tech[];
+  events: Array<{
+    dateIso: string;
+    dateLabel: string;
+    title: string;
+    note?: string;
+  }>;
+  diff?: Diff;
+};
+
+interface Props {
+  contextId: string;
+  title: string;
+  periods: Period[]; // past only, most recent first
+}
+
+const { contextId, title, periods } = Astro.props;
+---
+
+<details class="history" aria-label={`${title} history`}>
+  <summary class="history-summary">
+    <span class="history-left">
+      <span class="history-title">{title}</span>
+      <span class="history-id">{contextId}</span>
+    </span>
+    <span class="history-right">{periods.length} period(s)</span>
+  </summary>
+
+  <div class="history-body">
+    {
+      periods.length === 0 ? (
+        <p class="empty">No previous periods.</p>
+      ) : (
+        <ol class="periods" aria-label="Previous stack periods">
+          {periods.map((p) => (
+            <li class="period">
+              <header class="period-head">
+                <h3 class="period-range">
+                  <time datetime={p.fromIso}>{p.rangeLabel}</time>
+                </h3>
+                {p.summary && <p class="period-summary">{p.summary}</p>}
+              </header>
+
+              <StackTechList tech={p.tech} />
+
+              {p.diff &&
+                (p.diff.added.length > 0 || p.diff.removed.length > 0) && (
+                  <div
+                    class="diff"
+                    aria-label="Changes compared to next newer period"
+                  >
+                    {p.diff.added.length > 0 && (
+                      <div class="diff-row">
+                        <span class="diff-label">Added</span>
+                        <div class="diff-items">
+                          {p.diff.added.map((t) => (
+                            <TechBadge
+                              label={t.label}
+                              href={t.href}
+                              tone="added"
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {p.diff.removed.length > 0 && (
+                      <div class="diff-row">
+                        <span class="diff-label">Removed</span>
+                        <div class="diff-items">
+                          {p.diff.removed.map((t) => (
+                            <TechBadge
+                              label={t.label}
+                              href={t.href}
+                              tone="removed"
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+              {p.events.length > 0 && (
+                <div class="events" aria-label="Events">
+                  <h4>Events</h4>
+                  <ul>
+                    {p.events.map((e) => (
+                      <li>
+                        <time datetime={e.dateIso}>{e.dateLabel}</time>
+                        <span>{e.title}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </li>
+          ))}
+        </ol>
+      )
+    }
+  </div>
+</details>
+
+<style>
+  details.history {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--panel);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .history-summary {
+    cursor: pointer;
+    list-style: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.75rem;
+    align-items: baseline;
+    padding: 0.7rem 0.8rem;
+  }
+
+  details.history > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .history-left {
+    display: flex;
+    min-width: 0;
+    align-items: baseline;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+  }
+
+  .history-title {
+    font-size: 1.05rem;
+    font-weight: 650;
+    line-height: 1.2;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .history-id {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+  }
+
+  .history-right {
+    font-family: var(--font-mono);
+    font-size: 0.86rem;
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+
+  details.history[open] .history-summary {
+    border-bottom: 1px solid var(--line);
+    background: color-mix(in srgb, var(--panel) 70%, #f4f7fc);
+  }
+
+  .history-body {
+    padding: 0.75rem 0.8rem 0.9rem;
+  }
+
+  .periods {
+    margin: 0;
+    padding-left: 1.15rem;
+    display: grid;
+    gap: 1.15rem;
+  }
+
+  .period {
+    padding-left: 0.2rem;
+  }
+
+  .period-head {
+    margin-bottom: 0.55rem;
+  }
+
+  .period-range {
+    margin: 0 0 0.2rem;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+  }
+
+  .period-summary {
+    margin: 0;
+    color: var(--ink-soft);
+  }
+
+  .diff {
+    margin-top: 0.65rem;
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  .diff-row {
+    display: grid;
+    grid-template-columns: 4.5rem 1fr;
+    gap: 0.5rem;
+    align-items: start;
+  }
+
+  .diff-label {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    padding-top: 0.15rem;
+  }
+
+  .diff-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .events {
+    margin-top: 0.65rem;
+  }
+
+  .events h4 {
+    margin: 0 0 0.35rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .events ul {
+    margin: 0;
+    padding-left: 1.15rem;
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  .events li {
+    display: flex;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+    align-items: baseline;
+  }
+
+  .events time {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    border: 1px solid var(--line);
+    background: #f4f7fc;
+    border-radius: 999px;
+    padding: 0.08rem 0.45rem;
+  }
+
+  .empty {
+    margin: 0;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 720px) {
+    .history-summary {
+      grid-template-columns: 1fr;
+    }
+
+    .history-right {
+      white-space: normal;
+    }
+  }
+</style>

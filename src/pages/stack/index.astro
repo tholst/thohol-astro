@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import StackLane from '../../components/StackLane.astro';
+import StackCurrentRow from '../../components/StackCurrentRow.astro';
+import StackHistoryContext from '../../components/StackHistoryContext.astro';
 import { getCollection } from 'astro:content';
 import { SITE_TITLE } from '../../consts';
 
@@ -13,25 +14,32 @@ type Category =
   | 'Tooling'
   | 'AI/Assistants';
 
-type TechRef = string | { label: string; href?: string };
-type ResolvedTech = { key: string; label: string; href?: string };
+type TechRef = string | { label: string; href?: string; tags?: Category[] };
+type ResolvedTech = {
+  key: string;
+  label: string;
+  href?: string;
+  tags: Category[];
+};
 type StackEvent = { date: Date; title: string; note?: string; tech: TechRef[] };
+
 type StackPeriod = {
   from: Date;
   to?: Date;
   summary?: string;
-  stack: Record<Category, TechRef[]>;
+  tech?: TechRef[];
+  // Backward compatible: earlier periods may still use `stack`.
+  stack?: Record<Category, TechRef[]>;
   events: StackEvent[];
 };
+
 type StackContext = {
   id: string;
   title: string;
-  kind: 'employer' | 'personal' | 'project';
-  parent?: string;
   order: number;
   periods: StackPeriod[];
 };
-type ContextNode = StackContext & { children: ContextNode[] };
+
 type PeriodEvent = {
   dateIso: string;
   dateLabel: string;
@@ -39,6 +47,9 @@ type PeriodEvent = {
   note?: string;
   tech: ResolvedTech[];
 };
+
+type PeriodDiff = { added: ResolvedTech[]; removed: ResolvedTech[] };
+
 type ResolvedPeriod = {
   from: Date;
   to?: Date;
@@ -46,13 +57,9 @@ type ResolvedPeriod = {
   toIso?: string;
   rangeLabel: string;
   summary?: string;
-  stack: Record<Category, ResolvedTech[]>;
+  tech: ResolvedTech[];
   events: PeriodEvent[];
   diff?: PeriodDiff;
-};
-type PeriodDiff = {
-  added: Record<Category, ResolvedTech[]>;
-  removed: Record<Category, ResolvedTech[]>;
 };
 
 const CATEGORY_ORDER: Category[] = [
@@ -71,8 +78,6 @@ const contexts: StackContext[] = allContexts
   .map((c) => ({
     id: c.id,
     title: c.data.title,
-    kind: c.data.kind,
-    parent: c.data.parent,
     order: c.data.order,
     periods: c.data.periods,
   }))
@@ -98,28 +103,49 @@ function formatRange(from: Date, to: Date | undefined) {
   return `${fromLabel} – ${toLabel}`;
 }
 
-function resolveRef(ref: TechRef): ResolvedTech {
+function resolveRefWithTags(ref: TechRef): ResolvedTech {
   if (typeof ref === 'string') {
     const found = techById.get(ref);
-    if (found)
-      return { key: `id:${ref}`, label: found.title, href: found.href };
-    // Fallback: treat unknown ids as readable labels.
-    return { key: `id:${ref}`, label: ref };
+    if (found) {
+      const tags = Array.isArray(found.tags)
+        ? (found.tags as Category[])
+        : found.category
+          ? ([found.category] as Category[])
+          : ([] as Category[]);
+      return { key: `id:${ref}`, label: found.title, href: found.href, tags };
+    }
+    return { key: `id:${ref}`, label: ref, tags: [] };
   }
-  return { key: `label:${ref.label}`, label: ref.label, href: ref.href };
+  return {
+    key: `label:${ref.label}`,
+    label: ref.label,
+    href: ref.href,
+    tags: ref.tags ?? [],
+  };
 }
 
 function resolvePeriod(period: StackPeriod): ResolvedPeriod {
-  const stack = Object.fromEntries(
-    CATEGORY_ORDER.map((c) => [c, (period.stack?.[c] ?? []).map(resolveRef)])
-  ) as Record<Category, ResolvedTech[]>;
+  const legacyFlatFromStack: TechRef[] = [];
+  if (period.stack) {
+    for (const cat of CATEGORY_ORDER) {
+      const items = period.stack[cat] ?? [];
+      for (const item of items) {
+        if (typeof item === 'string') legacyFlatFromStack.push(item);
+        else legacyFlatFromStack.push({ ...item, tags: item.tags ?? [cat] });
+      }
+    }
+  }
+
+  const raw =
+    period.tech && period.tech.length > 0 ? period.tech : legacyFlatFromStack;
+  const tech = raw.map(resolveRefWithTags);
 
   const events = (period.events ?? []).map((ev) => ({
     dateIso: ev.date.toISOString(),
     dateLabel: formatMonthYear(ev.date),
     title: ev.title,
     note: ev.note,
-    tech: (ev.tech ?? []).map(resolveRef),
+    tech: (ev.tech ?? []).map(resolveRefWithTags),
   }));
 
   return {
@@ -129,58 +155,20 @@ function resolvePeriod(period: StackPeriod): ResolvedPeriod {
     toIso: period.to?.toISOString(),
     rangeLabel: formatRange(period.from, period.to),
     summary: period.summary,
-    stack,
+    tech,
     events,
   };
 }
 
-function makeEmptyCategoryMap<T>(factory: () => T): Record<Category, T> {
-  return Object.fromEntries(
-    CATEGORY_ORDER.map((c) => [c, factory()])
-  ) as Record<Category, T>;
-}
-
-function computeDiff(
-  prev: ResolvedPeriod | undefined,
-  cur: ResolvedPeriod
-): PeriodDiff | undefined {
+function computeDiff(prev: ResolvedPeriod | undefined, cur: ResolvedPeriod) {
   if (!prev) return undefined;
-
-  const added = makeEmptyCategoryMap((): ResolvedTech[] => []);
-  const removed = makeEmptyCategoryMap((): ResolvedTech[] => []);
-
-  for (const cat of CATEGORY_ORDER) {
-    const prevKeys = new Set(prev.stack[cat].map((t) => t.key));
-    const curKeys = new Set(cur.stack[cat].map((t) => t.key));
-
-    added[cat] = cur.stack[cat].filter((t) => !prevKeys.has(t.key));
-    removed[cat] = prev.stack[cat].filter((t) => !curKeys.has(t.key));
-  }
-
-  return { added, removed };
+  const prevKeys = new Set(prev.tech.map((t) => t.key));
+  const curKeys = new Set(cur.tech.map((t) => t.key));
+  return {
+    added: cur.tech.filter((t) => !prevKeys.has(t.key)),
+    removed: prev.tech.filter((t) => !curKeys.has(t.key)),
+  };
 }
-
-// Tree of contexts (work/personal/projects), built from `parent` references.
-// Each node keeps its `children` but is otherwise a direct projection of content.
-
-const nodeById = new Map<string, ContextNode>();
-for (const ctx of contexts) nodeById.set(ctx.id, { ...ctx, children: [] });
-
-const roots: ContextNode[] = [];
-for (const node of nodeById.values()) {
-  if (node.parent && nodeById.has(node.parent)) {
-    const parent = nodeById.get(node.parent);
-    if (parent) parent.children.push(node);
-  } else {
-    roots.push(node);
-  }
-}
-
-function sortTree(nodes: ContextNode[]) {
-  nodes.sort((a, b) => a.order - b.order || a.title.localeCompare(b.title));
-  for (const n of nodes) sortTree(n.children);
-}
-sortTree(roots);
 
 function computeViewForContext(ctx: StackContext) {
   const sorted = [...ctx.periods].sort(
@@ -207,54 +195,105 @@ function computeViewForContext(ctx: StackContext) {
   return { current, past };
 }
 
-function flattenTree(
-  nodes: ContextNode[],
-  depth = 0
-): Array<{ node: ContextNode; depth: number }> {
-  const out: Array<{ node: ContextNode; depth: number }> = [];
-  for (const node of nodes) {
-    out.push({ node, depth });
-    out.push(...flattenTree(node.children, depth + 1));
-  }
-  return out;
+function makePreview(tech: ResolvedTech[], max = 3) {
+  const labels = tech.map((t) => t.label);
+  const head = labels.slice(0, max);
+  const rest = Math.max(0, labels.length - head.length);
+  return rest > 0 ? `${head.join(' · ')} +${rest}` : head.join(' · ');
 }
-
-const flattened = flattenTree(roots);
 ---
 
 <BaseLayout
   title={`Stack · ${SITE_TITLE}`}
-  description="Tech stacks over time, across contexts and projects."
+  description="Current and previous tech stacks across contexts and projects."
 >
   <main>
     <section class="intro">
       <h1>Stack</h1>
       <p>
-        A timeline of the tech I use, split across contexts (work, personal, and
-        specific projects). Each context tracks changes over time.
+        Current stacks in compact form, plus a foldable history for older
+        periods.
       </p>
     </section>
 
     {
-      roots.length === 0 ? (
+      contexts.length === 0 ? (
         <p class="empty">No stack contexts published yet.</p>
       ) : (
-        <section class="lanes" aria-label="Stack timeline by context">
-          {flattened.map(({ node, depth }) => {
-            const view = computeViewForContext(node);
-            return (
-              <StackLane
-                contextId={node.id}
-                title={node.title}
-                kind={node.kind}
-                depth={depth}
-                current={view.current}
-                past={view.past}
-                categoryOrder={CATEGORY_ORDER}
-              />
-            );
-          })}
-        </section>
+        <div class="stack-wrap" data-tech-view="flat">
+          <section class="controls" aria-label="Stack display controls">
+            <div class="seg" role="group" aria-label="Tech grouping">
+              <button
+                type="button"
+                data-tech-view-btn="flat"
+                data-active="true"
+              >
+                Compact
+              </button>
+              <button type="button" data-tech-view-btn="grouped">
+                Grouped
+              </button>
+            </div>
+          </section>
+
+          <section class="current" aria-label="Current stacks">
+            <header class="section-head">
+              <h2>Current</h2>
+              <p>One line each. Expand a row for details.</p>
+            </header>
+
+            <div class="rows">
+              {contexts.map((ctx) => {
+                const view = computeViewForContext(ctx);
+                return (
+                  <div class="row-wrap">
+                    <StackCurrentRow
+                      contextId={ctx.id}
+                      title={ctx.title}
+                      preview={makePreview(view.current.tech, 3)}
+                      rangeLabel={view.current.rangeLabel}
+                      summary={view.current.summary}
+                      tech={view.current.tech}
+                      events={view.current.events}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+
+          <section class="previous" aria-label="Previous stacks">
+            <header class="section-head">
+              <h2>Previous</h2>
+              <p>Foldable history per context. Diffs show how it changed.</p>
+            </header>
+
+            <div class="history-list">
+              {contexts.map((ctx) => {
+                const view = computeViewForContext(ctx);
+                return (
+                  <div class="row-wrap">
+                    <StackHistoryContext
+                      contextId={ctx.id}
+                      title={ctx.title}
+                      periods={view.past.map((p) => ({
+                        fromIso: p.fromIso,
+                        toIso: p.toIso,
+                        rangeLabel: p.rangeLabel,
+                        summary: p.summary,
+                        tech: p.tech,
+                        events: p.events,
+                        diff: p.diff,
+                      }))}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+
+          <script is:inline src="/stack-controls.js" defer />
+        </div>
       )
     }
   </main>
@@ -266,10 +305,74 @@ const flattened = flattenTree(roots);
     color: var(--ink-soft);
   }
 
-  .lanes {
+  .stack-wrap {
     margin-top: 1rem;
     display: grid;
-    gap: 1.3rem;
+    gap: 1.2rem;
+  }
+
+  .controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--panel) 80%, #f4f7fc);
+    padding: 0.65rem 0.75rem;
+  }
+
+  .seg {
+    display: inline-flex;
+    gap: 0.35rem;
+    padding: 0.35rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--panel);
+  }
+
+  .seg button {
+    appearance: none;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    background: transparent;
+    padding: 0.35rem 0.7rem;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+    cursor: pointer;
+  }
+
+  .seg button[data-active='true'] {
+    color: var(--ink);
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 12%, var(--panel));
+  }
+
+  .toggle {
+    display: inline-flex;
+    gap: 0.55rem;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+  }
+
+  .section-head h2 {
+    margin: 0 0 0.25rem;
+  }
+
+  .section-head p {
+    margin: 0;
+    color: var(--ink-soft);
+  }
+
+  .rows,
+  .history-list {
+    margin-top: 0.8rem;
+    display: grid;
+    gap: 0.55rem;
   }
 
   .empty {
