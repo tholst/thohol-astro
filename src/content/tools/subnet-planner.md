@@ -1,6 +1,7 @@
 ---
 title: Subnet Planner
 description: Split a base CIDR range into multiple subnets and inspect usable ranges.
+createdAt: 2026-02-09
 updatedAt: 2026-02-09
 published: true
 order: 1

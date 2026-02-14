@@ -1,7 +1,8 @@
 ---
 title: Regex Playground
 description: Test regular expressions with live highlighting and capture groups.
-updatedAt: 2026-02-09
+createdAt: 2026-02-13
+updatedAt: 2026-02-13
 published: true
 order: 3
 ---

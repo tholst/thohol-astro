@@ -28,6 +28,9 @@ const isInteractiveTool =
   isRegexPlayground ||
   isCssGradientBuilder ||
   isTimezoneMeetingPlanner;
+
+const createdAt = tool.data.createdAt ?? tool.data.updatedAt;
+const showUpdated = tool.data.updatedAt.valueOf() !== createdAt.valueOf();
 ---
 
 <BaseLayout
@@ -40,7 +43,33 @@ const isInteractiveTool =
       <h1>{tool.data.title}</h1>
       <p>{tool.data.description}</p>
       <p class="updated-at">
-        Last updated on <FormattedDate date={tool.data.updatedAt} />
+        <span class="meta-icon" aria-hidden="true">
+          <svg
+            viewBox="0 0 24 24"
+            width="20"
+            height="20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M8 2v3M16 2v3"></path>
+            <path d="M3 9h18"></path>
+            <path
+              d="M5 5h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z"
+            ></path>
+          </svg>
+        </span>
+        Created <FormattedDate date={createdAt} />
+        {
+          showUpdated && (
+            <>
+              <span aria-hidden="true">·</span>
+              Updated <FormattedDate date={tool.data.updatedAt} />
+            </>
+          )
+        }
       </p>
     </section>
 
@@ -424,7 +453,24 @@ Owner: Charlie.`}</textarea>
   .updated-at {
     margin-top: 0.45rem;
     font-family: var(--font-mono);
-    font-size: 0.8rem;
+    font-size: 14px;
+    line-height: 1.25;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .updated-at .meta-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink-soft);
+    line-height: 0;
+  }
+
+  .updated-at .meta-icon svg {
+    display: block;
+    transform: translateY(-1px);
   }
 
   .back-link {

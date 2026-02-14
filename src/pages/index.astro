@@ -129,6 +129,21 @@ for (const post of posts) {
                           <time datetime={post.data.pubDate.toISOString()}>
                             {formatArchiveDate(post.data.pubDate)}
                           </time>
+                          {post.data.updatedDate &&
+                            post.data.updatedDate.valueOf() !==
+                              post.data.pubDate.valueOf() && (
+                              <>
+                                <span aria-hidden="true">•</span>
+                                <span class="meta-updated">
+                                  Updated{' '}
+                                  <time
+                                    datetime={post.data.updatedDate.toISOString()}
+                                  >
+                                    {formatArchiveDate(post.data.updatedDate)}
+                                  </time>
+                                </span>
+                              </>
+                            )}
                           {(() => {
                             const body =
                               'body' in post && typeof post.body === 'string'
@@ -273,6 +288,11 @@ for (const post of posts) {
     line-height: inherit;
   }
 
+  .meta-updated time {
+    font-size: inherit;
+    line-height: inherit;
+  }
+
   .meta-icon {
     display: inline-flex;
     align-items: center;
@@ -317,18 +337,6 @@ for (const post of posts) {
     color: var(--ink-soft);
     font-size: 16px;
     line-height: 1.6;
-  }
-
-  .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border-width: 0;
   }
 
   @media (max-width: 640px) {
