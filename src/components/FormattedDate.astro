@@ -4,17 +4,22 @@ interface Props {
 }
 
 const { date } = Astro.props;
+
+// Day-first, e.g. "14 February, 2026"
+const parts = new Intl.DateTimeFormat('en-US', {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+}).formatToParts(date);
+
+const day = parts.find((p) => p.type === 'day')?.value ?? '';
+const month = parts.find((p) => p.type === 'month')?.value ?? '';
+const year = parts.find((p) => p.type === 'year')?.value ?? '';
+
+const label = `${day} ${month}, ${year}`.trim();
 ---
 
-<time datetime={date.toISOString()}>
-  {
-    date.toLocaleDateString('en-us', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    })
-  }
-</time>
+<time datetime={date.toISOString()}>{label}</time>
 
 <style>
   /* global.css sets `time { font-size: ... }`; for formatted meta dates we want to inherit context. */
