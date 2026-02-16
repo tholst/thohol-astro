@@ -101,11 +101,16 @@ for (const post of posts) {
                 </header>
 
                 <ul class="post-list" aria-label="Posts">
-                  {monthGroup.posts.map((post) => (
+                  {monthGroup.posts.map(async (post) => (
                     <li class="post-item">
                       <div class="post-main">
                         <h4 class="post-title">
-                          <a href={`/blog/${post.id}/`}>{post.data.title}</a>
+                          <a
+                            href={`/blog/${post.id}/`}
+                            transition:name={'post-title-' + post.id}
+                          >
+                            {post.data.title}
+                          </a>
                         </h4>
 
                         <p class="post-meta">

@@ -21,6 +21,10 @@ const post = Astro.props;
 const { Content, headings } = await render(post);
 ---
 
-<BlogPost {...post.data} headings={headings}>
+<BlogPost
+  {...post.data}
+  headings={headings}
+  transitionName={`post-title-${post.id}`}
+>
   <Content />
 </BlogPost>

@@ -11,6 +11,7 @@ interface TocHeading {
 
 type Props = CollectionEntry<'blog'>['data'] & {
   headings?: TocHeading[];
+  transitionName?: string;
 };
 
 const {
@@ -20,6 +21,7 @@ const {
   updatedDate,
   heroImage,
   headings = [],
+  transitionName,
 } = Astro.props;
 
 const tocHeadings = headings.filter(
@@ -101,7 +103,7 @@ const tocHeadings = headings.filter(
               )
             }
           </p>
-          <h1>{title}</h1>
+          <h1 transition:name={transitionName}>{title}</h1>
           <p class="dek">{description}</p>
         </header>
 
