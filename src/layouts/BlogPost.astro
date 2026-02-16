@@ -319,6 +319,14 @@ const tocHeadings = headings.filter(
     height: auto;
   }
 
+  /* Markdown content is rendered via <slot />; use :global so this targets slotted nodes. */
+  :global(.post-prose img) {
+    display: block;
+    margin: 1rem auto;
+    border: 0;
+    box-shadow: none;
+  }
+
   @media (min-width: 1400px) {
     .toc-mobile-toggle,
     .toc-mobile-dialog {
