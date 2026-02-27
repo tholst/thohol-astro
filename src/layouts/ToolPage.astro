@@ -1,0 +1,84 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+
+interface Props {
+  pageTitle: string;
+  description: string;
+  title: string;
+  toolId: string;
+  createdAt: Date;
+  updatedAt: Date;
+  transitionName?: string;
+}
+
+const {
+  pageTitle,
+  description,
+  title,
+  toolId,
+  createdAt,
+  updatedAt,
+  transitionName,
+} = Astro.props;
+
+const showUpdated = updatedAt.valueOf() !== createdAt.valueOf();
+---
+
+<BaseLayout title={pageTitle} description={description}>
+  <main data-tool-id={toolId}>
+    <section class="tool-header">
+      <a class="back-link" href="/tools/">← Back to tools</a>
+      <p class="meta">
+        <span class="sr-only">Created: </span>
+        <FormattedDate date={createdAt} />
+        {
+          showUpdated && (
+            <>
+              <span aria-hidden="true">•</span>
+              <span class="meta-updated">
+                Updated <FormattedDate date={updatedAt} />
+              </span>
+            </>
+          )
+        }
+      </p>
+      <h1 transition:name={transitionName}>{title}</h1>
+      <p>{description}</p>
+    </section>
+
+    <slot />
+  </main>
+</BaseLayout>
+
+<style>
+  .tool-header p {
+    margin: 0;
+    color: var(--ink-soft);
+  }
+
+  .tool-header .meta {
+    margin: 0 0 0.25rem;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 1.25;
+    color: var(--ink-soft);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .tool-header .meta-updated time {
+    font-size: inherit;
+    line-height: inherit;
+  }
+
+  .back-link {
+    display: block;
+    margin-bottom: 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    text-decoration: none;
+  }
+</style>
