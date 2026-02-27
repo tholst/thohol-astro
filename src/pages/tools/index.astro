@@ -28,7 +28,12 @@ const tools = allTools
           {tools.map((tool) => (
             <li>
               <h2>
-                <a href={`/tools/${tool.id}/`}>{tool.data.title}</a>
+                <a
+                  href={`/tools/${tool.id}/`}
+                  transition:name={'tool-title-' + tool.id}
+                >
+                  {tool.data.title}
+                </a>
               </h2>
               <p>{tool.data.description}</p>
               <p class="updated-at">
@@ -48,7 +53,20 @@ const tools = allTools
                     <path d="M5 5h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z" />
                   </svg>
                 </span>
-                Updated <FormattedDate date={tool.data.updatedAt} />
+                <span class="sr-only">Created: </span>
+                <FormattedDate
+                  date={tool.data.createdAt ?? tool.data.updatedAt}
+                />
+                {tool.data.createdAt &&
+                  tool.data.updatedAt.valueOf() !==
+                    tool.data.createdAt.valueOf() && (
+                    <>
+                      <span aria-hidden="true">•</span>
+                      <span class="meta-updated">
+                        Updated <FormattedDate date={tool.data.updatedAt} />
+                      </span>
+                    </>
+                  )}
               </p>
             </li>
           ))}
@@ -107,6 +125,11 @@ const tools = allTools
   .tool-list .meta-icon svg {
     display: block;
     transform: translateY(-1px);
+  }
+
+  .tool-list .meta-updated time {
+    font-size: inherit;
+    line-height: inherit;
   }
 
   .empty-tools {

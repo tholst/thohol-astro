@@ -21,12 +21,15 @@ const isSubnetPlanner = tool.id === 'subnet-planner';
 const isColorContrastChecker = tool.id === 'color-contrast-checker';
 const isRegexPlayground = tool.id === 'regex-playground';
 const isCssGradientBuilder = tool.id === 'css-gradient-builder';
+const isNestedBorderRadiusCalculator =
+  tool.id === 'nested-border-radius-calculator';
 const isTimezoneMeetingPlanner = tool.id === 'timezone-meeting-planner';
 const isInteractiveTool =
   isSubnetPlanner ||
   isColorContrastChecker ||
   isRegexPlayground ||
   isCssGradientBuilder ||
+  isNestedBorderRadiusCalculator ||
   isTimezoneMeetingPlanner;
 
 const createdAt = tool.data.createdAt ?? tool.data.updatedAt;
@@ -40,37 +43,22 @@ const showUpdated = tool.data.updatedAt.valueOf() !== createdAt.valueOf();
   <main data-tool-id={tool.id}>
     <section class="tool-header">
       <a class="back-link" href="/tools/">← Back to tools</a>
-      <h1>{tool.data.title}</h1>
-      <p>{tool.data.description}</p>
-      <p class="updated-at">
-        <span class="meta-icon" aria-hidden="true">
-          <svg
-            viewBox="0 0 24 24"
-            width="20"
-            height="20"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.8"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M8 2v3M16 2v3"></path>
-            <path d="M3 9h18"></path>
-            <path
-              d="M5 5h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z"
-            ></path>
-          </svg>
-        </span>
-        Created <FormattedDate date={createdAt} />
+      <p class="meta">
+        <span class="sr-only">Created: </span>
+        <FormattedDate date={createdAt} />
         {
           showUpdated && (
             <>
-              <span aria-hidden="true">·</span>
-              Updated <FormattedDate date={tool.data.updatedAt} />
+              <span aria-hidden="true">•</span>
+              <span class="meta-updated">
+                Updated <FormattedDate date={tool.data.updatedAt} />
+              </span>
             </>
           )
         }
       </p>
+      <h1 transition:name={'tool-title-' + tool.id}>{tool.data.title}</h1>
+      <p>{tool.data.description}</p>
     </section>
 
     {
@@ -398,6 +386,118 @@ Owner: Charlie.`}</textarea>
     }
 
     {
+      isNestedBorderRadiusCalculator && (
+        <section
+          class="tool-card radius-tool"
+          aria-label="Nested Border Radius Calculator"
+        >
+          <h2>Calculator + Live Examples</h2>
+          <p>
+            Calculate inner radius from outer radius and inset:{' '}
+            <code>inner = max(outer - inset, 0)</code>. This is useful for
+            nested cards, tags, and chip icons.
+          </p>
+
+          <form id="radius-form" class="planner-form radius-form">
+            <label class="radius-slider radius-slider--outer">
+              <span class="radius-slider-row">
+                <span>Outer radius</span>
+                <strong id="radius-outer-value">24px</strong>
+              </span>
+              <input
+                id="radius-outer"
+                name="outerRadius"
+                type="range"
+                min="0"
+                max="180"
+                value="24"
+                step="1"
+              />
+            </label>
+
+            <label class="radius-slider radius-slider--padding">
+              <span class="radius-slider-row">
+                <span>Padding</span>
+                <strong id="radius-inset-value">8px</strong>
+              </span>
+              <input
+                id="radius-inset"
+                name="inset"
+                type="range"
+                min="0"
+                max="80"
+                value="8"
+                step="1"
+              />
+            </label>
+
+            <label class="radius-slider radius-slider--inner">
+              <span class="radius-slider-row">
+                <span>Inner radius</span>
+                <strong id="radius-inner-value">16px</strong>
+              </span>
+              <input
+                id="radius-inner"
+                name="innerRadius"
+                type="range"
+                min="0"
+                max="180"
+                value="16"
+                step="1"
+              />
+            </label>
+          </form>
+
+          <p id="radius-message" class="tool-message" aria-live="polite">
+            {' '}
+          </p>
+
+          <section class="radius-examples" aria-label="Interactive examples">
+            <article class="radius-demo-card">
+              <p class="radius-zoom-label">1x zoom</p>
+              <div class="radius-zoom radius-zoom--card" data-scale="1">
+                <div class="demo-card-outer">
+                  <div class="demo-card-inner">
+                    Inner card keeps a matched corner curve.
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <article class="radius-demo-card">
+              <p class="radius-zoom-label">2x zoom</p>
+              <div class="radius-zoom radius-zoom--card" data-scale="2">
+                <div class="demo-card-outer">
+                  <div class="demo-card-inner">
+                    Inner card keeps a matched corner curve.
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <article class="radius-demo-card">
+              <p class="radius-zoom-label">4x zoom</p>
+              <div class="radius-zoom radius-zoom--card" data-scale="4">
+                <div class="demo-card-outer">
+                  <div class="demo-card-inner">
+                    Inner card keeps a matched corner curve.
+                  </div>
+                </div>
+              </div>
+            </article>
+          </section>
+
+          <div class="results-box">
+            <h3>CSS snippets</h3>
+            <pre id="radius-css" class="gradient-output">
+              {' '}
+            </pre>
+          </div>
+        </section>
+      )
+    }
+
+    {
       isTimezoneMeetingPlanner && (
         <section class="tool-card" aria-label="Timezone Meeting Planner">
           <h2>Planner</h2>
@@ -450,31 +550,24 @@ Owner: Charlie.`}</textarea>
     color: var(--ink-soft);
   }
 
-  .updated-at {
-    margin-top: 0.45rem;
+  .tool-header .meta {
+    margin: 0 0 0.25rem;
     font-family: var(--font-mono);
     font-size: 14px;
     line-height: 1.25;
-    display: inline-flex;
+    color: var(--ink-soft);
+    display: flex;
     align-items: center;
     gap: 0.4rem;
   }
 
-  .updated-at .meta-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--ink-soft);
-    line-height: 0;
-  }
-
-  .updated-at .meta-icon svg {
-    display: block;
-    transform: translateY(-1px);
+  .tool-header .meta-updated time {
+    font-size: inherit;
+    line-height: inherit;
   }
 
   .back-link {
-    display: inline-block;
+    display: block;
     margin-bottom: 0.6rem;
     font-family: var(--font-mono);
     font-size: 0.85rem;
@@ -691,6 +784,166 @@ Owner: Charlie.`}</textarea>
     border: 1px solid var(--line);
   }
 
+  .radius-tool {
+    --radius-outer-color: #0f766e;
+    --radius-outer-color-soft: rgba(15, 118, 110, 0.45);
+    --radius-padding-color: #2563eb;
+    --radius-inner-color: #d946ef;
+  }
+
+  .radius-form {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    margin-top: 0.6rem;
+  }
+
+  .radius-form .radius-slider {
+    gap: 0.25rem;
+  }
+
+  .radius-slider-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .radius-slider-row strong {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--ink);
+    line-height: 1.1;
+  }
+
+  .radius-form #radius-outer {
+    accent-color: var(--radius-outer-color);
+  }
+
+  .radius-form #radius-inset {
+    accent-color: var(--radius-padding-color);
+  }
+
+  .radius-form #radius-inner {
+    accent-color: var(--radius-inner-color);
+  }
+
+  .radius-form .radius-slider--outer .radius-slider-row strong {
+    color: var(--radius-outer-color);
+  }
+
+  .radius-form .radius-slider--padding .radius-slider-row strong {
+    color: var(--radius-padding-color);
+  }
+
+  .radius-form .radius-slider--inner .radius-slider-row strong {
+    color: var(--radius-inner-color);
+  }
+
+  .radius-form small,
+  .radius-form .radius-slider-row span {
+    color: var(--ink-soft);
+    font-size: 0.82rem;
+  }
+
+  .radius-examples {
+    margin-top: 0.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .radius-demo-card {
+    flex: 0 0 auto;
+  }
+
+  .radius-zoom {
+    --zoom-pad: 22px;
+    margin-top: 0.55rem;
+    position: relative;
+    border: 1px dashed color-mix(in srgb, var(--line) 72%, #155eef);
+    border-radius: 12px;
+    overflow: hidden;
+    background:
+      linear-gradient(rgba(21, 94, 239, 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(21, 94, 239, 0.08) 1px, transparent 1px),
+      #f8fbff;
+    background-size:
+      18px 18px,
+      18px 18px,
+      auto;
+    aspect-ratio: 1 / 1;
+    inline-size: 220px;
+    min-height: 0;
+    max-width: 220px;
+    padding: 0;
+    isolation: isolate;
+  }
+
+  .radius-zoom-label {
+    margin: 0 0 0.35rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--ink-soft) 75%, #155eef);
+    max-width: 220px;
+    text-align: right;
+  }
+
+  .radius-zoom > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .radius-zoom--card {
+    min-height: 190px;
+  }
+
+  .demo-card-outer {
+    --card-inset: 8px;
+    --card-size: 1200px;
+    --card-scale: 1;
+    position: absolute;
+    left: var(--zoom-pad);
+    top: var(--zoom-pad);
+    border: 0;
+    box-shadow: none;
+    background: var(--radius-padding-color, #2563eb);
+    padding: var(--card-inset);
+    inline-size: var(--card-size);
+    min-block-size: var(--card-size);
+    transform: scale(var(--card-scale));
+    transform-origin: top left;
+  }
+
+  .demo-card-inner {
+    border: 0;
+    box-shadow: none;
+    background: var(--radius-inner-color, #d946ef);
+    padding: 0;
+    min-block-size: calc(var(--card-size) - (var(--card-inset) * 2));
+    color: transparent;
+    font-size: 0;
+    line-height: 0;
+    user-select: none;
+  }
+
+  .radius-zoom--card {
+    background:
+      linear-gradient(
+        var(--radius-outer-color-soft, rgba(15, 118, 110, 0.14)),
+        var(--radius-outer-color-soft, rgba(15, 118, 110, 0.14))
+      ),
+      linear-gradient(rgba(21, 94, 239, 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(21, 94, 239, 0.08) 1px, transparent 1px),
+      #f8fbff;
+    background-size:
+      auto,
+      18px 18px,
+      18px 18px,
+      auto;
+  }
+
   :global(.timezone-rows) {
     margin-top: 0.7rem;
     display: grid;
@@ -868,6 +1121,10 @@ Owner: Charlie.`}</textarea>
   @media (max-width: 780px) {
     .planner-form {
       grid-template-columns: 1fr;
+    }
+
+    .radius-zoom {
+      inline-size: min(100%, 220px);
     }
 
     :global(.timezone-row) {
@@ -1493,6 +1750,116 @@ Owner: Charlie.`}</textarea>
     render();
   };
 
+  const initNestedBorderRadiusCalculator = () => {
+    const form = document.getElementById('radius-form');
+    if (!form) return;
+
+    const outerInput = document.getElementById('radius-outer');
+    const insetInput = document.getElementById('radius-inset');
+    const innerInput = document.getElementById('radius-inner');
+    const outerValue = document.getElementById('radius-outer-value');
+    const insetValue = document.getElementById('radius-inset-value');
+    const innerValue = document.getElementById('radius-inner-value');
+    const cssOutput = document.getElementById('radius-css');
+    const message = document.getElementById('radius-message');
+
+    const cardOuters = Array.from(
+      document.querySelectorAll('.demo-card-outer')
+    );
+    const cardInners = Array.from(
+      document.querySelectorAll('.demo-card-inner')
+    );
+
+    const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+
+    const readNumber = (input, fallback) => {
+      if (!(input instanceof HTMLInputElement)) return fallback;
+      const next = Number(input.value);
+      return Number.isFinite(next) ? next : fallback;
+    };
+
+    let driver = 'outer';
+
+    const render = (changed = 'outer') => {
+      if (changed === 'outer' || changed === 'inner') driver = changed;
+
+      let outer = clamp(readNumber(outerInput, 24), 0, 180);
+      const inset = clamp(readNumber(insetInput, 8), 0, 80);
+      let inner = clamp(readNumber(innerInput, 16), 0, 180);
+
+      if (changed === 'outer') {
+        inner = outer <= inset ? 0 : outer - inset;
+      } else if (changed === 'inner') {
+        outer = inner + inset;
+      } else if (changed === 'inset') {
+        if (driver === 'inner') {
+          outer = inner + inset;
+        } else {
+          inner = outer <= inset ? 0 : outer - inset;
+        }
+      } else if (driver === 'inner') {
+        outer = inner + inset;
+      } else {
+        inner = outer <= inset ? 0 : outer - inset;
+      }
+
+      outer = clamp(outer, 0, 180);
+      inner = clamp(inner, 0, 180);
+
+      if (outerInput instanceof HTMLInputElement)
+        outerInput.value = String(outer);
+      if (insetInput instanceof HTMLInputElement)
+        insetInput.value = String(inset);
+      if (innerInput instanceof HTMLInputElement)
+        innerInput.value = String(inner);
+      if (outerValue) outerValue.textContent = `${outer}px`;
+      if (insetValue) insetValue.textContent = `${inset}px`;
+      if (innerValue) innerValue.textContent = `${inner}px`;
+
+      const cardSize = clamp(Math.round((outer + inset + 24) * 8), 720, 2200);
+
+      for (const cardOuter of cardOuters) {
+        cardOuter.style.borderRadius = `${outer}px`;
+        cardOuter.style.setProperty('--card-inset', `${inset}px`);
+        cardOuter.style.setProperty('--card-size', `${cardSize}px`);
+        const preview = cardOuter.closest('.radius-zoom');
+        const scale = Number(preview?.getAttribute('data-scale') || '1');
+        const safeScale = Number.isFinite(scale) ? scale : 1;
+        cardOuter.style.setProperty('--card-scale', String(safeScale));
+      }
+
+      for (const cardInner of cardInners) {
+        cardInner.style.borderRadius = `${inner}px`;
+      }
+
+      if (cssOutput) {
+        cssOutput.textContent =
+          `/* Formula */\n` +
+          `innerRadius = max(outerRadius - inset, 0);\n` +
+          `outerRadius = innerRadius + inset;\n\n` +
+          `/* Corner-matched nested card */\n` +
+          `.outer { border-radius: ${outer}px; padding: ${inset}px; }\n` +
+          `.inner { border-radius: ${inner}px; }`;
+      }
+
+      setMessage(
+        message,
+        `Computed inner radius ${inner}px from outer ${outer}px with ${inset}px inset.`
+      );
+    };
+
+    form.addEventListener('input', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLInputElement)) return;
+      if (target.name === 'outerRadius') render('outer');
+      else if (target.name === 'innerRadius') render('inner');
+      else if (target.name === 'inset') render('inset');
+      else render(driver);
+    });
+    window.addEventListener('resize', () => render(driver));
+    render('outer');
+  };
+
   const initTimezoneMeetingPlanner = () => {
     const rowsContainer = document.getElementById('timezone-rows');
     const addRowButton = document.getElementById('add-timezone-row');
@@ -2088,6 +2455,9 @@ Owner: Charlie.`}</textarea>
   }
   if (toolId === 'css-gradient-builder') {
     initCssGradientBuilder();
+  }
+  if (toolId === 'nested-border-radius-calculator') {
+    initNestedBorderRadiusCalculator();
   }
   if (toolId === 'timezone-meeting-planner') {
     initTimezoneMeetingPlanner();
