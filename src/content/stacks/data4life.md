@@ -11,11 +11,11 @@ periods:
       - react
       - terraform
       - kubernetes
-      - cloudcode
+      - claude-code
       - codex-desktop
     events:
       - date: 2025-11-01
-        title: 'CloudCode became my primary AI-assisted coding workflow'
+        title: 'Claude Code became my primary AI-assisted coding workflow'
       - date: 2026-01-30
-        title: 'Switched primary AI coding tool from CloudCode to Codex Desktop'
+        title: 'Switched primary AI coding tool from Claude Code to Codex Desktop'
 ---

@@ -1,47 +1,145 @@
 ---
+import {
+  Claude as IconClaude,
+  Go as IconGo,
+  Javascript as IconJavascript,
+  Kubernetes as IconKubernetes,
+  Nextdotjs as IconNextdotjs,
+  Postgresql as IconPostgresql,
+  React as IconReact,
+  Terraform as IconTerraform,
+  Turborepo as IconTurborepo,
+  Typescript as IconTypescript,
+} from 'simple-icons-astro';
+
 interface Props {
   label: string;
   href?: string;
   tone?: 'neutral' | 'added' | 'removed';
   techKey?: string;
+  primaryTag?: string;
 }
 
-const { label, href, tone = 'neutral', techKey } = Astro.props;
+const { label, href, tone = 'neutral', techKey, primaryTag } = Astro.props;
+
+type IconComponent = (props: { size?: number; class?: string }) => unknown;
+
+const normalize = (value: string) =>
+  value.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+const ICON_BY_KEY: Record<string, IconComponent> = {
+  claude: IconClaude,
+  claudecode: IconClaude,
+  go: IconGo,
+  javascript: IconJavascript,
+  kubernetes: IconKubernetes,
+  nextjs: IconNextdotjs,
+  postgresql: IconPostgresql,
+  react: IconReact,
+  terraform: IconTerraform,
+  turborepo: IconTurborepo,
+  typescript: IconTypescript,
+};
+
+const techId = techKey?.includes(':') ? techKey.split(':')[1] : techKey;
+const normalizedCandidates = [techId, label]
+  .filter((v): v is string => Boolean(v))
+  .map(normalize);
+const Icon = normalizedCandidates
+  .map((candidate) => ICON_BY_KEY[candidate])
+  .find((candidate) => Boolean(candidate));
 ---
 
 {
   href ? (
-    <a class="tech-badge" data-tone={tone} data-tech-key={techKey} href={href}>
-      {label}
+    <a
+      class="tech-badge"
+      data-tone={tone}
+      data-tech-key={techKey}
+      data-primary-tag={primaryTag}
+      data-has-icon={Icon ? 'true' : 'false'}
+      href={href}
+    >
+      {Icon && <Icon class="tech-icon" size={12} aria-hidden="true" />}
+      <span>{label}</span>
     </a>
   ) : (
-    <span class="tech-badge" data-tone={tone} data-tech-key={techKey}>
-      {label}
+    <span
+      class="tech-badge"
+      data-tone={tone}
+      data-tech-key={techKey}
+      data-primary-tag={primaryTag}
+      data-has-icon={Icon ? 'true' : 'false'}
+    >
+      {Icon && <Icon class="tech-icon" size={12} aria-hidden="true" />}
+      <span>{label}</span>
     </span>
   )
 }
 
 <style>
   .tech-badge {
+    --tag-accent: color-mix(in srgb, var(--ink-soft) 85%, #9aa4b2);
+    --tag-height: 28px;
+    --tag-radius: 999px;
+    --tag-pad-y: 3px;
+    --tag-pad-right: 9px;
+    --tag-pad-left: 17px;
+    --dot-size: 5px;
+    --dot-radius: 999px;
+    --dot-left: 7px;
+    --dot-ring: 2px;
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
-    padding: 0.22rem 0.55rem;
-    border-radius: 999px;
-    border: 1px solid var(--line);
-    background: color-mix(in srgb, var(--panel) 70%, var(--accent-soft));
+    min-height: var(--tag-height);
+    padding: var(--tag-pad-y) var(--tag-pad-right) var(--tag-pad-y)
+      var(--tag-pad-left);
+    border-radius: var(--tag-radius);
+    border: 1px solid color-mix(in srgb, var(--tag-accent) 35%, var(--line));
+    background: color-mix(in srgb, var(--tag-accent) 10%, var(--panel));
     color: var(--ink);
     text-decoration: none;
     font-family: var(--font-mono);
-    font-size: 0.82rem;
+    font-size: 0.76rem;
     letter-spacing: 0.01em;
-    line-height: 1.35;
+    line-height: 1.2;
     white-space: nowrap;
+    position: relative;
+    cursor: pointer;
   }
 
-  a.tech-badge:hover {
-    border-color: var(--accent);
-    background: color-mix(in srgb, var(--accent) 12%, var(--panel));
+  .tech-badge[data-has-icon='true'] {
+    --tag-pad-left: 9px;
+    gap: 0.38rem;
+  }
+
+  .tech-badge :global(.tech-icon) {
+    flex: 0 0 auto;
+  }
+
+  .tech-badge::before {
+    content: '';
+    width: var(--dot-size);
+    height: var(--dot-size);
+    border-radius: var(--dot-radius);
+    background: var(--tag-accent);
+    position: absolute;
+    left: var(--dot-left);
+    top: 50%;
+    transform: translateY(-50%);
+    box-shadow: 0 0 0 var(--dot-ring)
+      color-mix(in srgb, var(--tag-accent) 15%, transparent);
+    pointer-events: none;
+  }
+
+  .tech-badge[data-has-icon='true']::before {
+    display: none;
+  }
+
+  .tech-badge:hover {
+    border-color: color-mix(in srgb, var(--tag-accent) 60%, var(--line));
+    background: color-mix(in srgb, var(--tag-accent) 14%, var(--panel));
   }
 
   .tech-badge[data-tone='added'] {
@@ -52,5 +150,43 @@ const { label, href, tone = 'neutral', techKey } = Astro.props;
   .tech-badge[data-tone='removed'] {
     border-color: color-mix(in srgb, #f04438 45%, var(--line));
     background: color-mix(in srgb, #f04438 10%, var(--panel));
+  }
+
+  .tech-badge[data-tone='added']::before {
+    background: #12b76a;
+    box-shadow: 0 0 0 4px rgba(18, 183, 106, 0.15);
+  }
+
+  .tech-badge[data-tone='removed']::before {
+    background: #f04438;
+    box-shadow: 0 0 0 4px rgba(240, 68, 56, 0.14);
+  }
+
+  .tech-badge[data-primary-tag='Languages'] {
+    --tag-accent: #0058e8;
+  }
+
+  .tech-badge[data-primary-tag='Databases'] {
+    --tag-accent: #12b76a;
+  }
+
+  .tech-badge[data-primary-tag='Backend'] {
+    --tag-accent: #f79009;
+  }
+
+  .tech-badge[data-primary-tag='Frontend'] {
+    --tag-accent: #7a5af8;
+  }
+
+  .tech-badge[data-primary-tag='Infra'] {
+    --tag-accent: #06aed4;
+  }
+
+  .tech-badge[data-primary-tag='Tooling'] {
+    --tag-accent: #ef4444;
+  }
+
+  .tech-badge[data-primary-tag='AI/Assistants'] {
+    --tag-accent: #101828;
   }
 </style>

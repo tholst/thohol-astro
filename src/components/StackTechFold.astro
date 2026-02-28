@@ -14,9 +14,10 @@ type Tech = { key: string; label: string; href?: string; tags: Category[] };
 
 interface Props {
   tech: Tech[];
+  showToggle?: boolean;
 }
 
-const { tech } = Astro.props;
+const { tech, showToggle = true } = Astro.props;
 ---
 
 <section
@@ -29,23 +30,28 @@ const { tech } = Astro.props;
     <StackTechList tech={tech} />
   </div>
 
-  <button
-    type="button"
-    class="tech-fold__toggle"
-    aria-expanded="false"
-    aria-label="Toggle grouped tech view"
-  >
-    <span class="tech-fold__chev" aria-hidden="true">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
-        <path
-          d="M6 9l6 6 6-6"
-          stroke="currentColor"
-          stroke-width="1.8"
-          stroke-linecap="round"
-          stroke-linejoin="round"></path>
-      </svg>
-    </span>
-  </button>
+  {
+    showToggle && (
+      <button
+        type="button"
+        class="tech-fold__toggle"
+        aria-expanded="false"
+        aria-label="Toggle grouped tech view"
+      >
+        <span class="tech-fold__chev" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
+            <path
+              d="M6 9l6 6 6-6"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </span>
+      </button>
+    )
+  }
 
   <script is:inline>
     // One-time wiring for all tech folds on the page.
@@ -59,9 +65,9 @@ const { tech } = Astro.props;
         if (fold.dataset.bound === 'true') continue;
         fold.dataset.bound = 'true';
 
-        const btn = fold.querySelector('.tech-fold__toggle');
         const content = fold.querySelector('.tech-fold__content');
-        if (!btn || !content) continue;
+        const btn = fold.querySelector('.tech-fold__toggle');
+        if (!content) continue;
 
         /** @type {Map<string, DOMRect>} */
         let before = new Map();
@@ -101,14 +107,18 @@ const { tech } = Astro.props;
 
         const setOpen = (nextOpen) => {
           fold.setAttribute('data-open', nextOpen ? 'true' : 'false');
-          btn.setAttribute('aria-expanded', nextOpen ? 'true' : 'false');
+          if (btn)
+            btn.setAttribute('aria-expanded', nextOpen ? 'true' : 'false');
         };
 
-        const toggle = () => {
-          // Capture on click so it works for mouse + keyboard activation.
-          before = captureRects();
-          const nextOpen = fold.getAttribute('data-open') !== 'true';
+        const setOpenAnimated = (nextOpen, animate = true) => {
+          const isOpen = fold.getAttribute('data-open') === 'true';
+          if (isOpen === nextOpen) return;
+
+          if (animate) before = captureRects();
           setOpen(nextOpen);
+          if (!animate) return;
+
           // Two rAFs to ensure layout has fully settled after toggling styles.
           requestAnimationFrame(() =>
             requestAnimationFrame(() => {
@@ -118,16 +128,30 @@ const { tech } = Astro.props;
           );
         };
 
-        btn.addEventListener('click', toggle);
+        const toggle = () => {
+          const nextOpen = fold.getAttribute('data-open') !== 'true';
+          setOpenAnimated(nextOpen, true);
+        };
 
-        // Make the whole tag area clickable, but don't hijack link clicks.
-        content.addEventListener('click', (e) => {
-          const target = e.target;
-          if (!target || typeof target.closest !== 'function') return;
-          if (target.closest('a')) return;
-          if (target.closest('button')) return;
-          toggle();
-        });
+        if (btn) btn.addEventListener('click', toggle);
+
+        // Make the whole tag area clickable only when the fold has its own toggle.
+        if (btn) {
+          content.addEventListener('click', (e) => {
+            const target = e.target;
+            if (!target || typeof target.closest !== 'function') return;
+            if (target.closest('a')) return;
+            if (target.closest('button')) return;
+            toggle();
+          });
+        }
+
+        // Allow a parent component (like the stack row) to drive the fold state.
+        // @ts-expect-error - runtime-only hook added for parent-controlled fold state.
+        fold.__setOpen = (nextOpen, animate = true) => {
+          if (prefersReduced) animate = false;
+          setOpenAnimated(Boolean(nextOpen), Boolean(animate));
+        };
       }
     }
 

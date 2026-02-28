@@ -140,13 +140,15 @@ function resolvePeriod(period: StackPeriod): ResolvedPeriod {
     period.tech && period.tech.length > 0 ? period.tech : legacyFlatFromStack;
   const tech = raw.map(resolveRefWithTags);
 
-  const events = (period.events ?? []).map((ev) => ({
-    dateIso: ev.date.toISOString(),
-    dateLabel: formatMonthYear(ev.date),
-    title: ev.title,
-    note: ev.note,
-    tech: (ev.tech ?? []).map(resolveRefWithTags),
-  }));
+  const events = [...(period.events ?? [])]
+    .sort((a, b) => b.date.valueOf() - a.date.valueOf())
+    .map((ev) => ({
+      dateIso: ev.date.toISOString(),
+      dateLabel: formatMonthYear(ev.date),
+      title: ev.title,
+      note: ev.note,
+      tech: (ev.tech ?? []).map(resolveRefWithTags),
+    }));
 
   return {
     from: period.from,
@@ -195,11 +197,16 @@ function computeViewForContext(ctx: StackContext) {
   return { current, past };
 }
 
-function makePreview(tech: ResolvedTech[], max = 3) {
-  const labels = tech.map((t) => t.label);
-  const head = labels.slice(0, max);
-  const rest = Math.max(0, labels.length - head.length);
-  return rest > 0 ? `${head.join(' · ')} +${rest}` : head.join(' · ');
+function accentFor(id: string) {
+  // Deterministic accent per stack context. Kept subtle by default; variants can
+  // decide how loud to render it.
+  let h = 0;
+  for (let i = 0; i < id.length; i += 1) {
+    h = (h * 31 + id.charCodeAt(i)) >>> 0;
+  }
+  const hue = h % 360;
+  // Avoid neon-by-default; keep in a printable, confident range.
+  return `hsl(${hue} 68% 42%)`;
 }
 ---
 
@@ -220,7 +227,29 @@ function makePreview(tech: ResolvedTech[], max = 3) {
       contexts.length === 0 ? (
         <p class="empty">No stack contexts published yet.</p>
       ) : (
-        <div class="stack-wrap">
+        <div class="stack-wrap" data-stack-variant="v1">
+          <section class="variant" aria-label="Stack display variant">
+            <p class="variant-label">Variant</p>
+            <div
+              class="variant-buttons"
+              role="group"
+              aria-label="Choose variant"
+            >
+              <button type="button" data-variant="v1" data-active="true">
+                Current
+              </button>
+              <button type="button" data-variant="v2">
+                Clean
+              </button>
+              <button type="button" data-variant="v6">
+                Balanced
+              </button>
+              <button type="button" data-variant="v3">
+                Color Lanes
+              </button>
+            </div>
+          </section>
+
           <section class="current" aria-label="Current stacks">
             <header class="section-head">
               <h2>Current</h2>
@@ -231,11 +260,14 @@ function makePreview(tech: ResolvedTech[], max = 3) {
               {contexts.map((ctx) => {
                 const view = computeViewForContext(ctx);
                 return (
-                  <div class="row-wrap">
+                  <div
+                    class="row-wrap"
+                    data-stack-key={ctx.id}
+                    style={`--stack-accent: ${accentFor(ctx.id)};`}
+                  >
                     <StackCurrentRow
                       contextId={ctx.id}
                       title={ctx.title}
-                      preview={makePreview(view.current.tech, 3)}
                       rangeLabel={view.current.rangeLabel}
                       summary={view.current.summary}
                       tech={view.current.tech}
@@ -257,7 +289,11 @@ function makePreview(tech: ResolvedTech[], max = 3) {
               {contexts.map((ctx) => {
                 const view = computeViewForContext(ctx);
                 return (
-                  <div class="row-wrap">
+                  <div
+                    class="row-wrap"
+                    data-stack-key={ctx.id}
+                    style={`--stack-accent: ${accentFor(ctx.id)};`}
+                  >
                     <StackHistoryContext
                       contextId={ctx.id}
                       title={ctx.title}
@@ -279,6 +315,58 @@ function makePreview(tech: ResolvedTech[], max = 3) {
         </div>
       )
     }
+
+    <script is:inline>
+      function initStackVariantSwitcher() {
+        const root = document.querySelector('[data-stack-variant]');
+        if (!root) return;
+        if (root.dataset.variantBound === 'true') return;
+        root.dataset.variantBound = 'true';
+
+        const buttons = Array.from(root.querySelectorAll('[data-variant]'));
+        if (buttons.length === 0) return;
+
+        const key = 'thohol.stackVariant';
+        const allowed = new Set(['v1', 'v2', 'v3', 'v6']);
+
+        const apply = (v) => {
+          if (!allowed.has(v)) v = 'v1';
+          root.setAttribute('data-stack-variant', v);
+          for (const b of buttons) {
+            b.setAttribute(
+              'data-active',
+              b.dataset.variant === v ? 'true' : 'false'
+            );
+          }
+        };
+
+        for (const b of buttons) {
+          b.addEventListener('click', () => {
+            const v = b.getAttribute('data-variant') || 'v1';
+            try {
+              localStorage.setItem(key, v);
+            } catch (e) {
+              // Ignore storage errors (private mode, disabled storage, etc.)
+              void e;
+            }
+            apply(v);
+          });
+        }
+
+        let initial = 'v1';
+        try {
+          const stored = localStorage.getItem(key);
+          if (stored) initial = stored;
+        } catch (e) {
+          void e;
+        }
+        apply(initial);
+      }
+
+      initStackVariantSwitcher();
+      document.addEventListener('astro:page-load', initStackVariantSwitcher);
+      document.addEventListener('DOMContentLoaded', initStackVariantSwitcher);
+    </script>
   </main>
 </BaseLayout>
 
@@ -292,6 +380,52 @@ function makePreview(tech: ResolvedTech[], max = 3) {
     margin-top: 1rem;
     display: grid;
     gap: 1.2rem;
+  }
+
+  .variant {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.9rem;
+    flex-wrap: wrap;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--panel) 75%, #f4f7fc);
+    padding: 0.6rem 0.75rem;
+  }
+
+  .variant-label {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .variant-buttons {
+    display: inline-flex;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .variant-buttons button {
+    appearance: none;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    color: var(--ink-soft);
+    padding: 0.35rem 0.65rem;
+    border-radius: 999px;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+  }
+
+  .variant-buttons button[data-active='true'] {
+    color: var(--ink);
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 12%, var(--panel));
   }
 
   .section-head h2 {
@@ -313,5 +447,228 @@ function makePreview(tech: ResolvedTech[], max = 3) {
   .empty {
     margin-top: 1rem;
     color: var(--ink-soft);
+  }
+
+  /* ===========================
+     Variant Overrides (v1 = current)
+     =========================== */
+
+  /* v2: Clean (brutally minimal, hairlines, whitespace) */
+  :global(.stack-wrap[data-stack-variant='v2'] .variant) {
+    border-radius: 10px;
+    background: transparent;
+    border-color: color-mix(in srgb, var(--line) 85%, transparent);
+  }
+
+  :global(.stack-wrap[data-stack-variant='v2'] .rows),
+  :global(.stack-wrap[data-stack-variant='v2'] .history-list) {
+    gap: 0;
+    border-top: 1px solid color-mix(in srgb, var(--line) 85%, transparent);
+  }
+
+  :global(.stack-wrap[data-stack-variant='v2'] .row-wrap) {
+    position: relative;
+    padding-left: 0.85rem;
+  }
+
+  :global(.stack-wrap[data-stack-variant='v2'] .row-wrap::before) {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 10px;
+    bottom: 10px;
+    width: 3px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--stack-accent) 35%, transparent);
+  }
+
+  :global(.stack-wrap[data-stack-variant='v2'] .row-wrap) {
+    border-bottom: 1px solid color-mix(in srgb, var(--line) 85%, transparent);
+    padding-top: 0.15rem;
+    padding-bottom: 0.15rem;
+  }
+
+  :global(.stack-wrap[data-stack-variant='v2'] .row),
+  :global(.stack-wrap[data-stack-variant='v2'] .history) {
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+    overflow: visible;
+  }
+
+  :global(.stack-wrap[data-stack-variant='v2'] .row-summary),
+  :global(.stack-wrap[data-stack-variant='v2'] .history-summary) {
+    padding-left: 0;
+    padding-right: 0;
+    border-bottom: 0;
+  }
+
+  :global(
+    .stack-wrap[data-stack-variant='v2'] .row[data-open='true'] .row-summary
+  ),
+  :global(
+    .stack-wrap[data-stack-variant='v2'] details.history[open] .history-summary
+  ) {
+    background: transparent;
+  }
+
+  :global(.stack-wrap[data-stack-variant='v2'] .row-title),
+  :global(.stack-wrap[data-stack-variant='v2'] .history-title) {
+    font-weight: 600;
+  }
+
+  :global(.stack-wrap[data-stack-variant='v2'] .row-right),
+  :global(.stack-wrap[data-stack-variant='v2'] .history-right) {
+    color: color-mix(in srgb, var(--ink) 55%, var(--ink-soft));
+  }
+
+  :global(.stack-wrap[data-stack-variant='v2'] .row-body),
+  :global(.stack-wrap[data-stack-variant='v2'] .history-body) {
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0.7rem;
+    padding-bottom: 1rem;
+  }
+
+  :global(.stack-wrap[data-stack-variant='v2'] .tech-badge) {
+    border-radius: 10px;
+    background: transparent;
+    border-color: color-mix(in srgb, var(--ink) 18%, var(--line));
+    font-family: var(--font-mono);
+  }
+
+  :global(.stack-wrap[data-stack-variant='v2'] .tech-badge:hover) {
+    border-color: var(--ink);
+    background: transparent;
+  }
+
+  :global(.stack-wrap[data-stack-variant='v2'] .group) {
+    border: 0;
+    padding: 0;
+    background: transparent;
+  }
+
+  :global(.stack-wrap[data-stack-variant='v2'] .group-title) {
+    margin-bottom: 0.3rem;
+    color: color-mix(in srgb, var(--ink) 55%, var(--ink-soft));
+  }
+
+  /* v6: Balanced (between clean and color lanes) */
+  :global(.stack-wrap[data-stack-variant='v6'] .rows),
+  :global(.stack-wrap[data-stack-variant='v6'] .history-list) {
+    gap: 0.45rem;
+  }
+
+  :global(.stack-wrap[data-stack-variant='v6'] .row-wrap) {
+    padding-left: 0;
+  }
+
+  :global(.stack-wrap[data-stack-variant='v6'] .row),
+  :global(.stack-wrap[data-stack-variant='v6'] .history) {
+    border-color: color-mix(in srgb, var(--stack-accent) 28%, var(--line));
+    box-shadow: none;
+    background: #ffffff;
+  }
+
+  :global(.stack-wrap[data-stack-variant='v6'] .row-summary),
+  :global(.stack-wrap[data-stack-variant='v6'] .history-summary) {
+    background: #ffffff;
+  }
+
+  :global(
+    .stack-wrap[data-stack-variant='v6'] .row[data-open='true'] .row-summary
+  ),
+  :global(
+    .stack-wrap[data-stack-variant='v6'] details.history[open] .history-summary
+  ) {
+    border-bottom-color: color-mix(
+      in srgb,
+      var(--stack-accent) 30%,
+      var(--line)
+    );
+    background: #ffffff;
+  }
+
+  :global(.stack-wrap[data-stack-variant='v6'] .row-range),
+  :global(.stack-wrap[data-stack-variant='v6'] .history-id) {
+    color: color-mix(in srgb, var(--stack-accent) 62%, var(--ink-soft));
+  }
+
+  :global(.stack-wrap[data-stack-variant='v6'] .tech-badge) {
+    border-color: color-mix(in srgb, var(--stack-accent) 35%, var(--line));
+    background: transparent;
+  }
+
+  :global(.stack-wrap[data-stack-variant='v6'] .tech-badge:hover) {
+    border-color: color-mix(in srgb, var(--tag-accent) 62%, var(--line));
+    background: color-mix(in srgb, var(--tag-accent) 14%, var(--panel));
+  }
+
+  :global(.stack-wrap[data-stack-variant='v6'] .group) {
+    border-color: color-mix(in srgb, var(--stack-accent) 24%, var(--line));
+    background: color-mix(in srgb, var(--stack-accent) 5%, var(--panel));
+  }
+
+  /* v3: Color Lanes (each stack has its own accent + dashboard layout) */
+  /* Keep a single vertical column; "lanes" already provide separation. */
+
+  :global(.stack-wrap[data-stack-variant='v3'] .row-wrap) {
+    --lane: color-mix(in srgb, var(--stack-accent) 16%, transparent);
+    --lane-line: color-mix(in srgb, var(--stack-accent) 55%, var(--line));
+  }
+
+  :global(.stack-wrap[data-stack-variant='v3'] .row),
+  :global(.stack-wrap[data-stack-variant='v3'] .history) {
+    border-color: var(--lane-line);
+    box-shadow: 0 10px 26px rgba(16, 24, 40, 0.1);
+    position: relative;
+    background: var(--panel);
+  }
+
+  :global(.stack-wrap[data-stack-variant='v3'] .row::before),
+  :global(.stack-wrap[data-stack-variant='v3'] .history::before) {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 10px;
+    background: var(--stack-accent);
+  }
+
+  :global(.stack-wrap[data-stack-variant='v3'] .row-summary),
+  :global(.stack-wrap[data-stack-variant='v3'] .history-summary) {
+    padding-left: calc(0.8rem + 8px);
+  }
+
+  :global(
+    .stack-wrap[data-stack-variant='v3'] .row[data-open='true'] .row-summary
+  ),
+  :global(
+    .stack-wrap[data-stack-variant='v3'] details.history[open] .history-summary
+  ) {
+    background: var(--lane);
+    border-bottom-color: var(--lane-line);
+  }
+
+  :global(.stack-wrap[data-stack-variant='v3'] .row-meta .row-id),
+  :global(.stack-wrap[data-stack-variant='v3'] .history-id) {
+    color: var(--stack-accent);
+  }
+
+  :global(.stack-wrap[data-stack-variant='v3'] .tech-badge) {
+    border-color: color-mix(in srgb, var(--stack-accent) 40%, var(--line));
+    background: color-mix(in srgb, var(--stack-accent) 10%, var(--panel));
+  }
+
+  :global(.stack-wrap[data-stack-variant='v3'] .tech-badge:hover) {
+    border-color: var(--stack-accent);
+    background: color-mix(in srgb, var(--stack-accent) 16%, var(--panel));
+  }
+
+  :global(.stack-wrap[data-stack-variant='v3'] .group) {
+    border-color: color-mix(in srgb, var(--stack-accent) 28%, var(--line));
+    background: color-mix(in srgb, var(--stack-accent) 6%, var(--panel));
   }
 </style>

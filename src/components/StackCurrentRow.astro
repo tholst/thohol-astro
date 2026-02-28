@@ -15,7 +15,6 @@ type Tech = { key: string; label: string; href?: string; tags: Category[] };
 interface Props {
   contextId: string;
   title: string;
-  preview: string;
   rangeLabel: string;
   summary?: string;
   tech: Tech[];
@@ -27,37 +26,67 @@ interface Props {
   }>;
 }
 
-const { contextId, title, preview, rangeLabel, summary, tech, events } =
-  Astro.props;
+const { contextId, title, rangeLabel, summary, tech, events } = Astro.props;
+
+const panelId = `stack-row-panel-${contextId.replace(/[^a-zA-Z0-9_-]/g, '-')}`;
 ---
 
-<details class="row" aria-label={`${title} current stack`}>
-  <summary class="row-summary">
-    <span class="row-left">
-      <span class="row-title">{title}</span>
-    </span>
-    <span class="row-right" aria-label="Stack preview">
-      {preview}
-    </span>
-  </summary>
+<section
+  class="row"
+  data-stack-row
+  data-open="false"
+  aria-label={`${title} current stack`}
+>
+  <header class="row-summary">
+    <div class="row-top">
+      <span class="row-left">
+        <span class="row-title">{title}</span>
+        <span class="row-range">{rangeLabel}</span>
+      </span>
 
-  <div class="row-body">
-    <p class="row-meta">
-      <span class="row-id">{contextId}</span>
-      <span aria-hidden="true">•</span>
-      <span>{rangeLabel}</span>
-    </p>
+      <button
+        type="button"
+        class="row-toggle"
+        data-row-toggle
+        aria-expanded="false"
+        aria-controls={panelId}
+        aria-label={`Toggle ${title} details`}
+      >
+        <span class="row-chev" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
+            <path
+              d="M6 9l6 6 6-6"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"></path>
+          </svg>
+        </span>
+      </button>
+    </div>
 
-    {summary && <p class="row-desc">{summary}</p>}
+    <div class="row-peek" aria-label="Stack summary">
+      {summary && <p class="row-desc">{summary}</p>}
+      <div class="row-inline-tech">
+        <StackTechFold tech={tech} showToggle={false} />
+      </div>
+    </div>
+  </header>
 
-    <StackTechFold tech={tech} />
-
+  <div
+    class="row-body"
+    id={panelId}
+    data-row-panel
+    hidden
+    aria-hidden="true"
+    style="display:none;"
+  >
     {
       events.length > 0 && (
-        <div class="row-events" aria-label="Recent events">
+        <div class="row-events" aria-label="Events">
           <h4>Events</h4>
           <ul>
-            {events.slice(0, 3).map((e) => (
+            {events.map((e) => (
               <li>
                 <time datetime={e.dateIso}>{e.dateLabel}</time>
                 <span>{e.title}</span>
@@ -68,10 +97,50 @@ const { contextId, title, preview, rangeLabel, summary, tech, events } =
       )
     }
   </div>
-</details>
+
+  <script is:inline>
+    function initStackRows() {
+      const rows = Array.from(document.querySelectorAll('[data-stack-row]'));
+      for (const row of rows) {
+        if (row.dataset.bound === 'true') continue;
+        row.dataset.bound = 'true';
+
+        const btn = row.querySelector('[data-row-toggle]');
+        const panel = row.querySelector('[data-row-panel]');
+        const fold = row.querySelector('[data-tech-fold]');
+        if (!btn || !panel) continue;
+
+        const setOpen = (nextOpen, animate = true) => {
+          row.setAttribute('data-open', nextOpen ? 'true' : 'false');
+          btn.setAttribute('aria-expanded', nextOpen ? 'true' : 'false');
+          panel.hidden = !nextOpen;
+          panel.setAttribute('aria-hidden', nextOpen ? 'false' : 'true');
+          panel.style.display = nextOpen ? 'grid' : 'none';
+
+          // Drive the tech fold: compact when collapsed, grouped when expanded.
+          if (fold && typeof fold.__setOpen === 'function') {
+            fold.__setOpen(nextOpen, animate);
+          } else if (fold) {
+            fold.setAttribute('data-open', nextOpen ? 'true' : 'false');
+          }
+        };
+
+        btn.addEventListener('click', () => {
+          const isOpen = row.getAttribute('data-open') === 'true';
+          setOpen(!isOpen, true);
+        });
+
+        // Defensive initialization: force collapsed state on first paint.
+        setOpen(false, false);
+      }
+    }
+
+    initStackRows();
+  </script>
+</section>
 
 <style>
-  details.row {
+  .row {
     border: 1px solid var(--line);
     border-radius: 14px;
     background: var(--panel);
@@ -80,17 +149,16 @@ const { contextId, title, preview, rangeLabel, summary, tech, events } =
   }
 
   .row-summary {
-    cursor: pointer;
-    list-style: none;
+    padding: 0.7rem 0.8rem 0.85rem;
+    display: grid;
+    gap: 0.6rem;
+  }
+
+  .row-top {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 0.75rem;
-    align-items: baseline;
-    padding: 0.7rem 0.8rem;
-  }
-
-  details.row > summary::-webkit-details-marker {
-    display: none;
+    align-items: center;
   }
 
   .row-left {
@@ -111,16 +179,59 @@ const { contextId, title, preview, rangeLabel, summary, tech, events } =
     white-space: nowrap;
   }
 
-  .row-right {
+  .row-range {
     font-family: var(--font-mono);
-    font-size: 0.86rem;
+    font-size: 0.82rem;
+    line-height: 1.25;
     color: var(--ink-soft);
-    white-space: nowrap;
+    font-weight: 400;
   }
 
-  details.row[open] .row-summary {
+  .row-toggle {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: inherit;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+  }
+
+  .row-chev {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink-soft);
+    transition: transform 160ms ease;
+  }
+
+  .row[data-open='true'] .row-summary {
     border-bottom: 1px solid var(--line);
     background: color-mix(in srgb, var(--panel) 70%, #f4f7fc);
+  }
+
+  .row[data-open='true'] .row-chev {
+    transform: rotate(180deg);
+  }
+
+  .row-peek {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.55rem;
+  }
+
+  .row-inline-tech {
+    min-width: 0;
+  }
+
+  .row-toggle:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
+    outline-offset: 3px;
+    border-radius: 10px;
   }
 
   .row-body {
@@ -129,19 +240,10 @@ const { contextId, title, preview, rangeLabel, summary, tech, events } =
     gap: 0.7rem;
   }
 
-  .row-meta {
-    margin: 0;
-    font-family: var(--font-mono);
-    font-size: 0.78rem;
-    color: var(--ink-soft);
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-
-  .row-id {
-    color: var(--ink);
+  /* Defensive: never show events/details while collapsed. */
+  .row[data-open='false'] .row-body,
+  .row-body[hidden] {
+    display: none !important;
   }
 
   .row-desc {
@@ -183,16 +285,6 @@ const { contextId, title, preview, rangeLabel, summary, tech, events } =
   }
 
   @media (max-width: 720px) {
-    .row-summary {
-      grid-template-columns: 1fr;
-    }
-
-    .row-right {
-      white-space: normal;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
     .row-title {
       white-space: normal;
     }

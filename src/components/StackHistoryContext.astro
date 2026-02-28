@@ -186,6 +186,11 @@ const { contextId, title, periods } = Astro.props;
     padding: 0.75rem 0.8rem 0.9rem;
   }
 
+  /* Defensive: collapsed history never shows events/period content. */
+  details.history:not([open]) .history-body {
+    display: none;
+  }
+
   .periods {
     margin: 0;
     padding-left: 1.15rem;

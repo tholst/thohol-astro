@@ -67,7 +67,12 @@ const ungrouped = tech.filter((t) => !primaryGroupFor(t));
           <h4 class="group-title">{GROUP_LABEL[g]}</h4>
           <div class="group-items">
             {(grouped.get(g) ?? []).map((t) => (
-              <TechBadge label={t.label} href={t.href} techKey={t.key} />
+              <TechBadge
+                label={t.label}
+                href={t.href}
+                techKey={t.key}
+                primaryTag={primaryGroupFor(t)}
+              />
             ))}
           </div>
         </section>
@@ -80,7 +85,12 @@ const ungrouped = tech.filter((t) => !primaryGroupFor(t));
           <h4 class="group-title">Other</h4>
           <div class="group-items">
             {ungrouped.map((t) => (
-              <TechBadge label={t.label} href={t.href} techKey={t.key} />
+              <TechBadge
+                label={t.label}
+                href={t.href}
+                techKey={t.key}
+                primaryTag={primaryGroupFor(t)}
+              />
             ))}
           </div>
         </section>
