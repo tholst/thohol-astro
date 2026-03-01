@@ -2,6 +2,7 @@
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import { SITE_TITLE } from '../consts';
+import { FEATURES } from '../config/features';
 
 export interface Props {
   title: string;
@@ -12,9 +13,9 @@ const { title, description } = Astro.props;
 
 const navItems = [
   { href: '/', label: 'Posts' },
-  { href: '/tools/', label: 'Tools' },
-  { href: '/stack/', label: 'Stack' },
-  { href: '/about/', label: 'About' },
+  ...(FEATURES.tools ? [{ href: '/tools/', label: 'Tools' }] : []),
+  ...(FEATURES.stack ? [{ href: '/stack/', label: 'Stack' }] : []),
+  ...(FEATURES.about ? [{ href: '/about/', label: 'About' }] : []),
 ];
 
 const pathname = Astro.url.pathname;

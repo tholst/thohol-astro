@@ -3,6 +3,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import FormattedDate from '../../components/FormattedDate.astro';
 import { SITE_TITLE } from '../../consts';
 import { getCollection } from 'astro:content';
+import { FEATURES } from '../../config/features';
+
+if (!FEATURES.tools) {
+  return Astro.redirect('/');
+}
 
 const allTools = await getCollection('tools');
 const tools = allTools

@@ -4,6 +4,11 @@ import StackCurrentRow from '../../components/StackCurrentRow.astro';
 import StackHistoryContext from '../../components/StackHistoryContext.astro';
 import { getCollection } from 'astro:content';
 import { SITE_TITLE } from '../../consts';
+import { FEATURES } from '../../config/features';
+
+if (!FEATURES.stack) {
+  return Astro.redirect('/');
+}
 
 type Category =
   | 'Languages'

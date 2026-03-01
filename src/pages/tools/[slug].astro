@@ -1,8 +1,13 @@
 ---
 import ToolPage from '../../layouts/ToolPage.astro';
 import { getCollection, render } from 'astro:content';
+import { FEATURES } from '../../config/features';
 
 export async function getStaticPaths() {
+  if (!FEATURES.tools) {
+    return [];
+  }
+
   const tools = await getCollection('tools');
   const filteredTools = import.meta.env.PROD
     ? tools.filter((tool) => tool.data.published !== false)

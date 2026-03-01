@@ -1,5 +1,10 @@
 ---
 import Layout from '../layouts/Page.astro';
+import { FEATURES } from '../config/features';
+
+if (!FEATURES.about) {
+  return Astro.redirect('/');
+}
 ---
 
 <Layout title="About" description="About Thomas Holst and this blog.">
