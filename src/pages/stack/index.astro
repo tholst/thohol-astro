@@ -244,28 +244,48 @@ function accentFor(id: string) {
           class="stack-wrap"
           data-stack-variant="v2"
           data-tag-shape="ultra"
-          data-tag-style="tinted"
           data-rail-width="thin"
           data-rail-color="context"
           data-tech-preview="wrap"
+          data-layout="type"
+          data-tech-placement="side"
         >
           <section class="variant" aria-label="Tag controls">
             <div class="variant-control">
-              <p class="variant-label">Tech Preview</p>
+              <p class="variant-label">Layout</p>
               <div
                 class="variant-buttons"
                 role="group"
-                aria-label="Choose folded tech preview"
+                aria-label="Choose stack layout style"
+              >
+                <button type="button" data-layout-btn="type" data-active="true">
+                  Typography
+                </button>
+                <button type="button" data-layout-btn="sectioned">
+                  Sectioned
+                </button>
+                <button type="button" data-layout-btn="tone">
+                  Tone Split
+                </button>
+              </div>
+            </div>
+
+            <div class="variant-control">
+              <p class="variant-label">Tech Placement</p>
+              <div
+                class="variant-buttons"
+                role="group"
+                aria-label="Choose folded tech placement"
               >
                 <button
                   type="button"
-                  data-tech-preview-btn="wrap"
+                  data-tech-placement-btn="side"
                   data-active="true"
                 >
-                  Wrap
+                  Beside Title
                 </button>
-                <button type="button" data-tech-preview-btn="truncate">
-                  Fade + Count
+                <button type="button" data-tech-placement-btn="below">
+                  Below Description
                 </button>
               </div>
             </div>
@@ -308,55 +328,6 @@ function accentFor(id: string) {
                 </button>
                 <button type="button" data-rail-color-btn="blue">
                   Blue
-                </button>
-              </div>
-            </div>
-
-            <div class="variant-control">
-              <p class="variant-label">Tag Shape</p>
-              <div
-                class="variant-buttons tag-shape-buttons"
-                role="group"
-                aria-label="Choose tag shape"
-              >
-                <button
-                  type="button"
-                  data-tag-shape-btn="ultra"
-                  data-active="true"
-                >
-                  Ultra
-                </button>
-                <button type="button" data-tag-shape-btn="ultra-rounded">
-                  Rounded
-                </button>
-                <button type="button" data-tag-shape-btn="ultra-soft">
-                  Soft
-                </button>
-                <button type="button" data-tag-shape-btn="ultra-slab">
-                  Ultra Slab
-                </button>
-              </div>
-            </div>
-
-            <div class="variant-control">
-              <p class="variant-label">Tag Style</p>
-              <div
-                class="variant-buttons"
-                role="group"
-                aria-label="Choose tag style"
-              >
-                <button
-                  type="button"
-                  data-tag-style-btn="tinted"
-                  data-active="true"
-                >
-                  Tinted
-                </button>
-                <button type="button" data-tag-style-btn="clean">
-                  Clean
-                </button>
-                <button type="button" data-tag-style-btn="clean-tinted-hover">
-                  Clean + Tint Hover
                 </button>
               </div>
             </div>
@@ -435,11 +406,8 @@ function accentFor(id: string) {
         if (root.dataset.controlsBound === 'true') return;
         root.dataset.controlsBound = 'true';
 
-        const tagShapeButtons = Array.from(
-          root.querySelectorAll('[data-tag-shape-btn]')
-        );
-        const tagStyleButtons = Array.from(
-          root.querySelectorAll('[data-tag-style-btn]')
+        const layoutButtons = Array.from(
+          root.querySelectorAll('[data-layout-btn]')
         );
         const railWidthButtons = Array.from(
           root.querySelectorAll('[data-rail-width-btn]')
@@ -447,52 +415,33 @@ function accentFor(id: string) {
         const railColorButtons = Array.from(
           root.querySelectorAll('[data-rail-color-btn]')
         );
-        const techPreviewButtons = Array.from(
-          root.querySelectorAll('[data-tech-preview-btn]')
+        const techPlacementButtons = Array.from(
+          root.querySelectorAll('[data-tech-placement-btn]')
         );
         if (
-          tagShapeButtons.length === 0 &&
-          tagStyleButtons.length === 0 &&
+          layoutButtons.length === 0 &&
           railWidthButtons.length === 0 &&
           railColorButtons.length === 0 &&
-          techPreviewButtons.length === 0
+          techPlacementButtons.length === 0
         ) {
           return;
         }
-        const shapeKey = 'thohol.stackTagShape';
-        const shapeAllowed = new Set([
-          'ultra',
-          'ultra-rounded',
-          'ultra-soft',
-          'ultra-slab',
-        ]);
-        const styleKey = 'thohol.stackTagStyle';
-        const styleAllowed = new Set(['tinted', 'clean', 'clean-tinted-hover']);
+        const layoutKey = 'thohol.stackLayout';
+        const layoutAllowed = new Set(['type', 'sectioned', 'tone']);
         const railWidthKey = 'thohol.stackRailWidth';
         const railWidthAllowed = new Set(['thin', 'thick', 'none']);
         const railColorKey = 'thohol.stackRailColor';
         const railColorAllowed = new Set(['context', 'black', 'blue']);
-        const techPreviewKey = 'thohol.stackTechPreview';
-        const techPreviewAllowed = new Set(['wrap', 'truncate']);
+        const techPlacementKey = 'thohol.stackTechPlacement';
+        const techPlacementAllowed = new Set(['side', 'below']);
 
-        const applyTagShape = (shape) => {
-          if (!shapeAllowed.has(shape)) shape = 'ultra';
-          root.setAttribute('data-tag-shape', shape);
-          for (const b of tagShapeButtons) {
+        const applyLayout = (layout) => {
+          if (!layoutAllowed.has(layout)) layout = 'type';
+          root.setAttribute('data-layout', layout);
+          for (const b of layoutButtons) {
             b.setAttribute(
               'data-active',
-              b.dataset.tagShapeBtn === shape ? 'true' : 'false'
-            );
-          }
-        };
-
-        const applyTagStyle = (style) => {
-          if (!styleAllowed.has(style)) style = 'tinted';
-          root.setAttribute('data-tag-style', style);
-          for (const b of tagStyleButtons) {
-            b.setAttribute(
-              'data-active',
-              b.dataset.tagStyleBtn === style ? 'true' : 'false'
+              b.dataset.layoutBtn === layout ? 'true' : 'false'
             );
           }
         };
@@ -519,39 +468,26 @@ function accentFor(id: string) {
           }
         };
 
-        const applyTechPreview = (mode) => {
-          if (!techPreviewAllowed.has(mode)) mode = 'wrap';
-          root.setAttribute('data-tech-preview', mode);
-          for (const b of techPreviewButtons) {
+        const applyTechPlacement = (placement) => {
+          if (!techPlacementAllowed.has(placement)) placement = 'side';
+          root.setAttribute('data-tech-placement', placement);
+          for (const b of techPlacementButtons) {
             b.setAttribute(
               'data-active',
-              b.dataset.techPreviewBtn === mode ? 'true' : 'false'
+              b.dataset.techPlacementBtn === placement ? 'true' : 'false'
             );
           }
-          window.dispatchEvent(new CustomEvent('stack:tech-preview-changed'));
         };
 
-        for (const b of tagShapeButtons) {
+        for (const b of layoutButtons) {
           b.addEventListener('click', () => {
-            const shape = b.getAttribute('data-tag-shape-btn') || 'ultra';
+            const layout = b.getAttribute('data-layout-btn') || 'type';
             try {
-              localStorage.setItem(shapeKey, shape);
+              localStorage.setItem(layoutKey, layout);
             } catch (e) {
               void e;
             }
-            applyTagShape(shape);
-          });
-        }
-
-        for (const b of tagStyleButtons) {
-          b.addEventListener('click', () => {
-            const style = b.getAttribute('data-tag-style-btn') || 'tinted';
-            try {
-              localStorage.setItem(styleKey, style);
-            } catch (e) {
-              void e;
-            }
-            applyTagStyle(style);
+            applyLayout(layout);
           });
         }
 
@@ -579,30 +515,23 @@ function accentFor(id: string) {
           });
         }
 
-        for (const b of techPreviewButtons) {
+        for (const b of techPlacementButtons) {
           b.addEventListener('click', () => {
-            const mode = b.getAttribute('data-tech-preview-btn') || 'wrap';
+            const placement =
+              b.getAttribute('data-tech-placement-btn') || 'side';
             try {
-              localStorage.setItem(techPreviewKey, mode);
+              localStorage.setItem(techPlacementKey, placement);
             } catch (e) {
               void e;
             }
-            applyTechPreview(mode);
+            applyTechPlacement(placement);
           });
         }
 
-        let initialShape = 'ultra';
+        let initialLayout = 'type';
         try {
-          const storedShape = localStorage.getItem(shapeKey);
-          if (storedShape) initialShape = storedShape;
-        } catch (e) {
-          void e;
-        }
-
-        let initialStyle = 'tinted';
-        try {
-          const storedStyle = localStorage.getItem(styleKey);
-          if (storedStyle) initialStyle = storedStyle;
+          const storedLayout = localStorage.getItem(layoutKey);
+          if (storedLayout) initialLayout = storedLayout;
         } catch (e) {
           void e;
         }
@@ -622,19 +551,17 @@ function accentFor(id: string) {
         } catch (e) {
           void e;
         }
-        let initialTechPreview = 'wrap';
+        let initialTechPlacement = 'side';
         try {
-          const storedTechPreview = localStorage.getItem(techPreviewKey);
-          if (storedTechPreview) initialTechPreview = storedTechPreview;
+          const storedTechPlacement = localStorage.getItem(techPlacementKey);
+          if (storedTechPlacement) initialTechPlacement = storedTechPlacement;
         } catch (e) {
           void e;
         }
-
-        applyTagShape(initialShape);
-        applyTagStyle(initialStyle);
+        applyLayout(initialLayout);
         applyRailWidth(initialRailWidth);
         applyRailColor(initialRailColor);
-        applyTechPreview(initialTechPreview);
+        applyTechPlacement(initialTechPlacement);
       }
 
       initStackControls();
@@ -708,45 +635,13 @@ function accentFor(id: string) {
     background: color-mix(in srgb, var(--accent) 12%, var(--panel));
   }
 
-  .tag-shape-buttons {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
-    width: min(560px, 100%);
-    gap: 0.35rem;
-  }
-
-  .tag-shape-buttons button {
-    justify-content: center;
-  }
-
-  :global(.stack-wrap[data-tag-style='tinted'] .tech-badge) {
-    border-color: color-mix(in srgb, var(--tag-accent) 32%, var(--line));
-    background: color-mix(in srgb, var(--tag-accent) 8%, var(--panel));
-  }
-
-  :global(.stack-wrap[data-tag-style='tinted'] .tech-badge:hover) {
-    border-color: color-mix(in srgb, var(--tag-accent) 62%, var(--line));
-    background: color-mix(in srgb, var(--tag-accent) 14%, var(--panel));
-  }
-
-  :global(.stack-wrap[data-tag-style='clean'] .tech-badge) {
+  :global(.stack-wrap .tech-badge) {
     background: transparent;
     border-color: color-mix(in srgb, var(--ink) 18%, var(--line));
     font-family: var(--font-mono);
   }
 
-  :global(.stack-wrap[data-tag-style='clean'] .tech-badge:hover) {
-    border-color: var(--ink);
-    background: transparent;
-  }
-
-  :global(.stack-wrap[data-tag-style='clean-tinted-hover'] .tech-badge) {
-    background: transparent;
-    border-color: color-mix(in srgb, var(--ink) 18%, var(--line));
-    font-family: var(--font-mono);
-  }
-
-  :global(.stack-wrap[data-tag-style='clean-tinted-hover'] .tech-badge:hover) {
+  :global(.stack-wrap .tech-badge:hover) {
     border-color: color-mix(in srgb, var(--tag-accent) 62%, var(--line));
     background: color-mix(in srgb, var(--tag-accent) 14%, var(--panel));
   }
@@ -754,45 +649,6 @@ function accentFor(id: string) {
   :global(.stack-wrap[data-tag-shape='ultra'] .tech-badge) {
     --tag-height: 21px;
     --tag-radius: 999px;
-    --tag-pad-y: 1px;
-    --tag-pad-right: 7px;
-    --tag-pad-left: 12px;
-    --dot-size: 3px;
-    --dot-left: 5px;
-    --dot-ring: 1px;
-    --icon-size: 10px;
-    font-size: 0.66rem;
-  }
-
-  :global(.stack-wrap[data-tag-shape='ultra-rounded'] .tech-badge) {
-    --tag-height: 21px;
-    --tag-radius: 7px;
-    --tag-pad-y: 1px;
-    --tag-pad-right: 7px;
-    --tag-pad-left: 12px;
-    --dot-size: 3px;
-    --dot-left: 5px;
-    --dot-ring: 1px;
-    --icon-size: 10px;
-    font-size: 0.66rem;
-  }
-
-  :global(.stack-wrap[data-tag-shape='ultra-soft'] .tech-badge) {
-    --tag-height: 21px;
-    --tag-radius: 5px;
-    --tag-pad-y: 1px;
-    --tag-pad-right: 7px;
-    --tag-pad-left: 12px;
-    --dot-size: 3px;
-    --dot-left: 5px;
-    --dot-ring: 1px;
-    --icon-size: 10px;
-    font-size: 0.66rem;
-  }
-
-  :global(.stack-wrap[data-tag-shape='ultra-slab'] .tech-badge) {
-    --tag-height: 21px;
-    --tag-radius: 2px;
     --tag-pad-y: 1px;
     --tag-pad-right: 7px;
     --tag-pad-left: 12px;
@@ -840,6 +696,104 @@ function accentFor(id: string) {
   :global(.stack-wrap[data-stack-variant='v2'] .row-wrap) {
     position: relative;
     padding-left: 0.85rem;
+  }
+
+  /* Layout Variants */
+  :global(
+    .stack-wrap[data-layout='sectioned'] .row[data-open='true'] .row-peek
+  ),
+  :global(
+    .stack-wrap[data-layout='sectioned'] .row[data-open='true'] .row-inline-tech
+  ),
+  :global(.stack-wrap[data-layout='sectioned'] .row-body),
+  :global(.stack-wrap[data-layout='sectioned'] .history-body) {
+    background: color-mix(in srgb, var(--panel) 82%, #f4f7fc);
+    border: 1px solid color-mix(in srgb, var(--line) 88%, transparent);
+    border-radius: 10px;
+    padding: 0.55rem 0.65rem;
+  }
+
+  :global(
+    .stack-wrap[data-layout='sectioned']
+      .row[data-open='true']
+      .row-peek::before
+  ),
+  :global(
+    .stack-wrap[data-layout='sectioned']
+      .row[data-open='true']
+      .row-inline-tech::before
+  ) {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  :global(
+    .stack-wrap[data-layout='sectioned']
+      .row[data-open='true']
+      .row-peek::before
+  ) {
+    content: 'Summary';
+  }
+
+  :global(
+    .stack-wrap[data-layout='sectioned']
+      .row[data-open='true']
+      .row-inline-tech::before
+  ) {
+    content: 'Stack';
+  }
+
+  :global(.stack-wrap[data-layout='type'] .row-title),
+  :global(.stack-wrap[data-layout='sectioned'] .row-title),
+  :global(.stack-wrap[data-layout='tone'] .row-title),
+  :global(.stack-wrap[data-layout='type'] .history-title),
+  :global(.stack-wrap[data-layout='sectioned'] .history-title),
+  :global(.stack-wrap[data-layout='tone'] .history-title) {
+    color: var(--accent);
+    letter-spacing: -0.01em;
+  }
+
+  :global(.stack-wrap[data-layout='type'] .row-range),
+  :global(.stack-wrap[data-layout='sectioned'] .row-range),
+  :global(.stack-wrap[data-layout='tone'] .row-range),
+  :global(.stack-wrap[data-layout='type'] .history-id),
+  :global(.stack-wrap[data-layout='sectioned'] .history-id),
+  :global(.stack-wrap[data-layout='tone'] .history-id),
+  :global(.stack-wrap[data-layout='type'] .history-right),
+  :global(.stack-wrap[data-layout='sectioned'] .history-right),
+  :global(.stack-wrap[data-layout='tone'] .history-right) {
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  :global(.stack-wrap[data-layout='type'] .row-summary),
+  :global(.stack-wrap[data-layout='sectioned'] .row-summary),
+  :global(.stack-wrap[data-layout='tone'] .row-summary),
+  :global(.stack-wrap[data-layout='type'] .history-summary),
+  :global(.stack-wrap[data-layout='sectioned'] .history-summary),
+  :global(.stack-wrap[data-layout='tone'] .history-summary) {
+    gap: 0.75rem;
+  }
+
+  :global(
+    .stack-wrap[data-layout='type'] .row[data-open='true'] .row-summary::after
+  ),
+  :global(
+    .stack-wrap[data-layout='sectioned']
+      .row[data-open='true']
+      .row-summary::after
+  ),
+  :global(
+    .stack-wrap[data-layout='tone'] .row[data-open='true'] .row-summary::after
+  ) {
+    background: color-mix(in srgb, var(--accent) 36%, var(--line));
   }
 
   :global(.stack-wrap[data-rail-width='none'] .row-wrap) {
@@ -954,5 +908,52 @@ function accentFor(id: string) {
   :global(.stack-wrap[data-stack-variant='v2'] .group-title) {
     margin-bottom: 0.3rem;
     color: color-mix(in srgb, var(--ink) 55%, var(--ink-soft));
+  }
+
+  /* Ensure experimental layout variants override clean baseline rules. */
+  :global(.stack-wrap[data-layout='tone'] .row),
+  :global(.stack-wrap[data-layout='tone'] .history) {
+    background: #ffffff;
+  }
+
+  :global(.stack-wrap[data-layout='tone'] .row-summary),
+  :global(.stack-wrap[data-layout='tone'] .history-summary) {
+    background: #ffffff;
+    border-bottom-color: color-mix(in srgb, var(--line) 70%, transparent);
+  }
+
+  :global(.stack-wrap[data-layout='tone'] .row[data-open='true'] .row-summary),
+  :global(
+    .stack-wrap[data-layout='tone'] details.history[open] .history-summary
+  ) {
+    background: color-mix(in srgb, var(--panel) 72%, #eef1f6);
+    border-bottom-color: color-mix(in srgb, var(--line) 78%, #cfd5df);
+  }
+
+  :global(.stack-wrap[data-layout='tone'] .row-body),
+  :global(.stack-wrap[data-layout='tone'] .history-body) {
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+  }
+
+  :global(
+    .stack-wrap[data-layout='tone'] .row[data-open='true'] .row-summary::after
+  ) {
+    display: none;
+  }
+
+  :global(.stack-wrap[data-layout='tone'] .row-events),
+  :global(.stack-wrap[data-layout='tone'] .events) {
+    background: color-mix(in srgb, var(--panel) 62%, #e4e9f0);
+    border: 0;
+    border-radius: 8px;
+    padding: 0.5rem 0.6rem;
+  }
+
+  :global(.stack-wrap[data-layout='tone'] .row-events time),
+  :global(.stack-wrap[data-layout='tone'] .events time) {
+    border: 1px solid var(--line);
+    background: color-mix(in srgb, var(--panel) 80%, #eef1f6);
   }
 </style>

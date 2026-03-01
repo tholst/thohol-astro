@@ -178,6 +178,19 @@ const panelId = `stack-row-panel-${contextId.replace(/[^a-zA-Z0-9_-]/g, '-')}`;
           setOpen(!isOpen, true);
         });
 
+        if (summary) {
+          summary.addEventListener('click', (e) => {
+            const target = e.target;
+            if (!target || typeof target.closest !== 'function') return;
+            if (target.closest('button')) return;
+            if (target.closest('a')) return;
+            if (target.closest('[data-tech-fold]')) return;
+            if (!target.closest('.row-left')) return;
+            const isOpen = row.getAttribute('data-open') === 'true';
+            setOpen(!isOpen, true);
+          });
+        }
+
         // Defensive initialization: force collapsed state on first paint.
         setOpen(false, false);
       }
@@ -203,6 +216,10 @@ const panelId = `stack-row-panel-${contextId.replace(/[^a-zA-Z0-9_-]/g, '-')}`;
     grid-template-columns: minmax(180px, auto) minmax(0, 1fr) auto;
     align-items: start;
     position: relative;
+  }
+
+  .row-left {
+    cursor: pointer;
   }
 
   .row-summary::after {
@@ -305,6 +322,44 @@ const panelId = `stack-row-panel-${contextId.replace(/[^a-zA-Z0-9_-]/g, '-')}`;
   }
 
   .row[data-open='true'] .row-inline-tech {
+    grid-column: 1 / -1;
+    grid-row: 3;
+  }
+
+  :global(
+    .stack-wrap[data-tech-placement='below']
+      .row[data-open='false']
+      .row-summary
+  ) {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  :global(
+    .stack-wrap[data-tech-placement='below'] .row[data-open='false'] .row-left
+  ) {
+    grid-column: 1 / 2;
+    grid-row: 1;
+  }
+
+  :global(
+    .stack-wrap[data-tech-placement='below'] .row[data-open='false'] .row-toggle
+  ) {
+    grid-column: 2 / 3;
+    grid-row: 1;
+  }
+
+  :global(
+    .stack-wrap[data-tech-placement='below'] .row[data-open='false'] .row-peek
+  ) {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  :global(
+    .stack-wrap[data-tech-placement='below']
+      .row[data-open='false']
+      .row-inline-tech
+  ) {
     grid-column: 1 / -1;
     grid-row: 3;
   }
