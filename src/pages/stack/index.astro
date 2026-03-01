@@ -236,6 +236,7 @@ function accentFor(id: string) {
           class="stack-wrap"
           data-stack-variant="v1"
           data-tag-shape="compact"
+          data-tag-style="tinted"
         >
           <section class="variant" aria-label="Stack display variant">
             <div class="variant-control">
@@ -282,6 +283,29 @@ function accentFor(id: string) {
                 </button>
                 <button type="button" data-tag-shape-btn="ultra-slab">
                   Ultra Slab
+                </button>
+              </div>
+            </div>
+
+            <div class="variant-control">
+              <p class="variant-label">Tag Style</p>
+              <div
+                class="variant-buttons"
+                role="group"
+                aria-label="Choose tag style"
+              >
+                <button
+                  type="button"
+                  data-tag-style-btn="tinted"
+                  data-active="true"
+                >
+                  Tinted
+                </button>
+                <button type="button" data-tag-style-btn="clean">
+                  Clean
+                </button>
+                <button type="button" data-tag-style-btn="clean-tinted-hover">
+                  Clean + Tint Hover
                 </button>
               </div>
             </div>
@@ -366,7 +390,15 @@ function accentFor(id: string) {
         const tagShapeButtons = Array.from(
           root.querySelectorAll('[data-tag-shape-btn]')
         );
-        if (variantButtons.length === 0 && tagShapeButtons.length === 0) return;
+        const tagStyleButtons = Array.from(
+          root.querySelectorAll('[data-tag-style-btn]')
+        );
+        if (
+          variantButtons.length === 0 &&
+          tagShapeButtons.length === 0 &&
+          tagStyleButtons.length === 0
+        )
+          return;
 
         const variantKey = 'thohol.stackVariant';
         const variantAllowed = new Set(['v1', 'v2', 'v3', 'v6']);
@@ -377,6 +409,8 @@ function accentFor(id: string) {
           'ultra-soft',
           'ultra-slab',
         ]);
+        const styleKey = 'thohol.stackTagStyle';
+        const styleAllowed = new Set(['tinted', 'clean', 'clean-tinted-hover']);
 
         const applyVariant = (v) => {
           if (!variantAllowed.has(v)) v = 'v1';
@@ -396,6 +430,17 @@ function accentFor(id: string) {
             b.setAttribute(
               'data-active',
               b.dataset.tagShapeBtn === shape ? 'true' : 'false'
+            );
+          }
+        };
+
+        const applyTagStyle = (style) => {
+          if (!styleAllowed.has(style)) style = 'tinted';
+          root.setAttribute('data-tag-style', style);
+          for (const b of tagStyleButtons) {
+            b.setAttribute(
+              'data-active',
+              b.dataset.tagStyleBtn === style ? 'true' : 'false'
             );
           }
         };
@@ -425,6 +470,18 @@ function accentFor(id: string) {
           });
         }
 
+        for (const b of tagStyleButtons) {
+          b.addEventListener('click', () => {
+            const style = b.getAttribute('data-tag-style-btn') || 'tinted';
+            try {
+              localStorage.setItem(styleKey, style);
+            } catch (e) {
+              void e;
+            }
+            applyTagStyle(style);
+          });
+        }
+
         let initialVariant = 'v1';
         try {
           const storedVariant = localStorage.getItem(variantKey);
@@ -441,8 +498,17 @@ function accentFor(id: string) {
           void e;
         }
 
+        let initialStyle = 'tinted';
+        try {
+          const storedStyle = localStorage.getItem(styleKey);
+          if (storedStyle) initialStyle = storedStyle;
+        } catch (e) {
+          void e;
+        }
+
         applyVariant(initialVariant);
         applyTagShape(initialShape);
+        applyTagStyle(initialStyle);
       }
 
       initStackControls();
@@ -525,6 +591,38 @@ function accentFor(id: string) {
 
   .tag-shape-buttons button {
     justify-content: center;
+  }
+
+  :global(.stack-wrap[data-tag-style='tinted'] .tech-badge) {
+    border-color: color-mix(in srgb, var(--tag-accent) 32%, var(--line));
+    background: color-mix(in srgb, var(--tag-accent) 8%, var(--panel));
+  }
+
+  :global(.stack-wrap[data-tag-style='tinted'] .tech-badge:hover) {
+    border-color: color-mix(in srgb, var(--tag-accent) 62%, var(--line));
+    background: color-mix(in srgb, var(--tag-accent) 14%, var(--panel));
+  }
+
+  :global(.stack-wrap[data-tag-style='clean'] .tech-badge) {
+    background: transparent;
+    border-color: color-mix(in srgb, var(--ink) 18%, var(--line));
+    font-family: var(--font-mono);
+  }
+
+  :global(.stack-wrap[data-tag-style='clean'] .tech-badge:hover) {
+    border-color: var(--ink);
+    background: transparent;
+  }
+
+  :global(.stack-wrap[data-tag-style='clean-tinted-hover'] .tech-badge) {
+    background: transparent;
+    border-color: color-mix(in srgb, var(--ink) 18%, var(--line));
+    font-family: var(--font-mono);
+  }
+
+  :global(.stack-wrap[data-tag-style='clean-tinted-hover'] .tech-badge:hover) {
+    border-color: color-mix(in srgb, var(--tag-accent) 62%, var(--line));
+    background: color-mix(in srgb, var(--tag-accent) 14%, var(--panel));
   }
 
   :global(.stack-wrap[data-tag-shape='ultra'] .tech-badge) {
@@ -681,18 +779,6 @@ function accentFor(id: string) {
     padding-bottom: 1rem;
   }
 
-  :global(.stack-wrap[data-stack-variant='v2'] .tech-badge) {
-    border-radius: 10px;
-    background: transparent;
-    border-color: color-mix(in srgb, var(--ink) 18%, var(--line));
-    font-family: var(--font-mono);
-  }
-
-  :global(.stack-wrap[data-stack-variant='v2'] .tech-badge:hover) {
-    border-color: var(--ink);
-    background: transparent;
-  }
-
   :global(.stack-wrap[data-stack-variant='v2'] .group) {
     border: 0;
     padding: 0;
@@ -743,28 +829,6 @@ function accentFor(id: string) {
   :global(.stack-wrap[data-stack-variant='v6'] .row-range),
   :global(.stack-wrap[data-stack-variant='v6'] .history-id) {
     color: color-mix(in srgb, var(--stack-accent) 62%, var(--ink-soft));
-  }
-
-  :global(.stack-wrap[data-stack-variant='v6'] .tech-badge) {
-    border-color: color-mix(in srgb, var(--tag-accent) 32%, var(--line));
-    background: color-mix(in srgb, var(--tag-accent) 8%, var(--panel));
-  }
-
-  :global(.stack-wrap[data-stack-variant='v6'] .tech-badge:hover) {
-    border-color: color-mix(in srgb, var(--tag-accent) 62%, var(--line));
-    background: color-mix(in srgb, var(--tag-accent) 14%, var(--panel));
-  }
-
-  :global(.stack-wrap[data-stack-variant='v1'] .tech-badge),
-  :global(.stack-wrap[data-stack-variant='v3'] .tech-badge) {
-    border-color: color-mix(in srgb, var(--tag-accent) 32%, var(--line));
-    background: color-mix(in srgb, var(--tag-accent) 8%, var(--panel));
-  }
-
-  :global(.stack-wrap[data-stack-variant='v1'] .tech-badge:hover),
-  :global(.stack-wrap[data-stack-variant='v3'] .tech-badge:hover) {
-    border-color: color-mix(in srgb, var(--tag-accent) 62%, var(--line));
-    background: color-mix(in srgb, var(--tag-accent) 14%, var(--panel));
   }
 
   :global(.stack-wrap[data-stack-variant='v6'] .group) {
