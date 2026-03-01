@@ -16,6 +16,7 @@ type Category =
   | 'AI Models/APIs';
 
 type Tech = { key: string; label: string; href?: string; tags: Category[] };
+type StackImage = { src: string; alt: string; caption?: string };
 
 interface Props {
   contextId: string;
@@ -23,6 +24,7 @@ interface Props {
   rangeLabel: string;
   summary?: string;
   tech: Tech[];
+  images?: StackImage[];
   events: Array<{
     dateIso: string;
     dateLabel: string;
@@ -32,7 +34,15 @@ interface Props {
   }>;
 }
 
-const { contextId, title, rangeLabel, summary, tech, events } = Astro.props;
+const {
+  contextId,
+  title,
+  rangeLabel,
+  summary,
+  tech,
+  images = [],
+  events,
+} = Astro.props;
 
 const panelId = `stack-row-panel-${contextId.replace(/[^a-zA-Z0-9_-]/g, '-')}`;
 
@@ -122,7 +132,7 @@ const preparedEvents = events.map((event) => {
   class="row"
   data-stack-row
   data-open="false"
-  data-has-events={events.length > 0 ? 'true' : 'false'}
+  data-has-details={events.length > 0 || images.length > 0 ? 'true' : 'false'}
   aria-label={`${title} stack`}
 >
   <header class="row-summary">
@@ -168,6 +178,59 @@ const preparedEvents = events.map((event) => {
     aria-hidden="true"
     style="display:none;"
   >
+    {
+      images.length > 0 && (
+        <div class="row-media" aria-label="Stack screenshots">
+          {images.map((image, index) => (
+            <figure class="row-media-item">
+              <button
+                type="button"
+                class="row-media-thumb"
+                data-media-open
+                data-media-src={image.src}
+                data-media-alt={image.alt}
+                data-media-caption={image.caption ?? ''}
+                aria-label={`Open screenshot ${index + 1} in large view`}
+              >
+                <img src={image.src} alt={image.alt} loading="lazy" />
+              </button>
+              {image.caption && <figcaption>{image.caption}</figcaption>}
+            </figure>
+          ))}
+        </div>
+      )
+    }
+
+    {
+      images.length > 0 && (
+        <dialog class="row-media-dialog" data-media-dialog>
+          <div class="row-media-dialog-inner">
+            <div class="row-media-dialog-head">
+              <p
+                class="row-media-dialog-caption"
+                data-media-dialog-caption
+                hidden
+              />
+              <button
+                type="button"
+                class="row-media-dialog-close"
+                data-media-close
+                aria-label="Close screenshot"
+              >
+                Close
+              </button>
+            </div>
+            <img
+              class="row-media-dialog-image"
+              data-media-dialog-image
+              src=""
+              alt=""
+            />
+          </div>
+        </dialog>
+      )
+    }
+
     {
       events.length > 0 && (
         <div class="row-events" aria-label="Changes">
@@ -240,7 +303,7 @@ const preparedEvents = events.map((event) => {
         const fold = row.querySelector('[data-tech-fold]');
         const summary = row.querySelector('.row-summary');
         if (!btn || !panel) continue;
-        const hasEvents = row.getAttribute('data-has-events') === 'true';
+        const hasDetails = row.getAttribute('data-has-details') === 'true';
         const prefersReduced = window.matchMedia?.(
           '(prefers-reduced-motion: reduce)'
         )?.matches;
@@ -294,7 +357,7 @@ const preparedEvents = events.map((event) => {
         };
 
         const animatePanel = (nextOpen, animate = true) => {
-          const showPanel = nextOpen && hasEvents;
+          const showPanel = nextOpen && hasDetails;
           cancelPanelAnimation();
 
           if (!showPanel) {
@@ -416,6 +479,64 @@ const preparedEvents = events.map((event) => {
           setOpen(!isOpen, true);
         });
 
+        const mediaDialog = row.querySelector('[data-media-dialog]');
+        const mediaImage = row.querySelector('[data-media-dialog-image]');
+        const mediaCaption = row.querySelector('[data-media-dialog-caption]');
+        const mediaClose = row.querySelector('[data-media-close]');
+        const mediaOpenButtons = Array.from(
+          row.querySelectorAll('[data-media-open]')
+        );
+
+        if (
+          mediaDialog &&
+          mediaImage &&
+          mediaCaption &&
+          mediaOpenButtons.length
+        ) {
+          const openMedia = (src, alt, caption = '') => {
+            mediaImage.setAttribute('src', src);
+            mediaImage.setAttribute('alt', alt);
+            if (caption) {
+              mediaCaption.textContent = caption;
+              mediaCaption.hidden = false;
+            } else {
+              mediaCaption.textContent = '';
+              mediaCaption.hidden = true;
+            }
+            if (typeof mediaDialog.showModal === 'function') {
+              mediaDialog.showModal();
+            } else {
+              mediaDialog.setAttribute('open', 'true');
+            }
+          };
+
+          const closeMedia = () => {
+            if (typeof mediaDialog.close === 'function') mediaDialog.close();
+            else mediaDialog.removeAttribute('open');
+          };
+
+          for (const button of mediaOpenButtons) {
+            button.addEventListener('click', () => {
+              const src = button.getAttribute('data-media-src') || '';
+              const alt = button.getAttribute('data-media-alt') || '';
+              const caption = button.getAttribute('data-media-caption') || '';
+              if (!src) return;
+              openMedia(src, alt, caption);
+            });
+          }
+
+          if (mediaClose) mediaClose.addEventListener('click', closeMedia);
+          mediaDialog.addEventListener('click', (e) => {
+            if (e.target === mediaDialog) closeMedia();
+          });
+          mediaDialog.addEventListener('cancel', () => {
+            mediaImage.setAttribute('src', '');
+          });
+          mediaDialog.addEventListener('close', () => {
+            mediaImage.setAttribute('src', '');
+          });
+        }
+
         if (summary) {
           summary.addEventListener('click', (e) => {
             const target = e.target;
@@ -423,6 +544,7 @@ const preparedEvents = events.map((event) => {
             if (target.closest('button')) return;
             if (target.closest('a')) return;
             if (target.closest('[data-tech-fold]')) return;
+            if (!target.closest('.row-left')) return;
             const isOpen = row.getAttribute('data-open') === 'true';
             setOpen(!isOpen, true);
           });
@@ -453,9 +575,6 @@ const preparedEvents = events.map((event) => {
     grid-template-columns: minmax(180px, auto) minmax(0, 1fr) auto;
     align-items: start;
     position: relative;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: background-color 180ms ease;
   }
 
   .row-left {
@@ -496,6 +615,12 @@ const preparedEvents = events.map((event) => {
     white-space: nowrap;
   }
 
+  .row-summary:has(.row-left:hover, .row-toggle:hover) .row-title,
+  .row-left:focus-within .row-title {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
   .row-range {
     font-family: var(--font-mono);
     font-size: 0.82rem;
@@ -527,7 +652,16 @@ const preparedEvents = events.map((event) => {
     grid-row: 1;
     justify-self: end;
     border-radius: 8px;
-    transition: color 180ms ease;
+  }
+
+  .row-toggle:hover,
+  .row-summary:has(.row-left:hover, .row-toggle:hover) .row-toggle {
+    background: color-mix(in srgb, var(--line) 52%, transparent);
+  }
+
+  .row-summary:has(.row-left:hover, .row-toggle:hover) .row-chev,
+  .row-toggle:hover .row-chev {
+    color: var(--ink);
   }
 
   .row-chev {
@@ -543,7 +677,7 @@ const preparedEvents = events.map((event) => {
     grid-template-columns: minmax(0, 1fr) auto;
   }
 
-  .row[data-open='true'][data-has-events='true'] .row-summary::after {
+  .row[data-open='true'][data-has-details='true'] .row-summary::after {
     transform: scaleX(1);
     opacity: 1;
   }
@@ -606,21 +740,12 @@ const preparedEvents = events.map((event) => {
     grid-row: 3;
   }
 
-  .row[data-open='true'][data-has-events='false'] .row-summary {
+  .row[data-open='true'][data-has-details='false'] .row-summary {
     border-bottom: 0;
   }
 
   .row[data-open='true'] .row-chev {
     transform: rotate(180deg);
-  }
-
-  .row-summary:hover {
-    background: color-mix(in srgb, var(--line) 58%, transparent);
-  }
-
-  .row-summary:hover .row-chev,
-  .row-toggle:hover .row-chev {
-    color: var(--ink);
   }
 
   .row-peek {
@@ -642,10 +767,106 @@ const preparedEvents = events.map((event) => {
     gap: 0.7rem;
   }
 
-  /* Defensive: never show events/details while collapsed. */
+  /* Defensive: never show expanded details while collapsed. */
   .row[data-open='false'] .row-body,
   .row-body[hidden] {
     display: none !important;
+  }
+
+  .row-media {
+    display: grid;
+    gap: 0.8rem;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+
+  .row-media-item {
+    margin: 0;
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  .row-media-thumb {
+    appearance: none;
+    border: 1px solid color-mix(in srgb, var(--line) 82%, transparent);
+    background: color-mix(in srgb, var(--panel) 84%, #eef3fb);
+    border-radius: 10px;
+    padding: 0;
+    cursor: zoom-in;
+    overflow: hidden;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+  }
+
+  .row-media-thumb:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
+    outline-offset: 2px;
+  }
+
+  .row-media-item img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+  }
+
+  .row-media-item figcaption {
+    margin: 0;
+    font-size: 0.84rem;
+    color: var(--ink-soft);
+  }
+
+  .row-media-dialog {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--panel);
+    color: var(--ink);
+    padding: 0;
+    width: min(92vw, 1024px);
+    max-height: 92vh;
+  }
+
+  .row-media-dialog::backdrop {
+    background: rgba(2, 8, 23, 0.62);
+  }
+
+  .row-media-dialog-inner {
+    display: grid;
+    gap: 0.6rem;
+    padding: 0.7rem;
+  }
+
+  .row-media-dialog-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+  }
+
+  .row-media-dialog-caption {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+
+  .row-media-dialog-close {
+    appearance: none;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--ink);
+    font-size: 0.85rem;
+    padding: 0.25rem 0.7rem;
+    cursor: pointer;
+  }
+
+  .row-media-dialog-image {
+    width: 100%;
+    max-height: 78vh;
+    object-fit: contain;
+    display: block;
+    border-radius: 8px;
+    border: 1px solid color-mix(in srgb, var(--line) 82%, transparent);
+    background: color-mix(in srgb, var(--panel) 90%, #ecf2fb);
   }
 
   .row-desc {
