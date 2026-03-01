@@ -3,7 +3,7 @@ title: 'SwiftRank v1'
 status: past
 order: 11
 periods:
-  - from: 2024-01-01
+  - from: 2023-02-12
     to: 2025-08-02
     summary: Mobile-first stack with Firebase backend logic and an admin CLI instead of a dedicated admin UI.
     tech:
