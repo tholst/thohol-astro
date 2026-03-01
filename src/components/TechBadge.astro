@@ -1,16 +1,18 @@
 ---
 import {
-  Claude as IconClaude,
-  Go as IconGo,
-  Javascript as IconJavascript,
-  Kubernetes as IconKubernetes,
-  Nextdotjs as IconNextdotjs,
-  Postgresql as IconPostgresql,
-  React as IconReact,
-  Terraform as IconTerraform,
-  Turborepo as IconTurborepo,
-  Typescript as IconTypescript,
-} from 'simple-icons-astro';
+  siClaude,
+  siConvex,
+  siGo,
+  siJavascript,
+  siKubernetes,
+  siNextdotjs,
+  siPostgresql,
+  siReact,
+  siTerraform,
+  siTurborepo,
+  siTypescript,
+  type SimpleIcon,
+} from 'simple-icons';
 
 interface Props {
   label: string;
@@ -22,23 +24,31 @@ interface Props {
 
 const { label, href, tone = 'neutral', techKey, primaryTag } = Astro.props;
 
-type IconComponent = (props: { size?: number; class?: string }) => unknown;
-
 const normalize = (value: string) =>
   value.toLowerCase().replace(/[^a-z0-9]/g, '');
 
-const ICON_BY_KEY: Record<string, IconComponent> = {
-  claude: IconClaude,
-  claudecode: IconClaude,
-  go: IconGo,
-  javascript: IconJavascript,
-  kubernetes: IconKubernetes,
-  nextjs: IconNextdotjs,
-  postgresql: IconPostgresql,
-  react: IconReact,
-  terraform: IconTerraform,
-  turborepo: IconTurborepo,
-  typescript: IconTypescript,
+type IconDef =
+  | { kind: 'simple'; icon: SimpleIcon }
+  | { kind: 'asset'; src: string };
+
+const OPENAI_ICON: IconDef = { kind: 'asset', src: '/icons/openai.svg' };
+
+const ICON_BY_KEY: Record<string, IconDef> = {
+  claude: { kind: 'simple', icon: siClaude },
+  claudecode: { kind: 'simple', icon: siClaude },
+  codex: OPENAI_ICON,
+  codexdesktop: OPENAI_ICON,
+  convex: { kind: 'simple', icon: siConvex },
+  go: { kind: 'simple', icon: siGo },
+  javascript: { kind: 'simple', icon: siJavascript },
+  kubernetes: { kind: 'simple', icon: siKubernetes },
+  nextjs: { kind: 'simple', icon: siNextdotjs },
+  openai: OPENAI_ICON,
+  postgresql: { kind: 'simple', icon: siPostgresql },
+  react: { kind: 'simple', icon: siReact },
+  terraform: { kind: 'simple', icon: siTerraform },
+  turborepo: { kind: 'simple', icon: siTurborepo },
+  typescript: { kind: 'simple', icon: siTypescript },
 };
 
 const techId = techKey?.includes(':') ? techKey.split(':')[1] : techKey;
@@ -60,7 +70,30 @@ const Icon = normalizedCandidates
       data-has-icon={Icon ? 'true' : 'false'}
       href={href}
     >
-      {Icon && <Icon class="tech-icon" size={12} aria-hidden="true" />}
+      {Icon?.kind === 'simple' && (
+        <svg
+          class="tech-icon"
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill={`#${Icon.icon.hex}`}
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path d={Icon.icon.path} />
+        </svg>
+      )}
+      {Icon?.kind === 'asset' && (
+        <img
+          class="tech-icon tech-icon--img"
+          src={Icon.src}
+          width="12"
+          height="12"
+          alt=""
+          loading="lazy"
+          decoding="async"
+        />
+      )}
       <span>{label}</span>
     </a>
   ) : (
@@ -71,7 +104,30 @@ const Icon = normalizedCandidates
       data-primary-tag={primaryTag}
       data-has-icon={Icon ? 'true' : 'false'}
     >
-      {Icon && <Icon class="tech-icon" size={12} aria-hidden="true" />}
+      {Icon?.kind === 'simple' && (
+        <svg
+          class="tech-icon"
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill={`#${Icon.icon.hex}`}
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path d={Icon.icon.path} />
+        </svg>
+      )}
+      {Icon?.kind === 'asset' && (
+        <img
+          class="tech-icon tech-icon--img"
+          src={Icon.src}
+          width="12"
+          height="12"
+          alt=""
+          loading="lazy"
+          decoding="async"
+        />
+      )}
       <span>{label}</span>
     </span>
   )
@@ -116,6 +172,10 @@ const Icon = normalizedCandidates
 
   .tech-badge :global(.tech-icon) {
     flex: 0 0 auto;
+  }
+
+  .tech-badge :global(.tech-icon--img) {
+    object-fit: contain;
   }
 
   .tech-badge::before {
