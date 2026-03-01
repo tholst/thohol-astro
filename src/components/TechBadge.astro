@@ -58,6 +58,14 @@ const normalizedCandidates = [techId, label]
 const Icon = normalizedCandidates
   .map((candidate) => ICON_BY_KEY[candidate])
   .find((candidate) => Boolean(candidate));
+
+const iconAccent =
+  Icon?.kind === 'simple'
+    ? `#${Icon.icon.hex}`
+    : Icon?.kind === 'asset'
+      ? '#101828'
+      : '#101828';
+const badgeStyle = `--tag-accent: ${iconAccent};`;
 ---
 
 {
@@ -68,6 +76,7 @@ const Icon = normalizedCandidates
       data-tech-key={techKey}
       data-primary-tag={primaryTag}
       data-has-icon={Icon ? 'true' : 'false'}
+      style={badgeStyle}
       href={href}
     >
       {Icon?.kind === 'simple' && (
@@ -103,6 +112,7 @@ const Icon = normalizedCandidates
       data-tech-key={techKey}
       data-primary-tag={primaryTag}
       data-has-icon={Icon ? 'true' : 'false'}
+      style={badgeStyle}
     >
       {Icon?.kind === 'simple' && (
         <svg
@@ -166,12 +176,14 @@ const Icon = normalizedCandidates
   }
 
   .tech-badge[data-has-icon='true'] {
-    --tag-pad-left: 9px;
-    gap: 0.38rem;
+    --tag-pad-left: 7px !important;
+    gap: 0.3rem;
   }
 
   .tech-badge :global(.tech-icon) {
     flex: 0 0 auto;
+    inline-size: var(--icon-size, 12px);
+    block-size: var(--icon-size, 12px);
   }
 
   .tech-badge :global(.tech-icon--img) {

@@ -35,6 +35,7 @@ const panelId = `stack-row-panel-${contextId.replace(/[^a-zA-Z0-9_-]/g, '-')}`;
   class="row"
   data-stack-row
   data-open="false"
+  data-has-events={events.length > 0 ? 'true' : 'false'}
   aria-label={`${title} current stack`}
 >
   <header class="row-summary">
@@ -109,13 +110,15 @@ const panelId = `stack-row-panel-${contextId.replace(/[^a-zA-Z0-9_-]/g, '-')}`;
         const panel = row.querySelector('[data-row-panel]');
         const fold = row.querySelector('[data-tech-fold]');
         if (!btn || !panel) continue;
+        const hasEvents = row.getAttribute('data-has-events') === 'true';
 
         const setOpen = (nextOpen, animate = true) => {
           row.setAttribute('data-open', nextOpen ? 'true' : 'false');
           btn.setAttribute('aria-expanded', nextOpen ? 'true' : 'false');
-          panel.hidden = !nextOpen;
-          panel.setAttribute('aria-hidden', nextOpen ? 'false' : 'true');
-          panel.style.display = nextOpen ? 'grid' : 'none';
+          const showPanel = nextOpen && hasEvents;
+          panel.hidden = !showPanel;
+          panel.setAttribute('aria-hidden', showPanel ? 'false' : 'true');
+          panel.style.display = showPanel ? 'grid' : 'none';
 
           // Drive the tech fold: compact when collapsed, grouped when expanded.
           if (fold && typeof fold.__setOpen === 'function') {
@@ -212,6 +215,10 @@ const panelId = `stack-row-panel-${contextId.replace(/[^a-zA-Z0-9_-]/g, '-')}`;
   .row[data-open='true'] .row-summary {
     border-bottom: 1px solid var(--line);
     background: color-mix(in srgb, var(--panel) 70%, #f4f7fc);
+  }
+
+  .row[data-open='true'][data-has-events='false'] .row-summary {
+    border-bottom: 0;
   }
 
   .row[data-open='true'] .row-chev {
