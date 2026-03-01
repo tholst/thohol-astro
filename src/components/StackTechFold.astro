@@ -80,6 +80,7 @@ const { tech, showToggle = true, foldRole = 'detail' } = Astro.props;
 
         /** @type {Map<string, DOMRect>} */
         let before = new Map();
+        let frameToken = 0;
 
         const captureRects = () => {
           const m = new Map();
@@ -96,6 +97,7 @@ const { tech, showToggle = true, foldRole = 'detail' } = Astro.props;
           if (prefersReduced) return;
           const badges = content.querySelectorAll('[data-tech-key]');
           for (const el of badges) {
+            el.getAnimations().forEach((animation) => animation.cancel());
             const k = el.getAttribute('data-tech-key') || '';
             if (!k) continue;
             const a = after.get(k);
@@ -109,7 +111,11 @@ const { tech, showToggle = true, foldRole = 'detail' } = Astro.props;
                 { transform: `translate(${dx}px, ${dy}px)` },
                 { transform: 'translate(0px, 0px)' },
               ],
-              { duration: 380, easing: 'cubic-bezier(0.33, 0, 0.67, 1)' }
+              {
+                duration: 420,
+                easing: 'cubic-bezier(0.22, 0.61, 0.36, 1)',
+                fill: 'both',
+              }
             );
           }
         };
@@ -197,14 +203,17 @@ const { tech, showToggle = true, foldRole = 'detail' } = Astro.props;
         const setOpenAnimated = (nextOpen, animate = true) => {
           const isOpen = fold.getAttribute('data-open') === 'true';
           if (isOpen === nextOpen) return;
+          const token = ++frameToken;
 
           if (animate) before = captureRects();
           setOpen(nextOpen);
+          updateCompactOverflow();
           if (!animate) return;
 
           // Two rAFs to ensure layout has fully settled after toggling styles.
           requestAnimationFrame(() =>
             requestAnimationFrame(() => {
+              if (token !== frameToken) return;
               const after = captureRects();
               animateFlip(after);
               updateCompactOverflow();

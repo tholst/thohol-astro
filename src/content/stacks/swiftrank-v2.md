@@ -4,7 +4,7 @@ status: current
 order: 10
 periods:
   - from: 2025-08-03
-    summary: A private project stack (example), evolving quickly.
+    summary: Unpublished personal project.
     tech:
       - typescript
       - react
