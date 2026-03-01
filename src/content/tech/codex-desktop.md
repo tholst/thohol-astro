@@ -1,5 +1,5 @@
 ---
 title: Codex Desktop
-category: AI/Assistants
+category: AI Tools
 order: 10
 ---

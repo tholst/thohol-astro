@@ -1,6 +1,6 @@
 ---
 title: React
-category: Frontend
+category: Frameworks
 href: https://react.dev/
 order: 10
 ---

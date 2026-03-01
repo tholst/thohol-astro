@@ -6,7 +6,7 @@ periods:
     to: 2020-12-31
     summary: A long stretch of web engineering, experiments, and client work.
     tech:
-      - { label: JavaScript, tags: [Languages] }
+      - javascript
   - from: 2021-01-01
     summary: Personal projects alongside work, with a modern TS stack.
     tech:

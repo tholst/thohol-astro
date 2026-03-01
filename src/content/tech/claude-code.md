@@ -1,5 +1,5 @@
 ---
 title: Claude Code
-category: AI/Assistants
+category: AI Tools
 order: 20
 ---

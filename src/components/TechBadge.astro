@@ -1,16 +1,24 @@
 ---
 import {
+  siClerk,
   siClaude,
   siConvex,
+  siDaisyui,
+  siExpo,
   siGo,
   siJavascript,
   siKubernetes,
   siNextdotjs,
+  siPnpm,
   siPostgresql,
   siReact,
+  siShadcnui,
+  siSpotify,
+  siTailwindcss,
   siTerraform,
   siTurborepo,
   siTypescript,
+  siVercel,
   type SimpleIcon,
 } from 'simple-icons';
 
@@ -34,21 +42,34 @@ type IconDef =
 const OPENAI_ICON: IconDef = { kind: 'asset', src: '/icons/openai.svg' };
 
 const ICON_BY_KEY: Record<string, IconDef> = {
+  clerk: { kind: 'simple', icon: siClerk },
+  clerkauthentication: { kind: 'simple', icon: siClerk },
   claude: { kind: 'simple', icon: siClaude },
   claudecode: { kind: 'simple', icon: siClaude },
   codex: OPENAI_ICON,
   codexdesktop: OPENAI_ICON,
   convex: { kind: 'simple', icon: siConvex },
+  daisyui: { kind: 'simple', icon: siDaisyui },
+  expo: { kind: 'simple', icon: siExpo },
   go: { kind: 'simple', icon: siGo },
   javascript: { kind: 'simple', icon: siJavascript },
   kubernetes: { kind: 'simple', icon: siKubernetes },
   nextjs: { kind: 'simple', icon: siNextdotjs },
   openai: OPENAI_ICON,
+  pnpm: { kind: 'simple', icon: siPnpm },
   postgresql: { kind: 'simple', icon: siPostgresql },
   react: { kind: 'simple', icon: siReact },
+  reactnative: { kind: 'simple', icon: siReact },
+  shadcn: { kind: 'simple', icon: siShadcnui },
+  shadcnui: { kind: 'simple', icon: siShadcnui },
+  spotify: { kind: 'simple', icon: siSpotify },
+  spotifywebapi: { kind: 'simple', icon: siSpotify },
+  tailwindcss: { kind: 'simple', icon: siTailwindcss },
   terraform: { kind: 'simple', icon: siTerraform },
   turborepo: { kind: 'simple', icon: siTurborepo },
+  turborepopnpm: { kind: 'simple', icon: siTurborepo },
   typescript: { kind: 'simple', icon: siTypescript },
+  vercel: { kind: 'simple', icon: siVercel },
 };
 
 const techId = techKey?.includes(':') ? techKey.split(':')[1] : techKey;
@@ -240,19 +261,31 @@ const badgeStyle = `--tag-accent: ${iconAccent};`;
     --tag-accent: #0058e8;
   }
 
-  .tech-badge[data-primary-tag='Databases'] {
-    --tag-accent: #12b76a;
-  }
-
-  .tech-badge[data-primary-tag='Backend'] {
-    --tag-accent: #f79009;
-  }
-
-  .tech-badge[data-primary-tag='Frontend'] {
+  .tech-badge[data-primary-tag='Frameworks'] {
     --tag-accent: #7a5af8;
   }
 
-  .tech-badge[data-primary-tag='Infra'] {
+  .tech-badge[data-primary-tag='UI'] {
+    --tag-accent: #ec4899;
+  }
+
+  .tech-badge[data-primary-tag='Data'] {
+    --tag-accent: #12b76a;
+  }
+
+  .tech-badge[data-primary-tag='Identity'] {
+    --tag-accent: #fb7185;
+  }
+
+  .tech-badge[data-primary-tag='Integrations'] {
+    --tag-accent: #f79009;
+  }
+
+  .tech-badge[data-primary-tag='Platforms/Hosting'] {
+    --tag-accent: #8b5cf6;
+  }
+
+  .tech-badge[data-primary-tag='Infrastructure'] {
     --tag-accent: #06aed4;
   }
 
@@ -260,7 +293,11 @@ const badgeStyle = `--tag-accent: ${iconAccent};`;
     --tag-accent: #ef4444;
   }
 
-  .tech-badge[data-primary-tag='AI/Assistants'] {
+  .tech-badge[data-primary-tag='AI Tools'] {
     --tag-accent: #101828;
+  }
+
+  .tech-badge[data-primary-tag='AI Models/APIs'] {
+    --tag-accent: #0ea5e9;
   }
 </style>

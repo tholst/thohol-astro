@@ -4,12 +4,16 @@ import TechBadge from './TechBadge.astro';
 
 type Category =
   | 'Languages'
-  | 'Databases'
-  | 'Backend'
-  | 'Frontend'
-  | 'Infra'
+  | 'Frameworks'
+  | 'UI'
+  | 'Data'
+  | 'Identity'
+  | 'Integrations'
+  | 'Platforms/Hosting'
+  | 'Infrastructure'
   | 'Tooling'
-  | 'AI/Assistants';
+  | 'AI Tools'
+  | 'AI Models/APIs';
 
 type Tech = { key: string; label: string; href?: string; tags: Category[] };
 type Diff = { added: Tech[]; removed: Tech[] };

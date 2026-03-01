@@ -12,12 +12,16 @@ if (!FEATURES.stack) {
 
 type Category =
   | 'Languages'
-  | 'Databases'
-  | 'Backend'
-  | 'Frontend'
-  | 'Infra'
+  | 'Frameworks'
+  | 'UI'
+  | 'Data'
+  | 'Identity'
+  | 'Integrations'
+  | 'Platforms/Hosting'
+  | 'Infrastructure'
   | 'Tooling'
-  | 'AI/Assistants';
+  | 'AI Tools'
+  | 'AI Models/APIs';
 
 type TechRef = string | { label: string; href?: string; tags?: Category[] };
 type ResolvedTech = {
@@ -69,12 +73,16 @@ type ResolvedPeriod = {
 
 const CATEGORY_ORDER: Category[] = [
   'Languages',
-  'Databases',
-  'Backend',
-  'Frontend',
-  'Infra',
+  'Frameworks',
+  'UI',
+  'Data',
+  'Identity',
+  'Integrations',
+  'Platforms/Hosting',
+  'Infrastructure',
   'Tooling',
-  'AI/Assistants',
+  'AI Tools',
+  'AI Models/APIs',
 ];
 
 const allContexts = await getCollection('stacks');
@@ -258,6 +266,9 @@ function accentFor(id: string) {
                 <button type="button" data-rail-width-btn="thick">
                   Thick
                 </button>
+                <button type="button" data-rail-width-btn="none">
+                  None
+                </button>
               </div>
               <div
                 class="variant-buttons"
@@ -433,7 +444,7 @@ function accentFor(id: string) {
         const styleKey = 'thohol.stackTagStyle';
         const styleAllowed = new Set(['tinted', 'clean', 'clean-tinted-hover']);
         const railWidthKey = 'thohol.stackRailWidth';
-        const railWidthAllowed = new Set(['thin', 'thick']);
+        const railWidthAllowed = new Set(['thin', 'thick', 'none']);
         const railColorKey = 'thohol.stackRailColor';
         const railColorAllowed = new Set(['context', 'black', 'blue']);
 
@@ -772,6 +783,10 @@ function accentFor(id: string) {
     padding-left: 0.85rem;
   }
 
+  :global(.stack-wrap[data-rail-width='none'] .row-wrap) {
+    padding-left: 0;
+  }
+
   :global(.stack-wrap[data-stack-variant='v2'] .row-wrap::before) {
     content: '';
     position: absolute;
@@ -789,6 +804,10 @@ function accentFor(id: string) {
 
   :global(.stack-wrap[data-rail-width='thick'] .row-wrap::before) {
     width: 6px;
+  }
+
+  :global(.stack-wrap[data-rail-width='none'] .row-wrap::before) {
+    display: none;
   }
 
   :global(.stack-wrap[data-rail-color='context'] .row-wrap::before) {

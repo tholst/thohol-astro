@@ -3,12 +3,16 @@ import TechBadge from './TechBadge.astro';
 
 type Category =
   | 'Languages'
-  | 'Databases'
-  | 'Backend'
-  | 'Frontend'
-  | 'Infra'
+  | 'Frameworks'
+  | 'UI'
+  | 'Data'
+  | 'Identity'
+  | 'Integrations'
+  | 'Platforms/Hosting'
+  | 'Infrastructure'
   | 'Tooling'
-  | 'AI/Assistants';
+  | 'AI Tools'
+  | 'AI Models/APIs';
 
 type Tech = { key: string; label: string; href?: string; tags: Category[] };
 
@@ -20,22 +24,30 @@ const { tech } = Astro.props;
 
 const GROUP_ORDER: Category[] = [
   'Languages',
-  'Databases',
-  'Backend',
-  'Frontend',
-  'Infra',
+  'Frameworks',
+  'UI',
+  'Data',
+  'Identity',
+  'Integrations',
+  'Platforms/Hosting',
+  'Infrastructure',
   'Tooling',
-  'AI/Assistants',
+  'AI Tools',
+  'AI Models/APIs',
 ];
 
 const GROUP_LABEL: Record<Category, string> = {
   Languages: 'Language',
-  Databases: 'Storage',
-  Backend: 'Backend',
-  Frontend: 'Frontend',
-  Infra: 'Infra',
+  Frameworks: 'Frameworks',
+  UI: 'UI',
+  Data: 'Data',
+  Identity: 'Identity',
+  Integrations: 'Integrations',
+  'Platforms/Hosting': 'Platforms',
+  Infrastructure: 'Infrastructure',
   Tooling: 'Tooling',
-  'AI/Assistants': 'AI',
+  'AI Tools': 'AI Tools',
+  'AI Models/APIs': 'AI Models',
 };
 
 // If a tech has multiple tags, pick one "home" group to avoid duplication.

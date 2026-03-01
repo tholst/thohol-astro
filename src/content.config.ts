@@ -28,12 +28,16 @@ const tools = defineCollection({
 
 const techCategory = z.enum([
   'Languages',
-  'Databases',
-  'Backend',
-  'Frontend',
-  'Infra',
+  'Frameworks',
+  'UI',
+  'Data',
+  'Identity',
+  'Integrations',
+  'Platforms/Hosting',
+  'Infrastructure',
   'Tooling',
-  'AI/Assistants',
+  'AI Tools',
+  'AI Models/APIs',
 ]);
 
 const tech = defineCollection({
@@ -65,12 +69,16 @@ const techRef = z.union([
 
 const stackCategories = z.object({
   Languages: z.array(techRef).default([]),
-  Databases: z.array(techRef).default([]),
-  Backend: z.array(techRef).default([]),
-  Frontend: z.array(techRef).default([]),
-  Infra: z.array(techRef).default([]),
+  Frameworks: z.array(techRef).default([]),
+  UI: z.array(techRef).default([]),
+  Data: z.array(techRef).default([]),
+  Identity: z.array(techRef).default([]),
+  Integrations: z.array(techRef).default([]),
+  'Platforms/Hosting': z.array(techRef).default([]),
+  Infrastructure: z.array(techRef).default([]),
   Tooling: z.array(techRef).default([]),
-  'AI/Assistants': z.array(techRef).default([]),
+  'AI Tools': z.array(techRef).default([]),
+  'AI Models/APIs': z.array(techRef).default([]),
 });
 
 const stackPeriodEvent = z.object({

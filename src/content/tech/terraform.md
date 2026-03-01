@@ -1,6 +1,6 @@
 ---
 title: Terraform
-category: Infra
+category: Infrastructure
 href: https://www.terraform.io/
 order: 10
 ---
