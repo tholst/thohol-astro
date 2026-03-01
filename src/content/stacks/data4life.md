@@ -16,7 +16,12 @@ periods:
       - codex-desktop
     events:
       - date: 2025-11-01
-        title: 'Claude Code became my primary AI-assisted coding workflow'
+        title: '{{tech:claude-code|Claude Code}} became my primary AI-assisted coding tool'
+        tech:
+          - claude-code
       - date: 2026-01-30
-        title: 'Switched primary AI coding tool from Claude Code to Codex Desktop'
+        title: 'Switched primary AI coding tool from {{tech:claude-code|Claude Code}} to {{tech:codex-desktop|Codex Desktop}}'
+        tech:
+          - claude-code
+          - codex-desktop
 ---
