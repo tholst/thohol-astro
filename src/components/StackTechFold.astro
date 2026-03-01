@@ -19,20 +19,25 @@ type Tech = { key: string; label: string; href?: string; tags: Category[] };
 interface Props {
   tech: Tech[];
   showToggle?: boolean;
+  foldRole?: 'preview' | 'detail';
 }
 
-const { tech, showToggle = true } = Astro.props;
+const { tech, showToggle = true, foldRole = 'detail' } = Astro.props;
 ---
 
 <section
   class="tech-fold"
   data-tech-fold
+  data-fold-role={foldRole}
   data-open="false"
   aria-label="Tech list"
 >
   <div class="tech-fold__content" aria-label="Tech badges">
     <StackTechList tech={tech} />
   </div>
+  <span class="tech-fold__more" data-tech-more hidden>
+    <span data-tech-more-count>0</span> more
+  </span>
 
   {
     showToggle && (
@@ -115,6 +120,80 @@ const { tech, showToggle = true } = Astro.props;
             btn.setAttribute('aria-expanded', nextOpen ? 'true' : 'false');
         };
 
+        const updateCompactOverflow = () => {
+          const wrap = fold.closest('[data-tech-preview]');
+          const previewMode = wrap?.getAttribute('data-tech-preview') || 'wrap';
+          const isOpen = fold.getAttribute('data-open') === 'true';
+          const more = fold.querySelector('[data-tech-more]');
+          const moreCount = fold.querySelector('[data-tech-more-count]');
+          const groups = content.querySelector('.tech-list__groups');
+          if (!groups || !more || !moreCount) return;
+
+          const badges = Array.from(
+            content.querySelectorAll('[data-tech-key]')
+          );
+          for (const badge of badges) {
+            badge.removeAttribute('data-compact-hidden');
+          }
+
+          if (isOpen || previewMode !== 'truncate') {
+            more.hidden = true;
+            return;
+          }
+
+          const max = content.clientWidth;
+          if (!max || badges.length === 0) {
+            more.hidden = true;
+            return;
+          }
+
+          const styles = window.getComputedStyle(groups);
+          const gapRaw = styles.columnGap || styles.gap || '0';
+          const gap = Number.parseFloat(gapRaw) || 0;
+
+          const fitCountWithReserve = (reserve) => {
+            let used = 0;
+            let fit = 0;
+            for (const badge of badges) {
+              const w = badge.getBoundingClientRect().width;
+              const needed = fit === 0 ? w : w + gap;
+              if (used + needed <= max - reserve) {
+                used += needed;
+                fit += 1;
+              } else {
+                break;
+              }
+            }
+            return fit;
+          };
+
+          let fit = fitCountWithReserve(0);
+          let hidden = Math.max(0, badges.length - fit);
+          if (hidden === 0) {
+            more.hidden = true;
+            return;
+          }
+
+          more.hidden = false;
+          moreCount.textContent = `+${hidden}`;
+          let reserve = more.getBoundingClientRect().width + gap;
+          fit = fitCountWithReserve(reserve);
+          hidden = Math.max(0, badges.length - fit);
+          if (hidden <= 0) {
+            more.hidden = true;
+            return;
+          }
+          moreCount.textContent = `+${hidden}`;
+          reserve = more.getBoundingClientRect().width + gap;
+          fit = fitCountWithReserve(reserve);
+          hidden = Math.max(0, badges.length - fit);
+          moreCount.textContent = `+${hidden}`;
+
+          for (let i = fit; i < badges.length; i += 1) {
+            badges[i].setAttribute('data-compact-hidden', 'true');
+          }
+        };
+
         const setOpenAnimated = (nextOpen, animate = true) => {
           const isOpen = fold.getAttribute('data-open') === 'true';
           if (isOpen === nextOpen) return;
@@ -128,6 +207,7 @@ const { tech, showToggle = true } = Astro.props;
             requestAnimationFrame(() => {
               const after = captureRects();
               animateFlip(after);
+              updateCompactOverflow();
             })
           );
         };
@@ -156,6 +236,15 @@ const { tech, showToggle = true } = Astro.props;
           if (prefersReduced) animate = false;
           setOpenAnimated(Boolean(nextOpen), Boolean(animate));
         };
+
+        const onPreviewModeChange = () => updateCompactOverflow();
+        window.addEventListener(
+          'stack:tech-preview-changed',
+          onPreviewModeChange
+        );
+        window.addEventListener('resize', onPreviewModeChange);
+
+        updateCompactOverflow();
       }
     }
 
@@ -166,9 +255,9 @@ const { tech, showToggle = true } = Astro.props;
 <style>
   .tech-fold {
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: minmax(0, 1fr) auto auto;
     gap: 0.6rem;
-    align-items: start;
+    align-items: center;
     min-width: 0;
   }
 
@@ -206,6 +295,13 @@ const { tech, showToggle = true } = Astro.props;
     min-width: 0;
   }
 
+  .tech-fold__more {
+    font-family: var(--font-mono);
+    font-size: 0.73rem;
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+
   /* Compact mode: flatten group boxes into a single row of badges. */
   .tech-fold[data-open='false'] :global(.tech-list__groups) {
     display: flex;
@@ -214,6 +310,31 @@ const { tech, showToggle = true } = Astro.props;
     overflow: visible;
     padding-bottom: 0;
     mask-image: none;
+  }
+
+  .tech-fold[data-open='false'] :global([data-compact-hidden='true']) {
+    display: none !important;
+  }
+
+  :global(
+      .stack-wrap[data-tech-preview='truncate'] .tech-fold[data-open='false']
+    )
+    :global(.tech-list__groups) {
+    flex-wrap: nowrap;
+    overflow: hidden;
+    position: relative;
+    mask-image: linear-gradient(
+      to right,
+      #000 0,
+      #000 calc(100% - 1.75rem),
+      transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      #000 0,
+      #000 calc(100% - 1.75rem),
+      transparent 100%
+    );
   }
 
   .tech-fold[data-open='false'] :global(.group) {
@@ -234,10 +355,22 @@ const { tech, showToggle = true } = Astro.props;
     gap: 0.65rem;
   }
 
+  :global(.stack-wrap[data-tech-preview='wrap'] .tech-fold__more) {
+    display: none;
+  }
+
+  .tech-fold[data-open='true'] .tech-fold__more {
+    display: none;
+  }
+
   @media (max-width: 720px) {
     .tech-fold {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr) auto;
       gap: 0.35rem;
+    }
+
+    .tech-fold__more {
+      justify-self: end;
     }
 
     .tech-fold__toggle {

@@ -43,38 +43,37 @@ const panelId = `stack-row-panel-${contextId.replace(/[^a-zA-Z0-9_-]/g, '-')}`;
   aria-label={`${title} current stack`}
 >
   <header class="row-summary">
-    <div class="row-top">
-      <span class="row-left">
-        <span class="row-title">{title}</span>
-        <span class="row-range">{rangeLabel}</span>
-      </span>
+    <span class="row-left">
+      <span class="row-title">{title}</span>
+      <span class="row-range">{rangeLabel}</span>
+    </span>
 
-      <button
-        type="button"
-        class="row-toggle"
-        data-row-toggle
-        aria-expanded="false"
-        aria-controls={panelId}
-        aria-label={`Toggle ${title} details`}
-      >
-        <span class="row-chev" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
-            <path
-              d="M6 9l6 6 6-6"
-              stroke="currentColor"
-              stroke-width="1.8"
-              stroke-linecap="round"
-              stroke-linejoin="round"></path>
-          </svg>
-        </span>
-      </button>
+    <div class="row-inline-tech">
+      <StackTechFold tech={tech} showToggle={false} />
     </div>
+
+    <button
+      type="button"
+      class="row-toggle"
+      data-row-toggle
+      aria-expanded="false"
+      aria-controls={panelId}
+      aria-label={`Toggle ${title} details`}
+    >
+      <span class="row-chev" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
+          <path
+            d="M6 9l6 6 6-6"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"></path>
+        </svg>
+      </span>
+    </button>
 
     <div class="row-peek" aria-label="Stack summary">
       {summary && <p class="row-desc">{summary}</p>}
-      <div class="row-inline-tech">
-        <StackTechFold tech={tech} showToggle={false} />
-      </div>
     </div>
   </header>
 
@@ -124,7 +123,7 @@ const panelId = `stack-row-panel-${contextId.replace(/[^a-zA-Z0-9_-]/g, '-')}`;
           panel.setAttribute('aria-hidden', showPanel ? 'false' : 'true');
           panel.style.display = showPanel ? 'grid' : 'none';
 
-          // Drive the tech fold: compact when collapsed, grouped when expanded.
+          // Drive the same tech fold from compact (collapsed) to grouped (expanded).
           if (fold && typeof fold.__setOpen === 'function') {
             fold.__setOpen(nextOpen, animate);
           } else if (fold) {
@@ -159,21 +158,16 @@ const panelId = `stack-row-panel-${contextId.replace(/[^a-zA-Z0-9_-]/g, '-')}`;
     padding: 0.7rem 0.8rem 0.85rem;
     display: grid;
     gap: 0.6rem;
-  }
-
-  .row-top {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 0.75rem;
-    align-items: center;
+    grid-template-columns: minmax(180px, auto) minmax(0, 1fr) auto;
+    align-items: start;
   }
 
   .row-left {
-    display: flex;
+    display: grid;
     min-width: 0;
-    align-items: baseline;
-    gap: 0.55rem;
-    flex-wrap: wrap;
+    gap: 0.14rem;
+    grid-column: 1 / 2;
+    grid-row: 1;
   }
 
   .row-title {
@@ -192,6 +186,13 @@ const panelId = `stack-row-panel-${contextId.replace(/[^a-zA-Z0-9_-]/g, '-')}`;
     line-height: 1.25;
     color: var(--ink-soft);
     font-weight: 400;
+    display: block;
+  }
+
+  .row-inline-tech {
+    min-width: 0;
+    grid-column: 2 / 3;
+    grid-row: 1;
   }
 
   .row-toggle {
@@ -206,6 +207,9 @@ const panelId = `stack-row-panel-${contextId.replace(/[^a-zA-Z0-9_-]/g, '-')}`;
     padding: 0;
     width: 30px;
     height: 30px;
+    grid-column: 3 / 4;
+    grid-row: 1;
+    justify-self: end;
   }
 
   .row-chev {
@@ -219,6 +223,27 @@ const panelId = `stack-row-panel-${contextId.replace(/[^a-zA-Z0-9_-]/g, '-')}`;
   .row[data-open='true'] .row-summary {
     border-bottom: 1px solid var(--line);
     background: color-mix(in srgb, var(--panel) 70%, #f4f7fc);
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .row[data-open='true'] .row-left {
+    grid-column: 1 / 2;
+    grid-row: 1;
+  }
+
+  .row[data-open='true'] .row-toggle {
+    grid-column: 2 / 3;
+    grid-row: 1;
+  }
+
+  .row[data-open='true'] .row-peek {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .row[data-open='true'] .row-inline-tech {
+    grid-column: 1 / -1;
+    grid-row: 3;
   }
 
   .row[data-open='true'][data-has-events='false'] .row-summary {
@@ -232,11 +257,8 @@ const panelId = `stack-row-panel-${contextId.replace(/[^a-zA-Z0-9_-]/g, '-')}`;
   .row-peek {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 0.55rem;
-  }
-
-  .row-inline-tech {
-    min-width: 0;
+    gap: 0.4rem;
+    grid-column: 1 / -1;
   }
 
   .row-toggle:focus-visible {
@@ -296,6 +318,29 @@ const panelId = `stack-row-panel-${contextId.replace(/[^a-zA-Z0-9_-]/g, '-')}`;
   }
 
   @media (max-width: 720px) {
+    .row-summary {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .row-left {
+      grid-column: 1 / 2;
+      grid-row: 1;
+    }
+
+    .row-toggle {
+      grid-column: 2 / 3;
+      grid-row: 1;
+    }
+
+    .row-inline-tech {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+
+    .row-peek {
+      grid-row: 3;
+    }
+
     .row-title {
       white-space: normal;
     }

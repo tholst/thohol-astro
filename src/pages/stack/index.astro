@@ -247,8 +247,29 @@ function accentFor(id: string) {
           data-tag-style="tinted"
           data-rail-width="thin"
           data-rail-color="context"
+          data-tech-preview="wrap"
         >
           <section class="variant" aria-label="Tag controls">
+            <div class="variant-control">
+              <p class="variant-label">Tech Preview</p>
+              <div
+                class="variant-buttons"
+                role="group"
+                aria-label="Choose folded tech preview"
+              >
+                <button
+                  type="button"
+                  data-tech-preview-btn="wrap"
+                  data-active="true"
+                >
+                  Wrap
+                </button>
+                <button type="button" data-tech-preview-btn="truncate">
+                  Fade + Count
+                </button>
+              </div>
+            </div>
+
             <div class="variant-control">
               <p class="variant-label">Stack Rail</p>
               <div
@@ -426,11 +447,15 @@ function accentFor(id: string) {
         const railColorButtons = Array.from(
           root.querySelectorAll('[data-rail-color-btn]')
         );
+        const techPreviewButtons = Array.from(
+          root.querySelectorAll('[data-tech-preview-btn]')
+        );
         if (
           tagShapeButtons.length === 0 &&
           tagStyleButtons.length === 0 &&
           railWidthButtons.length === 0 &&
-          railColorButtons.length === 0
+          railColorButtons.length === 0 &&
+          techPreviewButtons.length === 0
         ) {
           return;
         }
@@ -447,6 +472,8 @@ function accentFor(id: string) {
         const railWidthAllowed = new Set(['thin', 'thick', 'none']);
         const railColorKey = 'thohol.stackRailColor';
         const railColorAllowed = new Set(['context', 'black', 'blue']);
+        const techPreviewKey = 'thohol.stackTechPreview';
+        const techPreviewAllowed = new Set(['wrap', 'truncate']);
 
         const applyTagShape = (shape) => {
           if (!shapeAllowed.has(shape)) shape = 'ultra';
@@ -490,6 +517,18 @@ function accentFor(id: string) {
               b.dataset.railColorBtn === color ? 'true' : 'false'
             );
           }
+        };
+
+        const applyTechPreview = (mode) => {
+          if (!techPreviewAllowed.has(mode)) mode = 'wrap';
+          root.setAttribute('data-tech-preview', mode);
+          for (const b of techPreviewButtons) {
+            b.setAttribute(
+              'data-active',
+              b.dataset.techPreviewBtn === mode ? 'true' : 'false'
+            );
+          }
+          window.dispatchEvent(new CustomEvent('stack:tech-preview-changed'));
         };
 
         for (const b of tagShapeButtons) {
@@ -540,6 +579,18 @@ function accentFor(id: string) {
           });
         }
 
+        for (const b of techPreviewButtons) {
+          b.addEventListener('click', () => {
+            const mode = b.getAttribute('data-tech-preview-btn') || 'wrap';
+            try {
+              localStorage.setItem(techPreviewKey, mode);
+            } catch (e) {
+              void e;
+            }
+            applyTechPreview(mode);
+          });
+        }
+
         let initialShape = 'ultra';
         try {
           const storedShape = localStorage.getItem(shapeKey);
@@ -571,11 +622,19 @@ function accentFor(id: string) {
         } catch (e) {
           void e;
         }
+        let initialTechPreview = 'wrap';
+        try {
+          const storedTechPreview = localStorage.getItem(techPreviewKey);
+          if (storedTechPreview) initialTechPreview = storedTechPreview;
+        } catch (e) {
+          void e;
+        }
 
         applyTagShape(initialShape);
         applyTagStyle(initialStyle);
         applyRailWidth(initialRailWidth);
         applyRailColor(initialRailColor);
+        applyTechPreview(initialTechPreview);
       }
 
       initStackControls();
