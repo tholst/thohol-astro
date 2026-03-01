@@ -224,15 +224,15 @@ function accentFor(id: string) {
 ---
 
 <BaseLayout
-  title={`Stack · ${SITE_TITLE}`}
-  description="Current and previous tech stacks across contexts and projects."
+  title={`Tech Stacks · ${SITE_TITLE}`}
+  description="An evolving view of the technologies I use across projects and time."
 >
   <main>
     <section class="intro">
-      <h1>Stack</h1>
+      <h1>Tech Stacks</h1>
       <p>
-        Current stacks in compact form, plus a foldable history for older
-        periods.
+        A living snapshot of the technologies I use, with expandable details and
+        timeline history by context.
       </p>
     </section>
 
@@ -244,101 +244,13 @@ function accentFor(id: string) {
           class="stack-wrap"
           data-stack-variant="v2"
           data-tag-shape="ultra"
-          data-rail-width="thin"
-          data-rail-color="context"
+          data-rail-width="none"
+          data-rail-color="black"
           data-tech-preview="wrap"
           data-layout="type"
-          data-tech-placement="side"
+          data-tech-placement="below"
         >
-          <section class="variant" aria-label="Tag controls">
-            <div class="variant-control">
-              <p class="variant-label">Layout</p>
-              <div
-                class="variant-buttons"
-                role="group"
-                aria-label="Choose stack layout style"
-              >
-                <button type="button" data-layout-btn="type" data-active="true">
-                  Typography
-                </button>
-                <button type="button" data-layout-btn="sectioned">
-                  Sectioned
-                </button>
-                <button type="button" data-layout-btn="tone">
-                  Tone Split
-                </button>
-              </div>
-            </div>
-
-            <div class="variant-control">
-              <p class="variant-label">Tech Placement</p>
-              <div
-                class="variant-buttons"
-                role="group"
-                aria-label="Choose folded tech placement"
-              >
-                <button
-                  type="button"
-                  data-tech-placement-btn="side"
-                  data-active="true"
-                >
-                  Beside Title
-                </button>
-                <button type="button" data-tech-placement-btn="below">
-                  Below Description
-                </button>
-              </div>
-            </div>
-
-            <div class="variant-control">
-              <p class="variant-label">Stack Rail</p>
-              <div
-                class="variant-buttons"
-                role="group"
-                aria-label="Choose stack rail thickness"
-              >
-                <button
-                  type="button"
-                  data-rail-width-btn="thin"
-                  data-active="true"
-                >
-                  Thin
-                </button>
-                <button type="button" data-rail-width-btn="thick">
-                  Thick
-                </button>
-                <button type="button" data-rail-width-btn="none">
-                  None
-                </button>
-              </div>
-              <div
-                class="variant-buttons"
-                role="group"
-                aria-label="Choose stack rail color"
-              >
-                <button
-                  type="button"
-                  data-rail-color-btn="context"
-                  data-active="true"
-                >
-                  Multicolor
-                </button>
-                <button type="button" data-rail-color-btn="black">
-                  Black
-                </button>
-                <button type="button" data-rail-color-btn="blue">
-                  Blue
-                </button>
-              </div>
-            </div>
-          </section>
-
           <section class="current" aria-label="Current stacks">
-            <header class="section-head">
-              <h2>Current</h2>
-              <p>One line each. Expand a row for details.</p>
-            </header>
-
             <div class="rows">
               {contexts.map((ctx) => {
                 const view = computeViewForContext(ctx);
@@ -398,176 +310,6 @@ function accentFor(id: string) {
         </div>
       )
     }
-
-    <script is:inline>
-      function initStackControls() {
-        const root = document.querySelector('[data-stack-variant]');
-        if (!root) return;
-        if (root.dataset.controlsBound === 'true') return;
-        root.dataset.controlsBound = 'true';
-
-        const layoutButtons = Array.from(
-          root.querySelectorAll('[data-layout-btn]')
-        );
-        const railWidthButtons = Array.from(
-          root.querySelectorAll('[data-rail-width-btn]')
-        );
-        const railColorButtons = Array.from(
-          root.querySelectorAll('[data-rail-color-btn]')
-        );
-        const techPlacementButtons = Array.from(
-          root.querySelectorAll('[data-tech-placement-btn]')
-        );
-        if (
-          layoutButtons.length === 0 &&
-          railWidthButtons.length === 0 &&
-          railColorButtons.length === 0 &&
-          techPlacementButtons.length === 0
-        ) {
-          return;
-        }
-        const layoutKey = 'thohol.stackLayout';
-        const layoutAllowed = new Set(['type', 'sectioned', 'tone']);
-        const railWidthKey = 'thohol.stackRailWidth';
-        const railWidthAllowed = new Set(['thin', 'thick', 'none']);
-        const railColorKey = 'thohol.stackRailColor';
-        const railColorAllowed = new Set(['context', 'black', 'blue']);
-        const techPlacementKey = 'thohol.stackTechPlacement';
-        const techPlacementAllowed = new Set(['side', 'below']);
-
-        const applyLayout = (layout) => {
-          if (!layoutAllowed.has(layout)) layout = 'type';
-          root.setAttribute('data-layout', layout);
-          for (const b of layoutButtons) {
-            b.setAttribute(
-              'data-active',
-              b.dataset.layoutBtn === layout ? 'true' : 'false'
-            );
-          }
-        };
-
-        const applyRailWidth = (width) => {
-          if (!railWidthAllowed.has(width)) width = 'thin';
-          root.setAttribute('data-rail-width', width);
-          for (const b of railWidthButtons) {
-            b.setAttribute(
-              'data-active',
-              b.dataset.railWidthBtn === width ? 'true' : 'false'
-            );
-          }
-        };
-
-        const applyRailColor = (color) => {
-          if (!railColorAllowed.has(color)) color = 'context';
-          root.setAttribute('data-rail-color', color);
-          for (const b of railColorButtons) {
-            b.setAttribute(
-              'data-active',
-              b.dataset.railColorBtn === color ? 'true' : 'false'
-            );
-          }
-        };
-
-        const applyTechPlacement = (placement) => {
-          if (!techPlacementAllowed.has(placement)) placement = 'side';
-          root.setAttribute('data-tech-placement', placement);
-          for (const b of techPlacementButtons) {
-            b.setAttribute(
-              'data-active',
-              b.dataset.techPlacementBtn === placement ? 'true' : 'false'
-            );
-          }
-        };
-
-        for (const b of layoutButtons) {
-          b.addEventListener('click', () => {
-            const layout = b.getAttribute('data-layout-btn') || 'type';
-            try {
-              localStorage.setItem(layoutKey, layout);
-            } catch (e) {
-              void e;
-            }
-            applyLayout(layout);
-          });
-        }
-
-        for (const b of railWidthButtons) {
-          b.addEventListener('click', () => {
-            const width = b.getAttribute('data-rail-width-btn') || 'thin';
-            try {
-              localStorage.setItem(railWidthKey, width);
-            } catch (e) {
-              void e;
-            }
-            applyRailWidth(width);
-          });
-        }
-
-        for (const b of railColorButtons) {
-          b.addEventListener('click', () => {
-            const color = b.getAttribute('data-rail-color-btn') || 'context';
-            try {
-              localStorage.setItem(railColorKey, color);
-            } catch (e) {
-              void e;
-            }
-            applyRailColor(color);
-          });
-        }
-
-        for (const b of techPlacementButtons) {
-          b.addEventListener('click', () => {
-            const placement =
-              b.getAttribute('data-tech-placement-btn') || 'side';
-            try {
-              localStorage.setItem(techPlacementKey, placement);
-            } catch (e) {
-              void e;
-            }
-            applyTechPlacement(placement);
-          });
-        }
-
-        let initialLayout = 'type';
-        try {
-          const storedLayout = localStorage.getItem(layoutKey);
-          if (storedLayout) initialLayout = storedLayout;
-        } catch (e) {
-          void e;
-        }
-
-        let initialRailWidth = 'thin';
-        try {
-          const storedRailWidth = localStorage.getItem(railWidthKey);
-          if (storedRailWidth) initialRailWidth = storedRailWidth;
-        } catch (e) {
-          void e;
-        }
-
-        let initialRailColor = 'context';
-        try {
-          const storedRailColor = localStorage.getItem(railColorKey);
-          if (storedRailColor) initialRailColor = storedRailColor;
-        } catch (e) {
-          void e;
-        }
-        let initialTechPlacement = 'side';
-        try {
-          const storedTechPlacement = localStorage.getItem(techPlacementKey);
-          if (storedTechPlacement) initialTechPlacement = storedTechPlacement;
-        } catch (e) {
-          void e;
-        }
-        applyLayout(initialLayout);
-        applyRailWidth(initialRailWidth);
-        applyRailColor(initialRailColor);
-        applyTechPlacement(initialTechPlacement);
-      }
-
-      initStackControls();
-      document.addEventListener('astro:page-load', initStackControls);
-      document.addEventListener('DOMContentLoaded', initStackControls);
-    </script>
   </main>
 </BaseLayout>
 
@@ -581,58 +323,6 @@ function accentFor(id: string) {
     margin-top: 1rem;
     display: grid;
     gap: 1.2rem;
-  }
-
-  .variant {
-    display: flex;
-    align-items: start;
-    justify-content: space-between;
-    gap: 0.9rem;
-    flex-wrap: wrap;
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    background: color-mix(in srgb, var(--panel) 75%, #f4f7fc);
-    padding: 0.6rem 0.75rem;
-  }
-
-  .variant-control {
-    display: grid;
-    gap: 0.35rem;
-    min-width: 0;
-  }
-
-  .variant-label {
-    margin: 0;
-    font-family: var(--font-mono);
-    font-size: 0.78rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--ink-soft);
-  }
-
-  .variant-buttons {
-    display: inline-flex;
-    gap: 0.35rem;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-
-  .variant-buttons button {
-    appearance: none;
-    border: 1px solid var(--line);
-    background: var(--panel);
-    color: var(--ink-soft);
-    padding: 0.35rem 0.65rem;
-    border-radius: 999px;
-    cursor: pointer;
-    font-family: var(--font-mono);
-    font-size: 0.82rem;
-  }
-
-  .variant-buttons button[data-active='true'] {
-    color: var(--ink);
-    border-color: var(--accent);
-    background: color-mix(in srgb, var(--accent) 12%, var(--panel));
   }
 
   :global(.stack-wrap .tech-badge) {
@@ -681,12 +371,6 @@ function accentFor(id: string) {
   }
 
   /* Clean stack layout (single display variant) */
-  :global(.stack-wrap[data-stack-variant='v2'] .variant) {
-    border-radius: 10px;
-    background: transparent;
-    border-color: color-mix(in srgb, var(--line) 85%, transparent);
-  }
-
   :global(.stack-wrap[data-stack-variant='v2'] .rows),
   :global(.stack-wrap[data-stack-variant='v2'] .history-list) {
     gap: 0.85rem;
@@ -695,78 +379,18 @@ function accentFor(id: string) {
 
   :global(.stack-wrap[data-stack-variant='v2'] .row-wrap) {
     position: relative;
-    padding-left: 0.85rem;
-  }
-
-  /* Layout Variants */
-  :global(
-    .stack-wrap[data-layout='sectioned'] .row[data-open='true'] .row-peek
-  ),
-  :global(
-    .stack-wrap[data-layout='sectioned'] .row[data-open='true'] .row-inline-tech
-  ),
-  :global(.stack-wrap[data-layout='sectioned'] .row-body),
-  :global(.stack-wrap[data-layout='sectioned'] .history-body) {
-    background: color-mix(in srgb, var(--panel) 82%, #f4f7fc);
-    border: 1px solid color-mix(in srgb, var(--line) 88%, transparent);
-    border-radius: 10px;
-    padding: 0.55rem 0.65rem;
-  }
-
-  :global(
-    .stack-wrap[data-layout='sectioned']
-      .row[data-open='true']
-      .row-peek::before
-  ),
-  :global(
-    .stack-wrap[data-layout='sectioned']
-      .row[data-open='true']
-      .row-inline-tech::before
-  ) {
-    display: block;
-    margin-bottom: 0.25rem;
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--ink-soft);
-  }
-
-  :global(
-    .stack-wrap[data-layout='sectioned']
-      .row[data-open='true']
-      .row-peek::before
-  ) {
-    content: 'Summary';
-  }
-
-  :global(
-    .stack-wrap[data-layout='sectioned']
-      .row[data-open='true']
-      .row-inline-tech::before
-  ) {
-    content: 'Stack';
+    padding-left: 0;
   }
 
   :global(.stack-wrap[data-layout='type'] .row-title),
-  :global(.stack-wrap[data-layout='sectioned'] .row-title),
-  :global(.stack-wrap[data-layout='tone'] .row-title),
-  :global(.stack-wrap[data-layout='type'] .history-title),
-  :global(.stack-wrap[data-layout='sectioned'] .history-title),
-  :global(.stack-wrap[data-layout='tone'] .history-title) {
+  :global(.stack-wrap[data-layout='type'] .history-title) {
     color: var(--accent);
     letter-spacing: -0.01em;
   }
 
   :global(.stack-wrap[data-layout='type'] .row-range),
-  :global(.stack-wrap[data-layout='sectioned'] .row-range),
-  :global(.stack-wrap[data-layout='tone'] .row-range),
   :global(.stack-wrap[data-layout='type'] .history-id),
-  :global(.stack-wrap[data-layout='sectioned'] .history-id),
-  :global(.stack-wrap[data-layout='tone'] .history-id),
-  :global(.stack-wrap[data-layout='type'] .history-right),
-  :global(.stack-wrap[data-layout='sectioned'] .history-right),
-  :global(.stack-wrap[data-layout='tone'] .history-right) {
+  :global(.stack-wrap[data-layout='type'] .history-right) {
     font-family: var(--font-mono);
     font-size: 0.76rem;
     text-transform: uppercase;
@@ -774,81 +398,15 @@ function accentFor(id: string) {
   }
 
   :global(.stack-wrap[data-layout='type'] .row-summary),
-  :global(.stack-wrap[data-layout='sectioned'] .row-summary),
-  :global(.stack-wrap[data-layout='tone'] .row-summary),
   :global(.stack-wrap[data-layout='type'] .history-summary),
-  :global(.stack-wrap[data-layout='sectioned'] .history-summary),
-  :global(.stack-wrap[data-layout='tone'] .history-summary) {
+  :global(.stack-wrap[data-layout='type'] .history-summary) {
     gap: 0.75rem;
   }
 
   :global(
     .stack-wrap[data-layout='type'] .row[data-open='true'] .row-summary::after
-  ),
-  :global(
-    .stack-wrap[data-layout='sectioned']
-      .row[data-open='true']
-      .row-summary::after
-  ),
-  :global(
-    .stack-wrap[data-layout='tone'] .row[data-open='true'] .row-summary::after
   ) {
     background: color-mix(in srgb, var(--accent) 36%, var(--line));
-  }
-
-  :global(.stack-wrap[data-rail-width='none'] .row-wrap) {
-    padding-left: 0;
-  }
-
-  :global(.stack-wrap[data-stack-variant='v2'] .row-wrap::before) {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 10px;
-    bottom: 10px;
-    width: 3px;
-    border-radius: 999px;
-    background: color-mix(in srgb, var(--stack-accent) 35%, transparent);
-    transform: scaleY(0.92);
-    transform-origin: top center;
-    transition:
-      transform 380ms cubic-bezier(0.33, 0, 0.67, 1),
-      background-color 320ms cubic-bezier(0.33, 0, 0.67, 1);
-  }
-
-  :global(
-    .stack-wrap[data-stack-variant='v2']
-      .row-wrap:has(.row[data-open='true'])::before
-  ),
-  :global(
-    .stack-wrap[data-stack-variant='v2']
-      .row-wrap:has(details.history[open])::before
-  ) {
-    transform: scaleY(1);
-  }
-
-  :global(.stack-wrap[data-rail-width='thin'] .row-wrap::before) {
-    width: 2px;
-  }
-
-  :global(.stack-wrap[data-rail-width='thick'] .row-wrap::before) {
-    width: 6px;
-  }
-
-  :global(.stack-wrap[data-rail-width='none'] .row-wrap::before) {
-    display: none;
-  }
-
-  :global(.stack-wrap[data-rail-color='context'] .row-wrap::before) {
-    background: color-mix(in srgb, var(--stack-accent) 35%, transparent);
-  }
-
-  :global(.stack-wrap[data-rail-color='black'] .row-wrap::before) {
-    background: color-mix(in srgb, var(--ink) 45%, transparent);
-  }
-
-  :global(.stack-wrap[data-rail-color='blue'] .row-wrap::before) {
-    background: color-mix(in srgb, var(--accent) 45%, transparent);
   }
 
   :global(.stack-wrap[data-stack-variant='v2'] .row-wrap) {
@@ -908,52 +466,5 @@ function accentFor(id: string) {
   :global(.stack-wrap[data-stack-variant='v2'] .group-title) {
     margin-bottom: 0.3rem;
     color: color-mix(in srgb, var(--ink) 55%, var(--ink-soft));
-  }
-
-  /* Ensure experimental layout variants override clean baseline rules. */
-  :global(.stack-wrap[data-layout='tone'] .row),
-  :global(.stack-wrap[data-layout='tone'] .history) {
-    background: #ffffff;
-  }
-
-  :global(.stack-wrap[data-layout='tone'] .row-summary),
-  :global(.stack-wrap[data-layout='tone'] .history-summary) {
-    background: #ffffff;
-    border-bottom-color: color-mix(in srgb, var(--line) 70%, transparent);
-  }
-
-  :global(.stack-wrap[data-layout='tone'] .row[data-open='true'] .row-summary),
-  :global(
-    .stack-wrap[data-layout='tone'] details.history[open] .history-summary
-  ) {
-    background: color-mix(in srgb, var(--panel) 72%, #eef1f6);
-    border-bottom-color: color-mix(in srgb, var(--line) 78%, #cfd5df);
-  }
-
-  :global(.stack-wrap[data-layout='tone'] .row-body),
-  :global(.stack-wrap[data-layout='tone'] .history-body) {
-    background: transparent;
-    border: 0;
-    border-radius: 0;
-  }
-
-  :global(
-    .stack-wrap[data-layout='tone'] .row[data-open='true'] .row-summary::after
-  ) {
-    display: none;
-  }
-
-  :global(.stack-wrap[data-layout='tone'] .row-events),
-  :global(.stack-wrap[data-layout='tone'] .events) {
-    background: color-mix(in srgb, var(--panel) 62%, #e4e9f0);
-    border: 0;
-    border-radius: 8px;
-    padding: 0.5rem 0.6rem;
-  }
-
-  :global(.stack-wrap[data-layout='tone'] .row-events time),
-  :global(.stack-wrap[data-layout='tone'] .events time) {
-    border: 1px solid var(--line);
-    background: color-mix(in srgb, var(--panel) 80%, #eef1f6);
   }
 </style>
