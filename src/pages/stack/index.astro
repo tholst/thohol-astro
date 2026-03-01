@@ -235,10 +235,51 @@ function accentFor(id: string) {
         <div
           class="stack-wrap"
           data-stack-variant="v2"
-          data-tag-shape="compact"
+          data-tag-shape="ultra"
           data-tag-style="tinted"
+          data-rail-width="thin"
+          data-rail-color="context"
         >
           <section class="variant" aria-label="Tag controls">
+            <div class="variant-control">
+              <p class="variant-label">Stack Rail</p>
+              <div
+                class="variant-buttons"
+                role="group"
+                aria-label="Choose stack rail thickness"
+              >
+                <button
+                  type="button"
+                  data-rail-width-btn="thin"
+                  data-active="true"
+                >
+                  Thin
+                </button>
+                <button type="button" data-rail-width-btn="thick">
+                  Thick
+                </button>
+              </div>
+              <div
+                class="variant-buttons"
+                role="group"
+                aria-label="Choose stack rail color"
+              >
+                <button
+                  type="button"
+                  data-rail-color-btn="context"
+                  data-active="true"
+                >
+                  Multicolor
+                </button>
+                <button type="button" data-rail-color-btn="black">
+                  Black
+                </button>
+                <button type="button" data-rail-color-btn="blue">
+                  Blue
+                </button>
+              </div>
+            </div>
+
             <div class="variant-control">
               <p class="variant-label">Tag Shape</p>
               <div
@@ -368,8 +409,20 @@ function accentFor(id: string) {
         const tagStyleButtons = Array.from(
           root.querySelectorAll('[data-tag-style-btn]')
         );
-        if (tagShapeButtons.length === 0 && tagStyleButtons.length === 0)
+        const railWidthButtons = Array.from(
+          root.querySelectorAll('[data-rail-width-btn]')
+        );
+        const railColorButtons = Array.from(
+          root.querySelectorAll('[data-rail-color-btn]')
+        );
+        if (
+          tagShapeButtons.length === 0 &&
+          tagStyleButtons.length === 0 &&
+          railWidthButtons.length === 0 &&
+          railColorButtons.length === 0
+        ) {
           return;
+        }
         const shapeKey = 'thohol.stackTagShape';
         const shapeAllowed = new Set([
           'ultra',
@@ -379,6 +432,10 @@ function accentFor(id: string) {
         ]);
         const styleKey = 'thohol.stackTagStyle';
         const styleAllowed = new Set(['tinted', 'clean', 'clean-tinted-hover']);
+        const railWidthKey = 'thohol.stackRailWidth';
+        const railWidthAllowed = new Set(['thin', 'thick']);
+        const railColorKey = 'thohol.stackRailColor';
+        const railColorAllowed = new Set(['context', 'black', 'blue']);
 
         const applyTagShape = (shape) => {
           if (!shapeAllowed.has(shape)) shape = 'ultra';
@@ -398,6 +455,28 @@ function accentFor(id: string) {
             b.setAttribute(
               'data-active',
               b.dataset.tagStyleBtn === style ? 'true' : 'false'
+            );
+          }
+        };
+
+        const applyRailWidth = (width) => {
+          if (!railWidthAllowed.has(width)) width = 'thin';
+          root.setAttribute('data-rail-width', width);
+          for (const b of railWidthButtons) {
+            b.setAttribute(
+              'data-active',
+              b.dataset.railWidthBtn === width ? 'true' : 'false'
+            );
+          }
+        };
+
+        const applyRailColor = (color) => {
+          if (!railColorAllowed.has(color)) color = 'context';
+          root.setAttribute('data-rail-color', color);
+          for (const b of railColorButtons) {
+            b.setAttribute(
+              'data-active',
+              b.dataset.railColorBtn === color ? 'true' : 'false'
             );
           }
         };
@@ -426,6 +505,30 @@ function accentFor(id: string) {
           });
         }
 
+        for (const b of railWidthButtons) {
+          b.addEventListener('click', () => {
+            const width = b.getAttribute('data-rail-width-btn') || 'thin';
+            try {
+              localStorage.setItem(railWidthKey, width);
+            } catch (e) {
+              void e;
+            }
+            applyRailWidth(width);
+          });
+        }
+
+        for (const b of railColorButtons) {
+          b.addEventListener('click', () => {
+            const color = b.getAttribute('data-rail-color-btn') || 'context';
+            try {
+              localStorage.setItem(railColorKey, color);
+            } catch (e) {
+              void e;
+            }
+            applyRailColor(color);
+          });
+        }
+
         let initialShape = 'ultra';
         try {
           const storedShape = localStorage.getItem(shapeKey);
@@ -442,8 +545,26 @@ function accentFor(id: string) {
           void e;
         }
 
+        let initialRailWidth = 'thin';
+        try {
+          const storedRailWidth = localStorage.getItem(railWidthKey);
+          if (storedRailWidth) initialRailWidth = storedRailWidth;
+        } catch (e) {
+          void e;
+        }
+
+        let initialRailColor = 'context';
+        try {
+          const storedRailColor = localStorage.getItem(railColorKey);
+          if (storedRailColor) initialRailColor = storedRailColor;
+        } catch (e) {
+          void e;
+        }
+
         applyTagShape(initialShape);
         applyTagStyle(initialStyle);
+        applyRailWidth(initialRailWidth);
+        applyRailColor(initialRailColor);
       }
 
       initStackControls();
@@ -660,6 +781,26 @@ function accentFor(id: string) {
     width: 3px;
     border-radius: 999px;
     background: color-mix(in srgb, var(--stack-accent) 35%, transparent);
+  }
+
+  :global(.stack-wrap[data-rail-width='thin'] .row-wrap::before) {
+    width: 2px;
+  }
+
+  :global(.stack-wrap[data-rail-width='thick'] .row-wrap::before) {
+    width: 6px;
+  }
+
+  :global(.stack-wrap[data-rail-color='context'] .row-wrap::before) {
+    background: color-mix(in srgb, var(--stack-accent) 35%, transparent);
+  }
+
+  :global(.stack-wrap[data-rail-color='black'] .row-wrap::before) {
+    background: color-mix(in srgb, var(--ink) 45%, transparent);
+  }
+
+  :global(.stack-wrap[data-rail-color='blue'] .row-wrap::before) {
+    background: color-mix(in srgb, var(--accent) 45%, transparent);
   }
 
   :global(.stack-wrap[data-stack-variant='v2'] .row-wrap) {
