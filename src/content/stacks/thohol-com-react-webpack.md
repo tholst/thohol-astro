@@ -6,6 +6,10 @@ periods:
   - from: 2019-10-26
     to: 2026-02-08
     summary: Custom React/Webpack blog architecture before the Astro migration.
+    images:
+      - src: /images/stacks/thohol-legacy-home.png
+        alt: thohol.com previous React and Webpack implementation homepage
+        caption: Previous implementation before the Astro migration
     tech:
       - react
       - label: React Router

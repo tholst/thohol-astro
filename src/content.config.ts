@@ -88,6 +88,12 @@ const stackPeriodEvent = z.object({
   tech: z.array(techRef).default([]),
 });
 
+const stackPeriodImage = z.object({
+  src: z.string(),
+  alt: z.string(),
+  caption: z.string().optional(),
+});
+
 const stackPeriod = z
   .object({
     from: z.coerce.date(),
@@ -95,6 +101,7 @@ const stackPeriod = z
     summary: z.string().optional(),
     // New (preferred): a flat list of tech refs, each optionally tagged.
     tech: z.array(techRef).optional(),
+    images: z.array(stackPeriodImage).default([]),
     // Backward compatible with the first iteration.
     stack: stackCategories.optional(),
     events: z.array(stackPeriodEvent).default([]),

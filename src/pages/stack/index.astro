@@ -23,6 +23,7 @@ type Category =
   | 'AI Models/APIs';
 
 type TechRef = string | { label: string; href?: string; tags?: Category[] };
+type StackImage = { src: string; alt: string; caption?: string };
 type ResolvedTech = {
   key: string;
   label: string;
@@ -36,6 +37,7 @@ type StackPeriod = {
   to?: Date;
   summary?: string;
   tech?: TechRef[];
+  images?: StackImage[];
   // Backward compatible: earlier periods may still use `stack`.
   stack?: Record<Category, TechRef[]>;
   events: StackEvent[];
@@ -65,6 +67,7 @@ type ResolvedPeriod = {
   rangeLabel: string;
   summary?: string;
   tech: ResolvedTech[];
+  images: StackImage[];
   events: PeriodEvent[];
 };
 
@@ -169,6 +172,7 @@ function resolvePeriod(period: StackPeriod): ResolvedPeriod {
     rangeLabel: formatRange(period.from, period.to),
     summary: period.summary,
     tech,
+    images: period.images ?? [],
     events,
   };
 }
@@ -245,6 +249,7 @@ const pastContexts = contexts.filter((ctx) => ctx.status === 'past');
                       rangeLabel={period.rangeLabel}
                       summary={period.summary}
                       tech={period.tech}
+                      images={period.images}
                       events={period.events}
                     />
                   </div>
@@ -290,6 +295,7 @@ const pastContexts = contexts.filter((ctx) => ctx.status === 'past');
                         rangeLabel={period.rangeLabel}
                         summary={period.summary}
                         tech={period.tech}
+                        images={period.images}
                         events={period.events}
                       />
                     </div>
