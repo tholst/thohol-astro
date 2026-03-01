@@ -1,11 +1,12 @@
 # Makefile for thohol-astro blog
 
-.PHONY: help dev build preview clean install screenshots screenshot-homepage
+.PHONY: help dev dev-native build preview clean install screenshots screenshot-homepage
 
 # Default target
 help:
 	@echo "Available commands:"
-	@echo "  make dev      - Start development server"
+	@echo "  make dev      - Start development server (robust polling watch)"
+	@echo "  make dev-native - Start dev server with native file watching"
 	@echo "  make build    - Build production site"
 	@echo "  make preview  - Preview production build"
 	@echo "  make install  - Install dependencies"
@@ -15,7 +16,11 @@ help:
 
 # Development server
 dev:
-	VITE_USE_POLLING=1 npm run dev
+	CHOKIDAR_USEPOLLING=1 CHOKIDAR_INTERVAL=$${POLL_INTERVAL:-120} VITE_USE_POLLING=1 VITE_POLL_INTERVAL=$${POLL_INTERVAL:-120} npm run dev
+
+# Development server with native filesystem events
+dev-native:
+	npm run dev
 
 # Build production site
 build:

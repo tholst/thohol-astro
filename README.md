@@ -20,7 +20,8 @@ All commands are run from the root of the project:
 | `npm run dev`     | Starts local dev server at `localhost:4321`  |
 | `npm run build`   | Build your production site to `./dist/`      |
 | `npm run preview` | Preview your build locally, before deploying |
-| `make dev`        | Alternative: Start development server        |
+| `make dev`        | Start dev server with robust polling watcher |
+| `make dev-native` | Start dev server with native file watching   |
 | `make build`      | Alternative: Build production site           |
 
 ## Project Structure
