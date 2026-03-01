@@ -1,7 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import StackCurrentRow from '../../components/StackCurrentRow.astro';
-import StackHistoryContext from '../../components/StackHistoryContext.astro';
 import { getCollection } from 'astro:content';
 import { SITE_TITLE } from '../../consts';
 import { FEATURES } from '../../config/features';
@@ -46,6 +45,7 @@ type StackContext = {
   id: string;
   title: string;
   order: number;
+  status: 'current' | 'past';
   periods: StackPeriod[];
 };
 
@@ -57,8 +57,6 @@ type PeriodEvent = {
   tech: ResolvedTech[];
 };
 
-type PeriodDiff = { added: ResolvedTech[]; removed: ResolvedTech[] };
-
 type ResolvedPeriod = {
   from: Date;
   to?: Date;
@@ -68,7 +66,6 @@ type ResolvedPeriod = {
   summary?: string;
   tech: ResolvedTech[];
   events: PeriodEvent[];
-  diff?: PeriodDiff;
 };
 
 const CATEGORY_ORDER: Category[] = [
@@ -92,6 +89,7 @@ const contexts: StackContext[] = allContexts
     id: c.id,
     title: c.data.title,
     order: c.data.order,
+    status: c.data.status,
     periods: c.data.periods,
   }))
   .sort((a, b) => a.order - b.order || a.title.localeCompare(b.title));
@@ -175,39 +173,20 @@ function resolvePeriod(period: StackPeriod): ResolvedPeriod {
   };
 }
 
-function computeDiff(prev: ResolvedPeriod | undefined, cur: ResolvedPeriod) {
-  if (!prev) return undefined;
-  const prevKeys = new Set(prev.tech.map((t) => t.key));
-  const curKeys = new Set(cur.tech.map((t) => t.key));
-  return {
-    added: cur.tech.filter((t) => !prevKeys.has(t.key)),
-    removed: prev.tech.filter((t) => !curKeys.has(t.key)),
-  };
-}
-
-function computeViewForContext(ctx: StackContext) {
+function pickDisplayPeriod(ctx: StackContext) {
   const sorted = [...ctx.periods].sort(
     (a, b) => a.from.valueOf() - b.from.valueOf()
   );
   const resolved = sorted.map(resolvePeriod);
-  const diffs = resolved.map((p, idx) =>
-    computeDiff(idx > 0 ? resolved[idx - 1] : undefined, p)
-  );
-  const withDiff = resolved.map((p, idx) => ({ ...p, diff: diffs[idx] }));
 
   const currentIndex = (() => {
-    for (let i = withDiff.length - 1; i >= 0; i -= 1) {
-      if (!withDiff[i].to) return i;
+    for (let i = resolved.length - 1; i >= 0; i -= 1) {
+      if (!resolved[i].to) return i;
     }
-    return withDiff.length - 1;
+    return resolved.length - 1;
   })();
 
-  const current = withDiff[currentIndex];
-  const past = withDiff
-    .filter((_, idx) => idx !== currentIndex)
-    .sort((a, b) => b.from.valueOf() - a.from.valueOf());
-
-  return { current, past };
+  return resolved[currentIndex];
 }
 
 function accentFor(id: string) {
@@ -221,6 +200,9 @@ function accentFor(id: string) {
   // Avoid neon-by-default; keep in a printable, confident range.
   return `hsl(${hue} 68% 42%)`;
 }
+
+const currentContexts = contexts.filter((ctx) => ctx.status === 'current');
+const pastContexts = contexts.filter((ctx) => ctx.status === 'past');
 ---
 
 <BaseLayout
@@ -230,10 +212,7 @@ function accentFor(id: string) {
   <main>
     <section class="intro">
       <h1>Tech Stacks</h1>
-      <p>
-        A living snapshot of the technologies I use, with expandable details and
-        timeline history by context.
-      </p>
+      <p>Technology stacks I am currently working with.</p>
     </section>
 
     {
@@ -252,8 +231,8 @@ function accentFor(id: string) {
         >
           <section class="current" aria-label="Current stacks">
             <div class="rows">
-              {contexts.map((ctx) => {
-                const view = computeViewForContext(ctx);
+              {currentContexts.map((ctx) => {
+                const period = pickDisplayPeriod(ctx);
                 return (
                   <div
                     class="row-wrap"
@@ -263,10 +242,10 @@ function accentFor(id: string) {
                     <StackCurrentRow
                       contextId={ctx.id}
                       title={ctx.title}
-                      rangeLabel={view.current.rangeLabel}
-                      summary={view.current.summary}
-                      tech={view.current.tech}
-                      events={view.current.events}
+                      rangeLabel={period.rangeLabel}
+                      summary={period.summary}
+                      tech={period.tech}
+                      events={period.events}
                     />
                   </div>
                 );
@@ -274,39 +253,51 @@ function accentFor(id: string) {
             </div>
           </section>
 
-          <section class="previous" aria-label="Previous stacks">
-            <header class="section-head">
-              <h2>Previous</h2>
-              <p>Foldable history per context. Diffs show how it changed.</p>
-            </header>
-
-            <div class="history-list">
-              {contexts.map((ctx) => {
-                const view = computeViewForContext(ctx);
-                return (
-                  <div
-                    class="row-wrap"
-                    data-stack-key={ctx.id}
-                    style={`--stack-accent: ${accentFor(ctx.id)};`}
-                  >
-                    <StackHistoryContext
-                      contextId={ctx.id}
-                      title={ctx.title}
-                      periods={view.past.map((p) => ({
-                        fromIso: p.fromIso,
-                        toIso: p.toIso,
-                        rangeLabel: p.rangeLabel,
-                        summary: p.summary,
-                        tech: p.tech,
-                        events: p.events,
-                        diff: p.diff,
-                      }))}
+          {pastContexts.length > 0 && (
+            <details class="previous" aria-label="Past stacks">
+              <summary class="previous-summary">
+                <span class="previous-left">
+                  <span class="previous-title">Stack Archive</span>
+                  <span class="previous-count">
+                    {pastContexts.length} archived
+                  </span>
+                </span>
+                <span class="previous-chevron" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
+                    <path
+                      d="M6 9l6 6 6-6"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
                     />
-                  </div>
-                );
-              })}
-            </div>
-          </section>
+                  </svg>
+                </span>
+              </summary>
+
+              <div class="history-list">
+                {pastContexts.map((ctx) => {
+                  const period = pickDisplayPeriod(ctx);
+                  return (
+                    <div
+                      class="row-wrap"
+                      data-stack-key={ctx.id}
+                      style={`--stack-accent: ${accentFor(ctx.id)};`}
+                    >
+                      <StackCurrentRow
+                        contextId={ctx.id}
+                        title={ctx.title}
+                        rangeLabel={period.rangeLabel}
+                        summary={period.summary}
+                        tech={period.tech}
+                        events={period.events}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            </details>
+          )}
         </div>
       )
     }
@@ -356,6 +347,75 @@ function accentFor(id: string) {
   .section-head p {
     margin: 0;
     color: var(--ink-soft);
+  }
+
+  .previous {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    margin-top: 0.35rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid color-mix(in srgb, var(--line) 82%, transparent);
+  }
+
+  .previous-summary {
+    list-style: none;
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.75rem;
+    align-items: center;
+    padding: 0.2rem 0;
+    border-radius: 8px;
+  }
+
+  .previous > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .previous-left {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.55rem;
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+
+  .previous-title {
+    font-size: 1.1rem;
+    font-weight: 650;
+    color: var(--accent);
+    letter-spacing: -0.01em;
+  }
+
+  .previous-count {
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-soft);
+  }
+
+  .previous-chevron {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink-soft);
+    transition: transform 240ms cubic-bezier(0.33, 0, 0.67, 1);
+  }
+
+  .previous[open] .previous-chevron {
+    transform: rotate(180deg);
+  }
+
+  .previous-summary:hover .previous-title {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .previous-summary:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--accent) 45%, transparent);
+    outline-offset: 3px;
   }
 
   .rows,

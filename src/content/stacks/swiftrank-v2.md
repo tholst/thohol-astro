@@ -1,5 +1,6 @@
 ---
 title: 'SwiftRank v2'
+status: current
 order: 10
 periods:
   - from: 2025-08-03

@@ -1,5 +1,6 @@
 ---
 title: Personal
+status: current
 order: 20
 periods:
   - from: 2015-01-01
