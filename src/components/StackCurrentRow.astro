@@ -423,7 +423,6 @@ const preparedEvents = events.map((event) => {
             if (target.closest('button')) return;
             if (target.closest('a')) return;
             if (target.closest('[data-tech-fold]')) return;
-            if (!target.closest('.row-left')) return;
             const isOpen = row.getAttribute('data-open') === 'true';
             setOpen(!isOpen, true);
           });
@@ -454,6 +453,9 @@ const preparedEvents = events.map((event) => {
     grid-template-columns: minmax(180px, auto) minmax(0, 1fr) auto;
     align-items: start;
     position: relative;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 180ms ease;
   }
 
   .row-left {
@@ -524,6 +526,8 @@ const preparedEvents = events.map((event) => {
     grid-column: 3 / 4;
     grid-row: 1;
     justify-self: end;
+    border-radius: 8px;
+    transition: color 180ms ease;
   }
 
   .row-chev {
@@ -608,6 +612,15 @@ const preparedEvents = events.map((event) => {
 
   .row[data-open='true'] .row-chev {
     transform: rotate(180deg);
+  }
+
+  .row-summary:hover {
+    background: color-mix(in srgb, var(--line) 58%, transparent);
+  }
+
+  .row-summary:hover .row-chev,
+  .row-toggle:hover .row-chev {
+    color: var(--ink);
   }
 
   .row-peek {
