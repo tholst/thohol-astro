@@ -4,23 +4,11 @@ import StackCurrentRow from '../../components/StackCurrentRow.astro';
 import { getCollection } from 'astro:content';
 import { SITE_TITLE } from '../../consts';
 import { FEATURES } from '../../config/features';
+import type { StackCategory as Category } from '../../lib/stack-taxonomy';
 
 if (!FEATURES.stack) {
   return Astro.redirect('/');
 }
-
-type Category =
-  | 'Languages'
-  | 'Frameworks'
-  | 'UI'
-  | 'Data'
-  | 'Identity'
-  | 'Integrations'
-  | 'Platforms/Hosting'
-  | 'Infrastructure'
-  | 'Tooling'
-  | 'AI Tools'
-  | 'AI Models/APIs';
 
 type TechRef = string | { label: string; href?: string; tags?: Category[] };
 type StackImage = { src: string; alt: string; caption?: string };
@@ -36,10 +24,8 @@ type StackPeriod = {
   from: Date;
   to?: Date;
   summary?: string;
-  tech?: TechRef[];
+  tech: TechRef[];
   images?: StackImage[];
-  // Backward compatible: earlier periods may still use `stack`.
-  stack?: Record<Category, TechRef[]>;
   events: StackEvent[];
 };
 
@@ -70,20 +56,6 @@ type ResolvedPeriod = {
   images: StackImage[];
   events: PeriodEvent[];
 };
-
-const CATEGORY_ORDER: Category[] = [
-  'Languages',
-  'Frameworks',
-  'UI',
-  'Data',
-  'Identity',
-  'Integrations',
-  'Platforms/Hosting',
-  'Infrastructure',
-  'Tooling',
-  'AI Tools',
-  'AI Models/APIs',
-];
 
 const allContexts = await getCollection('stacks');
 const contexts: StackContext[] = allContexts
@@ -117,7 +89,7 @@ function formatRange(from: Date, to: Date | undefined) {
   return `${fromLabel} – ${toLabel}`;
 }
 
-function resolveRefWithTags(ref: TechRef): ResolvedTech {
+function resolveRefWithTags(ref: TechRef, sourceLabel: string): ResolvedTech {
   if (typeof ref === 'string') {
     const found = techById.get(ref);
     if (found) {
@@ -128,7 +100,9 @@ function resolveRefWithTags(ref: TechRef): ResolvedTech {
           : ([] as Category[]);
       return { key: `id:${ref}`, label: found.title, href: found.href, tags };
     }
-    return { key: `id:${ref}`, label: ref, tags: [] };
+    throw new Error(
+      `Unknown tech id "${ref}" in ${sourceLabel}. Add it under src/content/tech or use a labeled tech object.`
+    );
   }
   return {
     key: `label:${ref.label}`,
@@ -138,21 +112,12 @@ function resolveRefWithTags(ref: TechRef): ResolvedTech {
   };
 }
 
-function resolvePeriod(period: StackPeriod): ResolvedPeriod {
-  const legacyFlatFromStack: TechRef[] = [];
-  if (period.stack) {
-    for (const cat of CATEGORY_ORDER) {
-      const items = period.stack[cat] ?? [];
-      for (const item of items) {
-        if (typeof item === 'string') legacyFlatFromStack.push(item);
-        else legacyFlatFromStack.push({ ...item, tags: item.tags ?? [cat] });
-      }
-    }
-  }
-
-  const raw =
-    period.tech && period.tech.length > 0 ? period.tech : legacyFlatFromStack;
-  const tech = raw.map(resolveRefWithTags);
+function resolvePeriod(
+  period: StackPeriod,
+  contextTitle: string
+): ResolvedPeriod {
+  const sourceLabel = `${contextTitle} (${period.from.toISOString().slice(0, 10)} period)`;
+  const tech = period.tech.map((ref) => resolveRefWithTags(ref, sourceLabel));
 
   const events = [...(period.events ?? [])]
     .sort((a, b) => b.date.valueOf() - a.date.valueOf())
@@ -161,7 +126,9 @@ function resolvePeriod(period: StackPeriod): ResolvedPeriod {
       dateLabel: formatMonthYear(ev.date),
       title: ev.title,
       note: ev.note,
-      tech: (ev.tech ?? []).map(resolveRefWithTags),
+      tech: (ev.tech ?? []).map((ref) =>
+        resolveRefWithTags(ref, `${sourceLabel} event "${ev.title}"`)
+      ),
     }));
 
   return {
@@ -181,7 +148,7 @@ function pickDisplayPeriod(ctx: StackContext) {
   const sorted = [...ctx.periods].sort(
     (a, b) => a.from.valueOf() - b.from.valueOf()
   );
-  const resolved = sorted.map(resolvePeriod);
+  const resolved = sorted.map((period) => resolvePeriod(period, ctx.title));
 
   const currentIndex = (() => {
     for (let i = resolved.length - 1; i >= 0; i -= 1) {

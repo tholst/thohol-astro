@@ -1,18 +1,6 @@
 ---
 import StackTechList from './StackTechList.astro';
-
-type Category =
-  | 'Languages'
-  | 'Frameworks'
-  | 'UI'
-  | 'Data'
-  | 'Identity'
-  | 'Integrations'
-  | 'Platforms/Hosting'
-  | 'Infrastructure'
-  | 'Tooling'
-  | 'AI Tools'
-  | 'AI Models/APIs';
+import type { StackCategory as Category } from '../lib/stack-taxonomy';
 
 type Tech = { key: string; label: string; href?: string; tags: Category[] };
 

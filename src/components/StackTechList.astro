@@ -1,18 +1,10 @@
 ---
 import TechBadge from './TechBadge.astro';
-
-type Category =
-  | 'Languages'
-  | 'Frameworks'
-  | 'UI'
-  | 'Data'
-  | 'Identity'
-  | 'Integrations'
-  | 'Platforms/Hosting'
-  | 'Infrastructure'
-  | 'Tooling'
-  | 'AI Tools'
-  | 'AI Models/APIs';
+import {
+  STACK_CATEGORIES as GROUP_ORDER,
+  STACK_CATEGORY_LABEL as GROUP_LABEL,
+  type StackCategory as Category,
+} from '../lib/stack-taxonomy';
 
 type Tech = { key: string; label: string; href?: string; tags: Category[] };
 
@@ -21,34 +13,6 @@ interface Props {
 }
 
 const { tech } = Astro.props;
-
-const GROUP_ORDER: Category[] = [
-  'Languages',
-  'Frameworks',
-  'UI',
-  'Data',
-  'Identity',
-  'Integrations',
-  'Platforms/Hosting',
-  'Infrastructure',
-  'Tooling',
-  'AI Tools',
-  'AI Models/APIs',
-];
-
-const GROUP_LABEL: Record<Category, string> = {
-  Languages: 'Language',
-  Frameworks: 'Frameworks',
-  UI: 'UI',
-  Data: 'Data',
-  Identity: 'Identity',
-  Integrations: 'Integrations',
-  'Platforms/Hosting': 'Platforms',
-  Infrastructure: 'Infrastructure',
-  Tooling: 'Tooling',
-  'AI Tools': 'AI Tools',
-  'AI Models/APIs': 'AI Models',
-};
 
 // If a tech has multiple tags, pick one "home" group to avoid duplication.
 const primaryGroupFor = (t: Tech): Category | undefined => {
