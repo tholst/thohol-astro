@@ -132,7 +132,7 @@ const preparedEvents = events.map((event) => {
   class="row"
   data-stack-row
   data-open="false"
-  data-has-events={events.length > 0 ? 'true' : 'false'}
+  data-has-details={events.length > 0 || images.length > 0 ? 'true' : 'false'}
   aria-label={`${title} stack`}
 >
   <header class="row-summary">
@@ -167,27 +167,6 @@ const preparedEvents = events.map((event) => {
 
     <div class="row-peek" aria-label="Stack summary">
       {summary && <p class="row-desc">{summary}</p>}
-      {
-        images.length > 0 && (
-          <div class="row-media" aria-label="Stack screenshots">
-            {images.map((image, index) => (
-              <figure class="row-media-item">
-                <button
-                  type="button"
-                  class="row-media-thumb"
-                  data-media-open
-                  data-media-src={image.src}
-                  data-media-alt={image.alt}
-                  data-media-caption={image.caption ?? ''}
-                  aria-label={`Open screenshot ${index + 1} in large view`}
-                >
-                  <img src={image.src} alt={image.alt} loading="lazy" />
-                </button>
-              </figure>
-            ))}
-          </div>
-        )
-      }
     </div>
   </header>
 
@@ -199,6 +178,59 @@ const preparedEvents = events.map((event) => {
     aria-hidden="true"
     style="display:none;"
   >
+    {
+      images.length > 0 && (
+        <div class="row-media" aria-label="Stack screenshots">
+          {images.map((image, index) => (
+            <figure class="row-media-item">
+              <button
+                type="button"
+                class="row-media-thumb"
+                data-media-open
+                data-media-src={image.src}
+                data-media-alt={image.alt}
+                data-media-caption={image.caption ?? ''}
+                aria-label={`Open screenshot ${index + 1} in large view`}
+              >
+                <img src={image.src} alt={image.alt} loading="lazy" />
+              </button>
+              {image.caption && <figcaption>{image.caption}</figcaption>}
+            </figure>
+          ))}
+        </div>
+      )
+    }
+
+    {
+      images.length > 0 && (
+        <dialog class="row-media-dialog" data-media-dialog>
+          <div class="row-media-dialog-inner">
+            <div class="row-media-dialog-head">
+              <p
+                class="row-media-dialog-caption"
+                data-media-dialog-caption
+                hidden
+              />
+              <button
+                type="button"
+                class="row-media-dialog-close"
+                data-media-close
+                aria-label="Close screenshot"
+              >
+                Close
+              </button>
+            </div>
+            <img
+              class="row-media-dialog-image"
+              data-media-dialog-image
+              src=""
+              alt=""
+            />
+          </div>
+        </dialog>
+      )
+    }
+
     {
       events.length > 0 && (
         <div class="row-events" aria-label="Changes">
@@ -259,36 +291,6 @@ const preparedEvents = events.map((event) => {
     }
   </div>
 
-  {
-    images.length > 0 && (
-      <dialog class="row-media-dialog" data-media-dialog>
-        <div class="row-media-dialog-inner">
-          <div class="row-media-dialog-head">
-            <p
-              class="row-media-dialog-caption"
-              data-media-dialog-caption
-              hidden
-            />
-            <button
-              type="button"
-              class="row-media-dialog-close"
-              data-media-close
-              aria-label="Close screenshot"
-            >
-              Close
-            </button>
-          </div>
-          <img
-            class="row-media-dialog-image"
-            data-media-dialog-image
-            src=""
-            alt=""
-          />
-        </div>
-      </dialog>
-    )
-  }
-
   <script is:inline>
     function initStackRows() {
       const rows = Array.from(document.querySelectorAll('[data-stack-row]'));
@@ -301,7 +303,7 @@ const preparedEvents = events.map((event) => {
         const fold = row.querySelector('[data-tech-fold]');
         const summary = row.querySelector('.row-summary');
         if (!btn || !panel) continue;
-        const hasEvents = row.getAttribute('data-has-events') === 'true';
+        const hasDetails = row.getAttribute('data-has-details') === 'true';
         const prefersReduced = window.matchMedia?.(
           '(prefers-reduced-motion: reduce)'
         )?.matches;
@@ -316,7 +318,6 @@ const preparedEvents = events.map((event) => {
 
         const finishPanelStyles = () => {
           panel.style.height = '';
-          panel.style.opacity = '';
           panel.style.overflow = '';
         };
 
@@ -328,20 +329,6 @@ const preparedEvents = events.map((event) => {
           const m = new Map();
           for (const el of targets) {
             m.set(el, el.getBoundingClientRect());
-          }
-          return m;
-        };
-
-        const captureLaneRects = () => {
-          const currentWrap = row.closest('.row-wrap');
-          const lane = currentWrap?.parentElement;
-          if (!lane) return undefined;
-          const wraps = Array.from(lane.children).filter((el) =>
-            el.classList.contains('row-wrap')
-          );
-          const m = new Map();
-          for (const wrap of wraps) {
-            m.set(wrap, wrap.getBoundingClientRect());
           }
           return m;
         };
@@ -368,29 +355,8 @@ const preparedEvents = events.map((event) => {
           }
         };
 
-        const animateLaneShift = (beforeRects) => {
-          if (prefersReduced || !beforeRects) return;
-          for (const [el, before] of beforeRects.entries()) {
-            el.getAnimations().forEach((animation) => animation.cancel());
-            const after = el.getBoundingClientRect();
-            const dy = before.top - after.top;
-            if (Math.abs(dy) < 0.5) continue;
-            el.animate(
-              [
-                { transform: `translateY(${dy}px)` },
-                { transform: 'translateY(0px)' },
-              ],
-              {
-                duration: 420,
-                easing: 'cubic-bezier(0.22, 0.61, 0.36, 1)',
-                fill: 'both',
-              }
-            );
-          }
-        };
-
         const animatePanel = (nextOpen, animate = true) => {
-          const showPanel = nextOpen && hasEvents;
+          const showPanel = nextOpen && hasDetails;
           cancelPanelAnimation();
 
           if (!showPanel) {
@@ -416,13 +382,9 @@ const preparedEvents = events.map((event) => {
             panel.style.display = 'grid';
             panel.style.overflow = 'hidden';
             panel.style.height = `${fromHeight}px`;
-            panel.style.opacity = '1';
 
             panelAnimation = panel.animate(
-              [
-                { height: `${fromHeight}px`, opacity: 1 },
-                { height: '0px', opacity: 0 },
-              ],
+              [{ height: `${fromHeight}px` }, { height: '0px' }],
               {
                 duration: 360,
                 easing: 'cubic-bezier(0.22, 0.61, 0.36, 1)',
@@ -456,16 +418,9 @@ const preparedEvents = events.map((event) => {
           panel.style.height = 'auto';
           const toHeight = panel.scrollHeight;
           panel.style.height = `${fromHeight || 0}px`;
-          panel.style.opacity = fromHeight > 0 ? '1' : '0';
 
           panelAnimation = panel.animate(
-            [
-              {
-                height: `${fromHeight || 0}px`,
-                opacity: fromHeight > 0 ? 1 : 0,
-              },
-              { height: `${toHeight}px`, opacity: 1 },
-            ],
+            [{ height: `${fromHeight || 0}px` }, { height: `${toHeight}px` }],
             {
               duration: 380,
               easing: 'cubic-bezier(0.22, 0.61, 0.36, 1)',
@@ -485,9 +440,6 @@ const preparedEvents = events.map((event) => {
           const token = ++frameToken;
           const shouldAnimate = animate && !prefersReduced;
           const beforeRects = shouldAnimate ? captureSummaryRects() : undefined;
-          const laneBeforeRects = shouldAnimate
-            ? captureLaneRects()
-            : undefined;
 
           row.setAttribute('data-open', nextOpen ? 'true' : 'false');
           btn.setAttribute('aria-expanded', nextOpen ? 'true' : 'false');
@@ -505,7 +457,6 @@ const preparedEvents = events.map((event) => {
               requestAnimationFrame(() => {
                 if (token !== frameToken) return;
                 animateSummaryFlip(beforeRects);
-                animateLaneShift(laneBeforeRects);
               })
             );
           }
@@ -714,7 +665,7 @@ const preparedEvents = events.map((event) => {
     grid-template-columns: minmax(0, 1fr) auto;
   }
 
-  .row[data-open='true'][data-has-events='true'] .row-summary::after {
+  .row[data-open='true'][data-has-details='true'] .row-summary::after {
     transform: scaleX(1);
     opacity: 1;
   }
@@ -777,7 +728,7 @@ const preparedEvents = events.map((event) => {
     grid-row: 3;
   }
 
-  .row[data-open='true'][data-has-events='false'] .row-summary {
+  .row[data-open='true'][data-has-details='false'] .row-summary {
     border-bottom: 0;
   }
 
@@ -804,25 +755,22 @@ const preparedEvents = events.map((event) => {
     gap: 0.7rem;
   }
 
-  /* Hidden attribute is the source of truth for collapsed state. */
+  /* Defensive: never show expanded details while collapsed. */
+  .row[data-open='false'] .row-body,
   .row-body[hidden] {
     display: none !important;
   }
 
   .row-media {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
     gap: 0.8rem;
-  }
-
-  .row[data-open='false'] .row-media {
-    display: none;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   }
 
   .row-media-item {
     margin: 0;
     display: grid;
-    width: min(100%, calc(20% - 0.64rem));
+    gap: 0.35rem;
   }
 
   .row-media-thumb {
@@ -830,13 +778,11 @@ const preparedEvents = events.map((event) => {
     border: 1px solid color-mix(in srgb, var(--line) 82%, transparent);
     background: color-mix(in srgb, var(--panel) 84%, #eef3fb);
     border-radius: 10px;
-    padding: 0.2rem;
+    padding: 0;
     cursor: zoom-in;
     overflow: hidden;
     width: 100%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    aspect-ratio: 16 / 10;
   }
 
   .row-media-thumb:focus-visible {
@@ -846,9 +792,15 @@ const preparedEvents = events.map((event) => {
 
   .row-media-item img {
     width: 100%;
-    height: auto;
+    height: 100%;
     display: block;
-    object-fit: contain;
+    object-fit: cover;
+  }
+
+  .row-media-item figcaption {
+    margin: 0;
+    font-size: 0.84rem;
+    color: var(--ink-soft);
   }
 
   .row-media-dialog {
@@ -911,7 +863,7 @@ const preparedEvents = events.map((event) => {
   }
 
   .row-events h4 {
-    margin: 0 0 0.35rem;
+    margin: 0;
     font-family: var(--font-mono);
     font-size: 0.8rem;
     letter-spacing: 0.08em;
@@ -928,19 +880,8 @@ const preparedEvents = events.map((event) => {
   }
 
   .row-events {
-    padding-bottom: 0.45rem;
-    opacity: 1;
-    transform: translateY(0);
-    transition:
-      opacity 180ms ease,
-      transform 220ms cubic-bezier(0.22, 0.61, 0.36, 1);
-    will-change: opacity, transform;
-  }
-
-  .row[data-open='false'] .row-events {
-    opacity: 0;
-    transform: translateY(-4px);
-    pointer-events: none;
+    display: grid;
+    gap: 0.35rem;
   }
 
   .row-events li {
@@ -1048,10 +989,6 @@ const preparedEvents = events.map((event) => {
 
     .row-title {
       white-space: normal;
-    }
-
-    .row-media-item {
-      width: 100%;
     }
 
     .row-events li {
