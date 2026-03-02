@@ -190,16 +190,7 @@ const pastContexts = contexts.filter((ctx) => ctx.status === 'past');
       contexts.length === 0 ? (
         <p class="empty">No stack contexts published yet.</p>
       ) : (
-        <div
-          class="stack-wrap"
-          data-stack-variant="v2"
-          data-tag-shape="ultra"
-          data-rail-width="none"
-          data-rail-color="black"
-          data-tech-preview="wrap"
-          data-layout="type"
-          data-tech-placement="below"
-        >
+        <div class="stack-wrap">
           <section class="current" aria-label="Current stacks">
             <div class="rows">
               {currentContexts.map((ctx) => {
@@ -300,7 +291,7 @@ const pastContexts = contexts.filter((ctx) => ctx.status === 'past');
     background: color-mix(in srgb, var(--tag-accent) 14%, var(--panel));
   }
 
-  :global(.stack-wrap[data-tag-shape='ultra'] .tech-badge) {
+  :global(.stack-wrap .tech-badge) {
     --tag-height: 21px;
     --tag-radius: 999px;
     --tag-pad-y: 1px;
@@ -403,52 +394,49 @@ const pastContexts = contexts.filter((ctx) => ctx.status === 'past');
     color: var(--ink-soft);
   }
 
-  /* Clean stack layout (single display variant) */
-  :global(.stack-wrap[data-stack-variant='v2'] .rows),
-  :global(.stack-wrap[data-stack-variant='v2'] .history-list) {
+  .stack-wrap .rows,
+  .stack-wrap .history-list {
     gap: 0.85rem;
     border-top: 0;
   }
 
-  :global(.stack-wrap[data-stack-variant='v2'] .row-wrap) {
+  .stack-wrap .row-wrap {
     position: relative;
     padding-left: 0;
   }
 
-  :global(.stack-wrap[data-layout='type'] .row-title),
-  :global(.stack-wrap[data-layout='type'] .history-title) {
+  :global(.stack-wrap .row-title),
+  :global(.stack-wrap .history-title) {
     color: var(--accent);
     letter-spacing: -0.01em;
   }
 
-  :global(.stack-wrap[data-layout='type'] .row-range),
-  :global(.stack-wrap[data-layout='type'] .history-id),
-  :global(.stack-wrap[data-layout='type'] .history-right) {
+  :global(.stack-wrap .row-range),
+  :global(.stack-wrap .history-id),
+  :global(.stack-wrap .history-right) {
     font-family: var(--font-mono);
     font-size: 0.76rem;
     text-transform: uppercase;
     letter-spacing: 0.06em;
   }
 
-  :global(.stack-wrap[data-layout='type'] .row-summary),
-  :global(.stack-wrap[data-layout='type'] .history-summary),
-  :global(.stack-wrap[data-layout='type'] .history-summary) {
+  :global(.stack-wrap .row-summary),
+  :global(.stack-wrap .history-summary),
+  :global(.stack-wrap .history-summary) {
     gap: 0.75rem;
   }
 
-  :global(
-    .stack-wrap[data-layout='type'] .row[data-open='true'] .row-summary::after
-  ) {
+  :global(.stack-wrap .row[data-open='true'] .row-summary::after) {
     background: color-mix(in srgb, var(--accent) 36%, var(--line));
   }
 
-  :global(.stack-wrap[data-stack-variant='v2'] .row-wrap) {
+  :global(.stack-wrap .row-wrap) {
     padding-top: 0;
     padding-bottom: 0;
   }
 
-  :global(.stack-wrap[data-stack-variant='v2'] .row),
-  :global(.stack-wrap[data-stack-variant='v2'] .history) {
+  :global(.stack-wrap .row),
+  :global(.stack-wrap .history) {
     border: 0;
     border-radius: 0;
     box-shadow: none;
@@ -456,47 +444,43 @@ const pastContexts = contexts.filter((ctx) => ctx.status === 'past');
     overflow: visible;
   }
 
-  :global(.stack-wrap[data-stack-variant='v2'] .row-summary),
-  :global(.stack-wrap[data-stack-variant='v2'] .history-summary) {
+  :global(.stack-wrap .row-summary),
+  :global(.stack-wrap .history-summary) {
     padding-left: 0;
     padding-right: 0;
     border-bottom: 0;
   }
 
-  :global(
-    .stack-wrap[data-stack-variant='v2'] .row[data-open='true'] .row-summary
-  ),
-  :global(
-    .stack-wrap[data-stack-variant='v2'] details.history[open] .history-summary
-  ) {
+  :global(.stack-wrap .row[data-open='true'] .row-summary),
+  :global(.stack-wrap details.history[open] .history-summary) {
     background: transparent;
   }
 
-  :global(.stack-wrap[data-stack-variant='v2'] .row-title),
-  :global(.stack-wrap[data-stack-variant='v2'] .history-title) {
+  :global(.stack-wrap .row-title),
+  :global(.stack-wrap .history-title) {
     font-weight: 600;
   }
 
-  :global(.stack-wrap[data-stack-variant='v2'] .row-right),
-  :global(.stack-wrap[data-stack-variant='v2'] .history-right) {
+  :global(.stack-wrap .row-right),
+  :global(.stack-wrap .history-right) {
     color: color-mix(in srgb, var(--ink) 55%, var(--ink-soft));
   }
 
-  :global(.stack-wrap[data-stack-variant='v2'] .row-body),
-  :global(.stack-wrap[data-stack-variant='v2'] .history-body) {
+  :global(.stack-wrap .row-body),
+  :global(.stack-wrap .history-body) {
     padding-left: 0;
     padding-right: 0;
     padding-top: 0.7rem;
     padding-bottom: 1rem;
   }
 
-  :global(.stack-wrap[data-stack-variant='v2'] .group) {
+  :global(.stack-wrap .group) {
     border: 0;
     padding: 0;
     background: transparent;
   }
 
-  :global(.stack-wrap[data-stack-variant='v2'] .group-title) {
+  :global(.stack-wrap .group-title) {
     margin-bottom: 0.3rem;
     color: color-mix(in srgb, var(--ink) 55%, var(--ink-soft));
   }

@@ -23,9 +23,6 @@ const { tech, showToggle = true, foldRole = 'detail' } = Astro.props;
   <div class="tech-fold__content" aria-label="Tech badges">
     <StackTechList tech={tech} />
   </div>
-  <span class="tech-fold__more" data-tech-more hidden>
-    <span data-tech-more-count>0</span> more
-  </span>
 
   {
     showToggle && (
@@ -49,205 +46,11 @@ const { tech, showToggle = true, foldRole = 'detail' } = Astro.props;
       </button>
     )
   }
-
-  <script is:inline>
-    // One-time wiring for all tech folds on the page.
-    function initTechFolds() {
-      const prefersReduced = window.matchMedia?.(
-        '(prefers-reduced-motion: reduce)'
-      )?.matches;
-
-      const folds = Array.from(document.querySelectorAll('[data-tech-fold]'));
-      for (const fold of folds) {
-        if (fold.dataset.bound === 'true') continue;
-        fold.dataset.bound = 'true';
-
-        const content = fold.querySelector('.tech-fold__content');
-        const btn = fold.querySelector('.tech-fold__toggle');
-        if (!content) continue;
-
-        /** @type {Map<string, DOMRect>} */
-        let before = new Map();
-        let frameToken = 0;
-
-        const captureRects = () => {
-          const m = new Map();
-          const badges = content.querySelectorAll('[data-tech-key]');
-          for (const el of badges) {
-            const k = el.getAttribute('data-tech-key') || '';
-            if (!k) continue;
-            m.set(k, el.getBoundingClientRect());
-          }
-          return m;
-        };
-
-        const animateFlip = (after) => {
-          if (prefersReduced) return;
-          const badges = content.querySelectorAll('[data-tech-key]');
-          for (const el of badges) {
-            el.getAnimations().forEach((animation) => animation.cancel());
-            const k = el.getAttribute('data-tech-key') || '';
-            if (!k) continue;
-            const a = after.get(k);
-            const b = before.get(k);
-            if (!a || !b) continue;
-            const dx = b.left - a.left;
-            const dy = b.top - a.top;
-            if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) continue;
-            el.animate(
-              [
-                { transform: `translate(${dx}px, ${dy}px)` },
-                { transform: 'translate(0px, 0px)' },
-              ],
-              {
-                duration: 420,
-                easing: 'cubic-bezier(0.22, 0.61, 0.36, 1)',
-                fill: 'both',
-              }
-            );
-          }
-        };
-
-        const setOpen = (nextOpen) => {
-          fold.setAttribute('data-open', nextOpen ? 'true' : 'false');
-          if (btn)
-            btn.setAttribute('aria-expanded', nextOpen ? 'true' : 'false');
-        };
-
-        const updateCompactOverflow = () => {
-          const wrap = fold.closest('[data-tech-preview]');
-          const previewMode = wrap?.getAttribute('data-tech-preview') || 'wrap';
-          const isOpen = fold.getAttribute('data-open') === 'true';
-          const more = fold.querySelector('[data-tech-more]');
-          const moreCount = fold.querySelector('[data-tech-more-count]');
-          const groups = content.querySelector('.tech-list__groups');
-          if (!groups || !more || !moreCount) return;
-
-          const badges = Array.from(
-            content.querySelectorAll('[data-tech-key]')
-          );
-          for (const badge of badges) {
-            badge.removeAttribute('data-compact-hidden');
-          }
-
-          if (isOpen || previewMode !== 'truncate') {
-            more.hidden = true;
-            return;
-          }
-
-          const max = content.clientWidth;
-          if (!max || badges.length === 0) {
-            more.hidden = true;
-            return;
-          }
-
-          const styles = window.getComputedStyle(groups);
-          const gapRaw = styles.columnGap || styles.gap || '0';
-          const gap = Number.parseFloat(gapRaw) || 0;
-
-          const fitCountWithReserve = (reserve) => {
-            let used = 0;
-            let fit = 0;
-            for (const badge of badges) {
-              const w = badge.getBoundingClientRect().width;
-              const needed = fit === 0 ? w : w + gap;
-              if (used + needed <= max - reserve) {
-                used += needed;
-                fit += 1;
-              } else {
-                break;
-              }
-            }
-            return fit;
-          };
-
-          let fit = fitCountWithReserve(0);
-          let hidden = Math.max(0, badges.length - fit);
-          if (hidden === 0) {
-            more.hidden = true;
-            return;
-          }
-
-          more.hidden = false;
-          moreCount.textContent = `+${hidden}`;
-          let reserve = more.getBoundingClientRect().width + gap;
-          fit = fitCountWithReserve(reserve);
-          hidden = Math.max(0, badges.length - fit);
-          if (hidden <= 0) {
-            more.hidden = true;
-            return;
-          }
-          moreCount.textContent = `+${hidden}`;
-          reserve = more.getBoundingClientRect().width + gap;
-          fit = fitCountWithReserve(reserve);
-          hidden = Math.max(0, badges.length - fit);
-          moreCount.textContent = `+${hidden}`;
-
-          for (let i = fit; i < badges.length; i += 1) {
-            badges[i].setAttribute('data-compact-hidden', 'true');
-          }
-        };
-
-        const setOpenAnimated = (nextOpen, animate = true) => {
-          const isOpen = fold.getAttribute('data-open') === 'true';
-          if (isOpen === nextOpen) return;
-          const token = ++frameToken;
-
-          if (animate) before = captureRects();
-          setOpen(nextOpen);
-          updateCompactOverflow();
-          if (!animate) return;
-
-          // Two rAFs to ensure layout has fully settled after toggling styles.
-          requestAnimationFrame(() =>
-            requestAnimationFrame(() => {
-              if (token !== frameToken) return;
-              const after = captureRects();
-              animateFlip(after);
-              updateCompactOverflow();
-            })
-          );
-        };
-
-        const toggle = () => {
-          const nextOpen = fold.getAttribute('data-open') !== 'true';
-          setOpenAnimated(nextOpen, true);
-        };
-
-        if (btn) btn.addEventListener('click', toggle);
-
-        // Make the whole tag area clickable only when the fold has its own toggle.
-        if (btn) {
-          content.addEventListener('click', (e) => {
-            const target = e.target;
-            if (!target || typeof target.closest !== 'function') return;
-            if (target.closest('a')) return;
-            if (target.closest('button')) return;
-            toggle();
-          });
-        }
-
-        // Allow a parent component (like the stack row) to drive the fold state.
-        // @ts-expect-error - runtime-only hook added for parent-controlled fold state.
-        fold.__setOpen = (nextOpen, animate = true) => {
-          if (prefersReduced) animate = false;
-          setOpenAnimated(Boolean(nextOpen), Boolean(animate));
-        };
-
-        const onPreviewModeChange = () => updateCompactOverflow();
-        window.addEventListener(
-          'stack:tech-preview-changed',
-          onPreviewModeChange
-        );
-        window.addEventListener('resize', onPreviewModeChange);
-
-        updateCompactOverflow();
-      }
-    }
-
-    initTechFolds();
-  </script>
 </section>
+
+<script>
+  import '../scripts/stack/stack-tech-fold';
+</script>
 
 <style>
   .tech-fold {
@@ -292,13 +95,6 @@ const { tech, showToggle = true, foldRole = 'detail' } = Astro.props;
     min-width: 0;
   }
 
-  .tech-fold__more {
-    font-family: var(--font-mono);
-    font-size: 0.73rem;
-    color: var(--ink-soft);
-    white-space: nowrap;
-  }
-
   /* Compact mode: flatten group boxes into a single row of badges. */
   .tech-fold[data-open='false'] :global(.tech-list__groups) {
     display: flex;
@@ -307,31 +103,6 @@ const { tech, showToggle = true, foldRole = 'detail' } = Astro.props;
     overflow: visible;
     padding-bottom: 0;
     mask-image: none;
-  }
-
-  .tech-fold[data-open='false'] :global([data-compact-hidden='true']) {
-    display: none !important;
-  }
-
-  :global(
-      .stack-wrap[data-tech-preview='truncate'] .tech-fold[data-open='false']
-    )
-    :global(.tech-list__groups) {
-    flex-wrap: nowrap;
-    overflow: hidden;
-    position: relative;
-    mask-image: linear-gradient(
-      to right,
-      #000 0,
-      #000 calc(100% - 1.75rem),
-      transparent 100%
-    );
-    -webkit-mask-image: linear-gradient(
-      to right,
-      #000 0,
-      #000 calc(100% - 1.75rem),
-      transparent 100%
-    );
   }
 
   .tech-fold[data-open='false'] :global(.group) {
@@ -352,22 +123,10 @@ const { tech, showToggle = true, foldRole = 'detail' } = Astro.props;
     gap: 0.65rem;
   }
 
-  :global(.stack-wrap[data-tech-preview='wrap'] .tech-fold__more) {
-    display: none;
-  }
-
-  .tech-fold[data-open='true'] .tech-fold__more {
-    display: none;
-  }
-
   @media (max-width: 720px) {
     .tech-fold {
       grid-template-columns: minmax(0, 1fr) auto;
       gap: 0.35rem;
-    }
-
-    .tech-fold__more {
-      justify-self: end;
     }
 
     .tech-fold__toggle {
